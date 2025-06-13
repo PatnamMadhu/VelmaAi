@@ -1,5 +1,92 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
+// Technical terms correction mapping
+const technicalTermsMap: { [key: string]: string } = {
+  'brio': 'Brillio',
+  'cap gemini': 'Capgemini',
+  'capsule mini': 'Capgemini',
+  'java script': 'JavaScript',
+  'my sequel': 'MySQL',
+  'node j s': 'Node.js',
+  'react j s': 'React.js',
+  'angular j s': 'Angular.js',
+  'type script': 'TypeScript',
+  'post man': 'Postman',
+  'git hub': 'GitHub',
+  'jenkins': 'Jenkins',
+  'docker': 'Docker',
+  'kubernetes': 'Kubernetes',
+  'spring boot': 'Spring Boot',
+  'rest api': 'REST API',
+  'graphql': 'GraphQL',
+  'mongodb': 'MongoDB',
+  'postgresql': 'PostgreSQL',
+  'aws': 'AWS',
+  'azure': 'Azure',
+  'gcp': 'GCP',
+  'ci cd': 'CI/CD',
+  'devops': 'DevOps',
+  'microservices': 'Microservices',
+  'solid principle': 'SOLID principles',
+  'solid principles': 'SOLID principles',
+  'agile': 'Agile',
+  'scrum': 'Scrum',
+  'kanban': 'Kanban',
+  'jira': 'Jira',
+  'intellij': 'IntelliJ',
+  'visual studio code': 'Visual Studio Code',
+  'vs code': 'VS Code',
+  'eclipse': 'Eclipse',
+  'maven': 'Maven',
+  'gradle': 'Gradle',
+  'junit': 'JUnit',
+  'mockito': 'Mockito',
+  'hdfc': 'HDFC',
+  'api': 'API',
+  'html': 'HTML',
+  'css': 'CSS',
+  'bootstrap': 'Bootstrap',
+  'angular': 'Angular',
+  'react': 'React',
+  'vue': 'Vue',
+  'npm': 'NPM',
+  'yarn': 'Yarn',
+  'webpack': 'Webpack',
+  'babel': 'Babel',
+  'eslint': 'ESLint',
+  'prettier': 'Prettier'
+};
+
+// Find the best alternative from speech recognition results
+function findBestAlternative(alternatives: string[], defaultTranscript: string): string {
+  for (const alt of alternatives) {
+    const normalizedAlt = alt.toLowerCase().trim();
+    if (technicalTermsMap[normalizedAlt]) {
+      return technicalTermsMap[normalizedAlt];
+    }
+  }
+  return defaultTranscript;
+}
+
+// Correct technical terms in the transcript
+function correctTechnicalTerms(transcript: string): string {
+  let corrected = transcript;
+  
+  // Check for exact matches first
+  const lowerTranscript = transcript.toLowerCase().trim();
+  if (technicalTermsMap[lowerTranscript]) {
+    return technicalTermsMap[lowerTranscript];
+  }
+  
+  // Check for partial matches and word boundaries
+  Object.entries(technicalTermsMap).forEach(([incorrect, correct]) => {
+    const regex = new RegExp(`\\b${incorrect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    corrected = corrected.replace(regex, correct);
+  });
+  
+  return corrected;
+}
+
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
@@ -75,12 +162,15 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
-        const transcript = result[0].transcript;
+        let bestTranscript = result[0].transcript;
+        
+        // Use the best transcript from available results
+        bestTranscript = result[0].transcript;
 
         if (result.isFinal) {
-          finalTranscript += transcript;
+          finalTranscript += correctTechnicalTerms(bestTranscript);
         } else {
-          interimTranscript += transcript;
+          interimTranscript += correctTechnicalTerms(bestTranscript);
         }
       }
 
