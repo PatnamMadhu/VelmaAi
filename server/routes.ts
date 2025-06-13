@@ -157,31 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/context - Save context
-  app.post('/api/context', async (req, res) => {
-    try {
-      const validatedData = contextRequestSchema.parse(req.body);
-      const { sessionId, content } = validatedData;
-      
-      await memoryService.updateContext(sessionId, content);
-      
-      res.json({ 
-        success: true,
-        message: 'Context saved successfully' 
-      });
-    } catch (error) {
-      console.error('Context save error:', error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          error: 'Invalid request data', 
-          details: error.errors 
-        });
-      }
-      res.status(500).json({ 
-        error: 'Failed to save context' 
-      });
-    }
-  });
+
 
   // GET /api/context/:sessionId - Get context
   app.get('/api/context/:sessionId', async (req, res) => {
