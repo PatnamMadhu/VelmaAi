@@ -139,3 +139,15 @@ textarea::-webkit-scrollbar {
   min-width: 0;
   flex: 1;
 }
+
+/* Desktop app dragging support */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.drag-region button,
+.drag-region input,
+.drag-region select,
+.drag-region textarea {
+  -webkit-app-region: no-drag;
+}
