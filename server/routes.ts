@@ -5,6 +5,7 @@ import { z } from "zod";
 import { storage } from "./storage";
 import { groqService } from "./services/groqService";
 import { memoryService } from "./services/memory";
+import { agentService } from "./services/agentService";
 import { chatRequestSchema, contextRequestSchema } from "@shared/schema";
 
 interface WebSocketClient extends WebSocket {
@@ -100,11 +101,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           messageId: Date.now().toString(),
         }));
 
-        const messages = groqService.buildMessages(message, context, recentMessages);
-        console.log('Messages being sent to Groq:', JSON.stringify(messages, null, 2));
+        console.log('Processing message with agentic AI...');
         
         let fullResponse = '';
-        const aiResponse = await groqService.generateResponse(messages, (chunk) => {
+        const aiResponse = await agentService.generateAgenticResponse(message, context, recentMessages, (chunk) => {
           fullResponse += chunk;
           if (wsClient.readyState === WebSocket.OPEN) {
             wsClient.send(JSON.stringify({
@@ -132,8 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } else {
         // Fallback to regular response if no WebSocket
-        const messages = groqService.buildMessages(message, context, recentMessages);
-        const aiResponse = await groqService.generateResponse(messages);
+        const aiResponse = await agentService.generateAgenticResponse(message, context, recentMessages);
         
         await memoryService.addMessage(sessionId, aiResponse, 'assistant');
         
@@ -227,6 +226,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Session clear error:', error);
       res.status(500).json({ 
         error: 'Failed to clear session' 
+      });
+    }
+  });
+
+  // GET /api/suggestions/:sessionId - Get agentic follow-up suggestions
+  app.get('/api/suggestions/:sessionId', async (req, res) => {
+    try {
+      const sessionId = req.params.sessionId;
+      const messages = await storage.getRecentMessages(sessionId, 6);
+      const { context } = await memoryService.getConversationContext(sessionId);
+      
+      if (messages.length === 0) {
+        return res.json({ suggestions: [] });
+      }
+      
+      const suggestions = await agentService.generateFollowUpSuggestions(messages, context);
+      
+      res.json({ 
+        suggestions,
+        count: suggestions.length
+      });
+    } catch (error) {
+      console.error('Suggestions generation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate suggestions' 
       });
     }
   });
