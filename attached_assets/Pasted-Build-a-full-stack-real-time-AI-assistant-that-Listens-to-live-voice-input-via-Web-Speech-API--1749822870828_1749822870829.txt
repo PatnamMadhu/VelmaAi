@@ -1,0 +1,54 @@
+Build a full-stack real-time AI assistant that:
+•	Listens to live voice input via Web Speech API
+•	Accepts manual text context input (like resume or notes)
+•	Uses context + conversation to generate instant, streaming text answers
+•	Maintains short-term memory (last 5–10 exchanges)
+•	Uses Groq API (Mixtral) or Together AI (Mistral) for fast LLM responses
+•	Uses WebSockets or SSE to stream responses to frontend in real time
+🧠 Must-Have Functional Requirements:
+Frontend (React + TailwindCSS):
+•	ContextInput.jsx: paste context text
+•	MicInput.jsx: mic button for capturing voice using Web Speech API
+•	ChatWindow.jsx: shows transcribed questions + AI answers in real time
+•	WebSocket or EventSource connection to stream responses
+Backend (Node.js + Express):
+•	POST /context: store user context
+•	POST /chat: receive question, generate AI answer using context + memory
+•	GET /stream: send AI reply via WebSocket or SSE
+•	In-memory storage of context and short-term chat history
+📁 Project Structure (Must Follow):
+ai-interview-assistant/
+├── client/             # React Frontend
+│   ├── public/
+│   └── src/
+│       ├── App.jsx
+│       ├── index.js
+│       ├── components/
+│           ├── MicInput.jsx
+│           ├── ContextInput.jsx
+│           └── ChatWindow.jsx
+├── server/             # Node.js Backend
+│   ├── index.js
+│   ├── routes/
+│       ├── context.js
+│       ├── chat.js
+│   ├── services/
+│       ├── groqService.js
+│       └── memory.js
+├── .env.example
+├── README.md
+└── package.json        # With workspaces if monorepo
+⚙️ Local & Replit Compatibility:
+•	Include README.md with clear local run instructions:
+1.	npm install (root)
+2.	cd client && npm install && npm run dev
+3.	cd server && npm install && npm run dev
+•	Use .env.example file for local API keys (GROQ_API_KEY, etc.)
+•	Set CORS and ports properly (client on 5173, server on 5000 or similar)
+🛡️ Security:
+•	Do not store context or history permanently
+•	Keep data in-memory per session
+•	Secure API keys using .env and never expose to frontend
+🎯 Performance:
+•	Target <1 sec total latency
+•	Stream answers using res.write() or WebSocket chunking
