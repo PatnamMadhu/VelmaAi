@@ -41,7 +41,7 @@ export class GroqService {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "mixtral-8x7b-32768",
+          model: "llama-3.1-70b-versatile",
           messages,
           temperature: 0.7,
           max_tokens: 1024,
@@ -50,8 +50,12 @@ export class GroqService {
       });
 
       if (!onStream) {
+        if (!response.ok) {
+          throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+        }
         const data: GroqResponse = await response.json();
-        return data.choices[0]?.message?.content || "I apologize, but I couldn't generate a response.";
+        console.log('Groq response:', JSON.stringify(data, null, 2));
+        return data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response.";
       }
 
       // Handle streaming response
