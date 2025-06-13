@@ -16,9 +16,9 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm transition-all duration-300 transform hover:scale-110 ${
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm ${
           isActive 
-            ? 'bg-green-500 hover:bg-green-600 animate-pulse' 
+            ? 'bg-green-500 hover:bg-green-600' 
             : 'bg-primary hover:bg-blue-700'
         }`}
       >
