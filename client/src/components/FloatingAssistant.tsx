@@ -262,7 +262,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'hidden' }}>
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
               {/* Current Question */}
               {currentQuestion && (
                 <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
@@ -282,8 +282,8 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                       <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
                     </div>
-                    <div className="flex-1">
-                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">
+                    <div className="flex-1 min-w-0 chat-container">
+                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed chat-response-text">
                         {currentAnswer}
                       </div>
                       
