@@ -206,7 +206,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden animate-in fade-in duration-300">
+      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-2 sm:p-3 cursor-move">
           <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               <span className="font-semibold text-sm sm:text-base">VelariAI</span>
               {isStreaming && (
                 <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"></div>
                   <span className="text-xs hidden sm:inline">Responding...</span>
                 </div>
               )}
@@ -290,11 +290,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       {/* Streaming indicator */}
                       {isStreaming && (
                         <div className="flex items-center space-x-2 mt-2">
-                          <div className="flex space-x-1">
-                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce"></div>
-                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                          </div>
+                          <div className="text-xs text-gray-500">Typing...</div>
                         </div>
                       )}
                     </div>
@@ -344,17 +340,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   size={window.innerWidth < 768 ? "default" : "lg"}
                   onClick={handleVoiceToggle}
                   disabled={!isSupported || isProcessing}
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full relative transform transition-all duration-200 hover:scale-105 ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${
                     isListening 
                       ? 'bg-red-500 hover:bg-red-600' 
                       : 'bg-primary hover:bg-blue-700'
                   }`}
                 >
                   {isListening ? (
-                    <>
-                      <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>
-                    </>
+                    <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
                     <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
@@ -378,7 +371,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 
                 {isListening && (
                   <div className="text-xs text-orange-600">
-                    <div className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
+                    <div className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full mr-2"></div>
                     Listening...
                   </div>
                 )}

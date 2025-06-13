@@ -28,7 +28,7 @@ export default function SimpleChat() {
           
           <Button
             onClick={() => setIsAssistantOpen(true)}
-            className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-blue-800 shadow-lg transform hover:scale-105 transition-all duration-200 text-xs sm:text-sm px-3 sm:px-4"
+            className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-blue-800 shadow-lg text-xs sm:text-sm px-3 sm:px-4"
           >
             <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">Start Assistant</span>
@@ -45,7 +45,6 @@ export default function SimpleChat() {
             <div className="relative">
               <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-r from-primary to-blue-600 rounded-full flex items-center justify-center mx-auto shadow-2xl">
                 <Bot className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-blue-600 animate-ping opacity-20"></div>
               </div>
             </div>
             
@@ -66,7 +65,7 @@ export default function SimpleChat() {
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12 px-4">
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
               <CardHeader className="text-center pb-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
@@ -80,7 +79,7 @@ export default function SimpleChat() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
               <CardHeader className="text-center pb-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
@@ -94,7 +93,7 @@ export default function SimpleChat() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm">
+            <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
               <CardHeader className="text-center pb-2">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
@@ -114,7 +113,7 @@ export default function SimpleChat() {
             <Button
               size="lg"
               onClick={() => setIsAssistantOpen(true)}
-              className="text-base sm:text-lg px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-blue-800 shadow-xl transform hover:scale-105 transition-all duration-200"
+              className="text-base sm:text-lg px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-blue-800 shadow-xl"
             >
               <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
               Launch VelariAI Assistant
