@@ -144,13 +144,12 @@ Example:
 - Interviewing for: Lead Developer position
 - Focus areas: System design, team leadership"
           rows={12}
-          maxLength={2000}
           className="resize-none"
         />
         
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-500">
-            {context.length}/2000 characters
+            {context.length} characters
           </span>
           
           <div className="flex items-center space-x-2">
