@@ -1,125 +1,98 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Bot, Brain } from 'lucide-react';
-import { ContextInput } from '@/components/ContextInput';
-import { MicInput } from '@/components/MicInput';
-import { ChatWindow } from '@/components/ChatWindow';
-import { useQuery } from '@tanstack/react-query';
-import { queryClient } from '@/lib/queryClient';
+import { useState } from 'react';
+import { Bot } from 'lucide-react';
+import { FloatingAssistant } from '@/components/FloatingAssistant';
+import { FloatingMicButton } from '@/components/FloatingMicButton';
 
 export default function Home() {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-  const [isConnected, setIsConnected] = useState(true); // Assume connected initially
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
-  // Fetch memory status
-  const { data: memoryStatus, refetch: refetchMemory } = useQuery({
-    queryKey: [`/api/memory/${sessionId}`],
-    refetchInterval: 10000, // Refresh every 10 seconds
-  });
-
-  const handleContextSaved = () => {
-    refetchMemory();
+  const handleToggleAssistant = () => {
+    setIsAssistantOpen(!isAssistantOpen);
   };
-
-  const handleMessageSent = () => {
-    // Refetch memory status and invalidate messages
-    refetchMemory();
-    queryClient.invalidateQueries({ queryKey: [`/api/messages/${sessionId}`] });
-  };
-
-  const memoryUsage = (memoryStatus && typeof memoryStatus === 'object' && 'memoryUsage' in memoryStatus) ? (memoryStatus as any).memoryUsage : 0;
-  const messageCount = (memoryStatus && typeof memoryStatus === 'object' && 'messageCount' in memoryStatus) ? (memoryStatus as any).messageCount : 0;
-  const maxMessages = (memoryStatus && typeof memoryStatus === 'object' && 'maxMessages' in memoryStatus) ? (memoryStatus as any).maxMessages : 10;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Landing Content */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Hero Section */}
+          <div className="mb-12">
+            <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Bot className="w-10 h-10 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">VelariAI</h1>
-              <p className="text-sm text-gray-500">Real-time AI Assistant</p>
-            </div>
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-6">
+              VelariAI
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
+              Your real-time AI assistant for interview preparation
+            </p>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+              Practice with voice input, get instant AI responses, and prepare for your next interview with personalized context and unlimited conversation memory.
+            </p>
           </div>
-        </div>
 
-        {/* Context Input */}
-        <div className="p-6 flex-1">
-          <ContextInput 
-            sessionId={sessionId} 
-            onContextSaved={handleContextSaved}
-          />
-
-          {/* Context Status */}
-          {(memoryStatus && typeof memoryStatus === 'object' && 'hasContext' in memoryStatus && (memoryStatus as any).hasContext) && (
-            <Card className="mt-4 border-green-200 bg-green-50">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-green-600">Context Loaded</span>
-                </div>
-                <p className="text-xs text-gray-600 mt-1">AI will use this information in responses</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Memory Status */}
-          <Card className="mt-4 bg-gray-50">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                <Brain className="inline w-4 h-4 mr-2" />
-                Memory Status
-              </h3>
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Conversation History</span>
-                  <span className="font-medium">{messageCount}/{maxMessages} exchanges</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div 
-                    className="bg-primary h-1.5 rounded-full transition-all duration-300" 
-                    style={{ width: `${memoryUsage}%` }}
-                  ></div>
-                </div>
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <h3 className="text-lg font-semibold mb-2">Voice Input</h3>
+              <p className="text-gray-600 text-sm">Practice speaking naturally with real-time voice recognition</p>
+            </div>
 
-        {/* Connection Status */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-            <span className="text-xs text-gray-600">
-              {isConnected ? 'Connected to AI service' : 'Connection lost'}
-            </span>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Instant Responses</h3>
+              <p className="text-gray-600 text-sm">Get immediate AI feedback with streaming responses</p>
+            </div>
+
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Smart Context</h3>
+              <p className="text-gray-600 text-sm">Add your resume and get personalized interview practice</p>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <p className="text-gray-600 mb-6">
+              Ready to start practicing? Click the floating assistant to begin.
+            </p>
+            <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
+              <span>✓ No signup required</span>
+              <span>✓ Free to use</span>
+              <span>✓ Privacy focused</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Window */}
-        <ChatWindow 
-          sessionId={sessionId} 
-          onNewMessage={handleMessageSent}
+      {/* Floating Mic Button */}
+      <FloatingMicButton 
+        onClick={handleToggleAssistant}
+        isActive={isAssistantOpen}
+      />
+
+      {/* Floating Assistant */}
+      {isAssistantOpen && (
+        <FloatingAssistant
+          isOpen={isAssistantOpen}
+          onClose={() => setIsAssistantOpen(false)}
+          sessionId={sessionId}
         />
-
-        {/* Input Controls */}
-        <div className="p-6 border-t border-gray-200 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <MicInput 
-              sessionId={sessionId}
-              onMessageSent={handleMessageSent}
-            />
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
