@@ -120,18 +120,18 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center space-x-2">
-          <FileText className="w-5 h-5" />
+      <CardHeader className="pb-2 sm:pb-3">
+        <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
+          <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Background Context</span>
           <Badge variant="outline" className="text-xs">Optional</Badge>
         </CardTitle>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs sm:text-sm text-gray-600">
           Add your resume, job description, or any relevant background information to get personalized responses.
         </p>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4">
         <Textarea
           value={context}
           onChange={(e) => setContext(e.target.value)}
@@ -143,8 +143,8 @@ Example:
 - Skills: React, Node.js, Python, AWS
 - Interviewing for: Lead Developer position
 - Focus areas: System design, team leadership"
-          rows={12}
-          className="resize-none"
+          rows={8}
+          className="resize-none text-xs sm:text-sm"
         />
         
         <div className="flex items-center justify-between">
@@ -157,6 +157,8 @@ Example:
               variant="outline"
               onClick={() => setIsExpanded(false)}
               disabled={isSaving}
+              size="sm"
+              className="text-xs"
             >
               Cancel
             </Button>
@@ -164,14 +166,15 @@ Example:
             <Button
               onClick={handleSaveContext}
               disabled={isSaving || !context.trim()}
-              className="min-w-[100px]"
+              size="sm"
+              className="min-w-[80px] text-xs"
             >
               {isSaving ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Context
+                  <Save className="w-3 h-3 mr-1 sm:mr-2" />
+                  Save
                 </>
               )}
             </Button>
