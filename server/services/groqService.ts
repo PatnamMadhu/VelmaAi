@@ -120,22 +120,42 @@ export class GroqService {
   }
 
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
-    const responses = [
-      "Sure! Let me walk you through this. From my experience, I'd approach this by focusing on three key aspects...",
-      "Great question! I've dealt with this in previous projects. Here's how I typically handle it...",
-      "Absolutely! This is something I'm passionate about. Let me explain it in a practical way...",
+    const responseStarters = [
+      "Sure! In my experience with that technology,",
+      "Absolutely! I've worked with this extensively.",
+      "Great question! From my projects, here's how I approached it:",
+      "Yes, I've dealt with this challenge before.",
     ];
 
-    const baseResponse = responses[Math.floor(Math.random() * responses.length)];
-    const fullResponse = `${baseResponse}\n\nFirst, I always start by understanding the core requirements. Then I consider the trade-offs - like performance versus maintainability. Finally, I implement with testing in mind because that's saved me countless hours in production.\n\nIn my last role, I applied this exact approach when we had to refactor a legacy system, and it helped us deliver on time while improving code quality by 40%.`;
+    const starter = responseStarters[Math.floor(Math.random() * responseStarters.length)];
+    
+    // Generate natural, interview-style response
+    const fullResponse = `${starter} I typically break this down into a few key areas:
+
+• **Implementation approach:** I start by understanding the specific requirements and constraints
+• **Best practices:** I follow industry standards and leverage proven patterns  
+• **Real-world considerations:** I always think about scalability, maintainability, and performance
+
+For example, in one of my recent projects, I had to solve a similar challenge. I implemented a solution that improved efficiency by about 30% while keeping the code clean and well-documented.
+
+The key is balancing technical excellence with practical delivery timelines.`;
 
     if (onStream) {
-      // Fast streaming simulation for sub-1s delivery
-      const words = fullResponse.split(" ");
-      for (let i = 0; i < words.length; i++) {
-        const chunk = (i === 0 ? words[i] : " " + words[i]);
-        onStream(chunk);
-        await new Promise(resolve => setTimeout(resolve, 15)); // Faster streaming
+      // Stream naturally with slight delays between sentences
+      const sentences = fullResponse.split('. ');
+      for (let i = 0; i < sentences.length; i++) {
+        const sentence = i === sentences.length - 1 ? sentences[i] : sentences[i] + '. ';
+        const words = sentence.split(' ');
+        
+        for (let j = 0; j < words.length; j++) {
+          const chunk = (j === 0 && i === 0) ? words[j] : ' ' + words[j];
+          onStream(chunk);
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        
+        if (i < sentences.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100)); // Pause between sentences
+        }
       }
     }
 
@@ -145,20 +165,29 @@ export class GroqService {
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // Enhanced system prompt with context awareness
-    let systemPrompt = `You are an AI assistant helping with interview preparation. You must respond as if you are the person described in the background context provided below.`;
+    // Enhanced system prompt for natural, interview-style responses
+    let systemPrompt = `You are VelariAI, a real-time AI assistant helping users sound confident and clear during technical conversations. Always respond as if you're an experienced software engineer answering in a real-world context. Keep your tone natural, your structure clear, and your examples relevant. Avoid textbook-style explanations unless the user asks for definitions. Prioritize clarity, real-world application, and confidence.
+
+RESPONSE STYLE GUIDELINES:
+- Sound like a real software engineer explaining their experience
+- Use short paragraphs and bullet points for clarity
+- Avoid robotic or overly academic definitions
+- Include practical examples but keep them concise
+- Limit responses to what can be spoken confidently in 60-90 seconds
+- Start with confidence: "Sure!", "Absolutely!", "In my experience..."
+- Focus on real-world application over theory`;
     
     if (context) {
-      systemPrompt += `\n\nYour Background and Identity:\n${context}\n\nIMPORTANT INSTRUCTIONS:
+      systemPrompt += `\n\nYour Professional Identity:\n${context}\n\nCRITICAL INSTRUCTIONS:
 - You ARE this person - speak in first person using "I" statements
-- Reference your actual experience, skills, and background from the context above
-- Use specific details from your resume/background when answering
+- Reference your actual experience, skills, and projects from the context above
+- Use specific details from your background when answering
 - Never make up information not in your background
-- If asked for contact details, say you prefer to be contacted through the platform
-- Keep responses conversational, confident, and under 150 words
-- Use practical examples from your actual experience listed above`;
+- Structure responses with clear, confident flow
+- Share practical examples from your listed experience
+- Keep responses conversational and interview-appropriate (60-90 seconds when spoken)`;
     } else {
-      systemPrompt += `\n\nYou are helping with general interview preparation. Respond conversationally as a confident candidate would speak. Keep answers under 150 words with practical examples and "I" statements. Focus on real experience, not theory.`;
+      systemPrompt += `\n\nYou are helping with general interview preparation. Respond as a confident software engineer would speak in an interview. Use practical examples and "I" statements. Structure answers clearly with short paragraphs. Avoid theoretical explanations unless specifically requested.`;
     }
 
     messages.push({
