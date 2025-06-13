@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rnd } from 'react-rnd';
-import { Bot, Mic, MicOff, Send, X, Minus, Settings, Zap } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, X, Minus, Settings } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,14 +66,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'V') {
         e.preventDefault();
-        if (isOpen) {
-          onClose();
-        }
+        onClose();
       }
     };
 
-    document.addEventListener('keydown', handleKeydown);
-    return () => document.removeEventListener('keydown', handleKeydown);
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeydown);
+      return () => document.removeEventListener('keydown', handleKeydown);
+    }
   }, [isOpen, onClose]);
 
   useEffect(() => {
@@ -198,13 +198,12 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
       dragHandleClassName="drag-handle"
       disableDragging={false}
       enableResizing={!isMinimized}
-      className={`floating-assistant ${isMinimized ? 'minimized' : ''}`}
+      className="floating-assistant"
       style={{
         zIndex: 1000,
-        animation: isOpen ? 'fadeIn 0.3s ease-out' : 'fadeOut 0.3s ease-in',
       }}
     >
-      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden">
+      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden animate-in fade-in duration-300">
         {/* Header */}
         <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-3 cursor-move">
           <div className="flex items-center justify-between">
@@ -251,7 +250,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <div className="p-4 border-b border-gray-200 bg-gray-50 max-h-60 overflow-y-auto">
                 <ContextInput 
                   sessionId={sessionId} 
                   onContextSaved={() => setShowContextInput(false)} 
@@ -260,7 +259,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto">
+            <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto min-h-0">
               {/* Current Question */}
               {currentQuestion && (
                 <div className="bg-primary/10 rounded-lg p-3">
@@ -414,32 +413,3 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
   return createPortal(content, document.body);
 }
-
-// CSS animations (add to index.css)
-const styles = `
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-
-.floating-assistant .drag-handle:hover {
-  cursor: move;
-}
-`;
