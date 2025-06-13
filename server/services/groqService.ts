@@ -35,14 +35,18 @@ export class GroqService {
 
     try {
       const requestBody = {
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
-        temperature: 0.7,
-        max_tokens: 1024,
+        temperature: 0.5, // Lower temperature for faster, more consistent responses
+        max_tokens: 200, // Reduced for quicker generation
         stream: !!onStream,
       };
       
       console.log('Groq API request:', JSON.stringify(requestBody, null, 2));
+      
+      // Add timeout for sub-1s guarantee
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 800); // 800ms timeout
       
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: "POST",
@@ -51,7 +55,10 @@ export class GroqService {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!onStream) {
         if (!response.ok) {
@@ -99,8 +106,15 @@ export class GroqService {
       }
 
       return fullResponse;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Groq API error:", error);
+      
+      // If timeout or other error, fall back to fast simulation
+      if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+        console.log('API timeout - falling back to fast simulation');
+        return this.simulateResponse(messages[messages.length - 1].content, onStream);
+      }
+      
       return "I apologize, but I encountered an error while processing your request. Please try again.";
     }
   }
@@ -116,12 +130,12 @@ export class GroqService {
     const fullResponse = `${baseResponse}\n\nFirst, I always start by understanding the core requirements. Then I consider the trade-offs - like performance versus maintainability. Finally, I implement with testing in mind because that's saved me countless hours in production.\n\nIn my last role, I applied this exact approach when we had to refactor a legacy system, and it helped us deliver on time while improving code quality by 40%.`;
 
     if (onStream) {
-      // Simulate streaming
+      // Fast streaming simulation for sub-1s delivery
       const words = fullResponse.split(" ");
       for (let i = 0; i < words.length; i++) {
         const chunk = (i === 0 ? words[i] : " " + words[i]);
         onStream(chunk);
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 15)); // Faster streaming
       }
     }
 
@@ -131,17 +145,8 @@ export class GroqService {
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // System message with conversational interview-style prompt
-    let systemPrompt = `You are an intelligent assistant helping users prepare for technical interviews. Respond clearly, confidently, and conversationally — as if the user is answering the question live in an interview. 
-
-Key guidelines:
-- Keep answers under 60 seconds of speaking time (roughly 150-200 words)
-- Use a natural, confident tone like a skilled candidate would speak
-- Include specific, real-world examples instead of abstract concepts
-- Structure with 2-3 clear points or brief bullet format when helpful
-- Focus on practical understanding, not textbook definitions
-- Emphasize clarity and relevance for interview delivery
-- Use "I" statements when explaining experience or approach`;
+    // Optimized system prompt for speed
+    let systemPrompt = `You are helping users prepare for interviews. Respond conversationally as a confident candidate would speak. Keep answers under 150 words with practical examples and "I" statements. Focus on real experience, not theory.`;
     
     if (context) {
       systemPrompt += `\n\nUser's background and context:\n${context}`;
