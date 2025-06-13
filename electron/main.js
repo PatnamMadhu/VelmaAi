@@ -17,7 +17,7 @@ function createWindow() {
       enableRemoteModule: false,
       preload: path.join(__dirname, 'preload.js')
     },
-    icon: path.join(__dirname, 'assets', 'icon.png'), // Add app icon
+    icon: path.join(__dirname, 'assets', 'icon.svg'), // Add app icon
     titleBarStyle: 'default',
     show: false, // Don't show until ready
   });
@@ -139,4 +139,38 @@ ipcMain.handle('app-version', () => {
 
 ipcMain.handle('platform', () => {
   return process.platform;
+});
+
+// Window control handlers
+ipcMain.handle('window-minimize', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+
+ipcMain.handle('window-maximize', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle('window-close', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
+
+ipcMain.handle('open-external', async (event, url) => {
+  await shell.openExternal(url);
+});
+
+ipcMain.handle('show-notification', (event, { title, body }) => {
+  const { Notification } = require('electron');
+  if (Notification.isSupported()) {
+    new Notification({ title, body }).show();
+  }
 });

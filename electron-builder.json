@@ -1,0 +1,53 @@
+{
+  "appId": "com.velari.ai",
+  "productName": "VelariAI",
+  "directories": {
+    "output": "dist-electron"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "electron/assets",
+      "to": "assets"
+    }
+  ],
+  "mac": {
+    "category": "public.app-category.productivity",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "electron/assets/icon.icns"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "electron/assets/icon.ico"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "electron/assets/icon.png",
+    "category": "Office"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+}
