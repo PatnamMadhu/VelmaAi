@@ -36,11 +36,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
   
   const [windowState, setWindowState] = useState<WindowState>(() => {
     const saved = localStorage.getItem('velari-window-state');
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    
     return saved ? JSON.parse(saved) : {
-      width: 400,
-      height: 500,
-      x: window.innerWidth - 420,
-      y: 100
+      width: isMobile ? Math.min(350, window.innerWidth - 20) : isTablet ? 380 : 400,
+      height: isMobile ? Math.min(450, window.innerHeight - 100) : 500,
+      x: isMobile ? 10 : window.innerWidth - (isTablet ? 400 : 420),
+      y: isMobile ? 50 : 100
     };
   });
 
@@ -191,10 +194,10 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           });
         }
       }}
-      minWidth={300}
-      minHeight={isMinimized ? 60 : 400}
-      maxWidth={800}
-      maxHeight={isMinimized ? 60 : 800}
+      minWidth={window.innerWidth < 768 ? 280 : 300}
+      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 350 : 400}
+      maxWidth={window.innerWidth < 768 ? window.innerWidth - 10 : 800}
+      maxHeight={isMinimized ? 60 : window.innerHeight - 50}
       dragHandleClassName="drag-handle"
       disableDragging={false}
       enableResizing={!isMinimized}
@@ -205,42 +208,42 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     >
       <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden animate-in fade-in duration-300">
         {/* Header */}
-        <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-3 cursor-move">
+        <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-2 sm:p-3 cursor-move">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Bot className="w-5 h-5" />
-              <span className="font-semibold">VelariAI</span>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-semibold text-sm sm:text-base">VelariAI</span>
               {isStreaming && (
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs">Responding...</span>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs hidden sm:inline">Responding...</span>
                 </div>
               )}
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-0.5 sm:space-x-1">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setShowContextInput(!showContextInput)}
-                className="text-white hover:bg-white/20 w-8 h-8 p-0"
+                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="text-white hover:bg-white/20 w-8 h-8 p-0"
+                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
               >
-                <Minus className="w-4 h-4" />
+                <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={onClose}
-                className="text-white hover:bg-white/20 w-8 h-8 p-0"
+                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>
@@ -250,7 +253,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-4 border-b border-gray-200 bg-gray-50 max-h-60 overflow-y-auto">
+              <div className="p-2 sm:p-4 border-b border-gray-200 bg-gray-50 max-h-48 sm:max-h-60 overflow-y-auto">
                 <ContextInput 
                   sessionId={sessionId} 
                   onContextSaved={() => setShowContextInput(false)} 
@@ -259,28 +262,28 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-4 space-y-4 overflow-y-auto min-h-0">
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 overflow-y-auto min-h-0">
               {/* Current Question */}
               {currentQuestion && (
-                <div className="bg-primary/10 rounded-lg p-3">
+                <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
                   <div className="flex items-start space-x-2">
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                       <span className="text-xs font-semibold text-primary">Q</span>
                     </div>
-                    <p className="text-sm text-gray-800 leading-relaxed">{currentQuestion}</p>
+                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">{currentQuestion}</p>
                   </div>
                 </div>
               )}
 
               {/* Current Answer */}
               {(currentAnswer || isStreaming) && (
-                <div className="bg-green-50 rounded-lg p-3">
+                <div className="bg-green-50 rounded-lg p-2 sm:p-3">
                   <div className="flex items-start space-x-2">
-                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Bot className="w-3 h-3 text-green-600" />
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
                         {currentAnswer}
                       </div>
                       
@@ -288,9 +291,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       {isStreaming && (
                         <div className="flex items-center space-x-2 mt-2">
                           <div className="flex space-x-1">
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce"></div>
+                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                           </div>
                         </div>
                       )}
@@ -301,32 +304,32 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
               {/* Welcome Message */}
               {!currentQuestion && !currentAnswer && (
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bot className="w-6 h-6 text-primary" />
+                <div className="text-center py-4 sm:py-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
-                  <p className="text-sm text-gray-600">Ask me anything or use voice input!</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
                 </div>
               )}
             </div>
 
             {/* Voice Transcription Preview */}
             {transcript && (
-              <div className="px-4 pb-2">
+              <div className="px-2 sm:px-4 pb-2">
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <span className="text-xs text-orange-600 font-medium">Transcribed:</span>
-                      <p className="text-sm text-orange-800 mt-1">{transcript}</p>
+                      <p className="text-xs sm:text-sm text-orange-800 mt-1">{transcript}</p>
                     </div>
                     <Button 
                       size="sm"
                       onClick={handleTranscriptSend}
                       disabled={isProcessing}
-                      className="ml-2 h-8"
+                      className="ml-2 h-6 w-6 sm:h-8 sm:w-8 p-0"
                     >
-                      <Send className="w-3 h-3" />
+                      <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     </Button>
                   </div>
                 </div>
@@ -334,14 +337,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Input Section */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
+            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
               {/* Voice Button */}
               <div className="flex justify-center">
                 <Button
-                  size="lg"
+                  size={window.innerWidth < 768 ? "default" : "lg"}
                   onClick={handleVoiceToggle}
                   disabled={!isSupported || isProcessing}
-                  className={`w-12 h-12 rounded-full relative transform transition-all duration-200 hover:scale-105 ${
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full relative transform transition-all duration-200 hover:scale-105 ${
                     isListening 
                       ? 'bg-red-500 hover:bg-red-600' 
                       : 'bg-primary hover:bg-blue-700'
@@ -349,11 +352,11 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 >
                   {isListening ? (
                     <>
-                      <MicOff className="w-5 h-5" />
+                      <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
                       <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>
                     </>
                   ) : (
-                    <Mic className="w-5 h-5" />
+                    <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </Button>
               </div>
@@ -369,38 +372,39 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 
                 {isSupported && !isListening && !transcript && (
                   <div className="text-xs text-gray-600">
-                    Click microphone to speak
+                    Tap microphone to speak
                   </div>
                 )}
                 
                 {isListening && (
                   <div className="text-xs text-orange-600">
-                    <div className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
+                    <div className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full animate-pulse mr-2"></div>
                     Listening...
                   </div>
                 )}
               </div>
 
               {/* Text Input */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 <Input 
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your question..."
                   disabled={isProcessing}
-                  className="text-sm"
+                  className="text-xs sm:text-sm"
                 />
                 
                 <Button 
                   onClick={() => handleSendMessage(textInput)}
                   disabled={!textInput.trim() || isProcessing}
                   size="sm"
+                  className="h-8 w-8 sm:h-9 sm:w-9 p-0"
                 >
                   {isProcessing ? (
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 border-b-2 border-white"></div>
                   ) : (
-                    <Send className="w-3 h-3" />
+                    <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   )}
                 </Button>
               </div>
