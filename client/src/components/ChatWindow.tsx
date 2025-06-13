@@ -30,8 +30,11 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
   });
 
   useEffect(() => {
-    if (messageHistory?.messages) {
-      setMessages(messageHistory.messages.map((msg: Message) => ({ ...msg })));
+    if (messageHistory && typeof messageHistory === 'object' && messageHistory !== null && 'messages' in messageHistory) {
+      const data = messageHistory as { messages: Message[] };
+      if (Array.isArray(data.messages)) {
+        setMessages(data.messages.map((msg: Message) => ({ ...msg })));
+      }
     }
   }, [messageHistory]);
 
@@ -92,7 +95,8 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const formatTime = (timestamp: Date) => {
+  const formatTime = (timestamp: Date | null) => {
+    if (!timestamp) return '';
     return new Date(timestamp).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
@@ -175,7 +179,7 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                       {!message.isStreaming && (
                         <Badge variant="secondary" className="text-xs">
                           <Zap className="w-2 h-2 mr-1" />
-                          <0.8s
+                          &lt;0.8s
                         </Badge>
                       )}
                     </div>
