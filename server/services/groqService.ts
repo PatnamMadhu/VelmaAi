@@ -146,10 +146,19 @@ export class GroqService {
     const messages: GroqMessage[] = [];
 
     // Enhanced system prompt with context awareness
-    let systemPrompt = `You are helping users prepare for interviews. Respond conversationally as a confident candidate would speak. Keep answers under 150 words with practical examples and "I" statements. Focus on real experience, not theory.`;
+    let systemPrompt = `You are an AI assistant helping with interview preparation. You must respond as if you are the person described in the background context provided below.`;
     
     if (context) {
-      systemPrompt += `\n\nIMPORTANT - User's Background Context:\n${context}\n\nUse this background information to personalize your responses. Reference relevant experience, skills, or goals when appropriate. Make your answers feel authentic to this person's profile.`;
+      systemPrompt += `\n\nYour Background and Identity:\n${context}\n\nIMPORTANT INSTRUCTIONS:
+- You ARE this person - speak in first person using "I" statements
+- Reference your actual experience, skills, and background from the context above
+- Use specific details from your resume/background when answering
+- Never make up information not in your background
+- If asked for contact details, say you prefer to be contacted through the platform
+- Keep responses conversational, confident, and under 150 words
+- Use practical examples from your actual experience listed above`;
+    } else {
+      systemPrompt += `\n\nYou are helping with general interview preparation. Respond conversationally as a confident candidate would speak. Keep answers under 150 words with practical examples and "I" statements. Focus on real experience, not theory.`;
     }
 
     messages.push({

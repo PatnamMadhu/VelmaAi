@@ -83,6 +83,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get conversation context
       const { context, recentMessages } = await memoryService.getConversationContext(sessionId);
+      
+      // Debug logging
+      console.log(`Context for session ${sessionId}:`, context ? `"${context.substring(0, 100)}..."` : 'No context found');
 
       // Save user message
       await memoryService.addMessage(sessionId, message, 'user', isVoice);
@@ -98,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
 
         const messages = groqService.buildMessages(message, context, recentMessages);
+        console.log('Messages being sent to Groq:', JSON.stringify(messages, null, 2));
         
         let fullResponse = '';
         const aiResponse = await groqService.generateResponse(messages, (chunk) => {
