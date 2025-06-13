@@ -107,13 +107,13 @@ export class GroqService {
 
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     const responses = [
-      "Based on your background and experience, I can help you prepare for this topic. Let me break down the key points you should focus on...",
-      "That's an excellent question! Given your context as a Senior Software Engineer, here are the specific areas you should highlight...",
-      "I understand you're preparing for an interview. Let me provide you with a structured response that aligns with your experience...",
+      "Sure! Let me walk you through this. From my experience, I'd approach this by focusing on three key aspects...",
+      "Great question! I've dealt with this in previous projects. Here's how I typically handle it...",
+      "Absolutely! This is something I'm passionate about. Let me explain it in a practical way...",
     ];
 
     const baseResponse = responses[Math.floor(Math.random() * responses.length)];
-    const fullResponse = `${baseResponse}\n\nKey considerations:\n• Technical depth and practical examples\n• Leadership and collaboration experiences\n• Problem-solving approach and methodology\n• Impact and results from your previous work\n\nWould you like me to elaborate on any of these areas?`;
+    const fullResponse = `${baseResponse}\n\nFirst, I always start by understanding the core requirements. Then I consider the trade-offs - like performance versus maintainability. Finally, I implement with testing in mind because that's saved me countless hours in production.\n\nIn my last role, I applied this exact approach when we had to refactor a legacy system, and it helped us deliver on time while improving code quality by 40%.`;
 
     if (onStream) {
       // Simulate streaming
@@ -131,8 +131,17 @@ export class GroqService {
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // System message with context
-    let systemPrompt = "You are an AI interview assistant helping users prepare for job interviews. Provide specific, actionable advice based on the user's background and context.";
+    // System message with conversational interview-style prompt
+    let systemPrompt = `You are an intelligent assistant helping users prepare for technical interviews. Respond clearly, confidently, and conversationally — as if the user is answering the question live in an interview. 
+
+Key guidelines:
+- Keep answers under 60 seconds of speaking time (roughly 150-200 words)
+- Use a natural, confident tone like a skilled candidate would speak
+- Include specific, real-world examples instead of abstract concepts
+- Structure with 2-3 clear points or brief bullet format when helpful
+- Focus on practical understanding, not textbook definitions
+- Emphasize clarity and relevance for interview delivery
+- Use "I" statements when explaining experience or approach`;
     
     if (context) {
       systemPrompt += `\n\nUser's background and context:\n${context}`;
