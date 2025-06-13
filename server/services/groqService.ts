@@ -145,11 +145,11 @@ export class GroqService {
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // Optimized system prompt for speed
+    // Enhanced system prompt with context awareness
     let systemPrompt = `You are helping users prepare for interviews. Respond conversationally as a confident candidate would speak. Keep answers under 150 words with practical examples and "I" statements. Focus on real experience, not theory.`;
     
     if (context) {
-      systemPrompt += `\n\nUser's background and context:\n${context}`;
+      systemPrompt += `\n\nIMPORTANT - User's Background Context:\n${context}\n\nUse this background information to personalize your responses. Reference relevant experience, skills, or goals when appropriate. Make your answers feel authentic to this person's profile.`;
     }
 
     messages.push({
@@ -157,8 +157,8 @@ export class GroqService {
       content: systemPrompt,
     });
 
-    // Add recent conversation history
-    for (const msg of recentMessages.slice(-8)) { // Keep last 8 messages for context
+    // Add recent conversation history for continuity
+    for (const msg of recentMessages.slice(-6)) { // Keep last 6 messages for context
       messages.push({
         role: msg.role as "user" | "assistant",
         content: msg.content,

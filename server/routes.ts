@@ -173,6 +173,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET /api/memory/:sessionId - Check context and memory status
+  app.get('/api/memory/:sessionId', async (req, res) => {
+    try {
+      const { context, recentMessages } = await memoryService.getConversationContext(req.params.sessionId);
+      
+      res.json({ 
+        hasContext: !!context,
+        messageCount: recentMessages.length,
+        contextPreview: context ? context.substring(0, 100) + '...' : null
+      });
+    } catch (error) {
+      console.error('Error checking memory:', error);
+      res.status(500).json({ error: 'Failed to check memory' });
+    }
+  });
+
   // GET /api/messages/:sessionId - Get conversation history
   app.get('/api/messages/:sessionId', async (req, res) => {
     try {

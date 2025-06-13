@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bot, Mic, MicOff, Send, X, Zap } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, X, Zap, Settings } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { ContextInput } from '@/components/ContextInput';
 
 export default function SimpleChat() {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
@@ -15,6 +16,7 @@ export default function SimpleChat() {
   const [textInput, setTextInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showContextInput, setShowContextInput] = useState(false);
   const { toast } = useToast();
   
   const {
@@ -129,16 +131,39 @@ export default function SimpleChat() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-center space-x-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Bot className="w-6 h-6 text-white" />
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <Bot className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">VelariAI</h1>
+              <p className="text-sm text-gray-500">Real-time AI Assistant</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">VelariAI</h1>
-            <p className="text-sm text-gray-500">Real-time AI Assistant</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowContextInput(!showContextInput)}
+            className="flex items-center space-x-2"
+          >
+            <Settings className="w-4 h-4" />
+            <span>Context</span>
+          </Button>
         </div>
       </div>
+
+      {/* Context Input Section */}
+      {showContextInput && (
+        <div className="bg-white border-b border-gray-200 p-6">
+          <div className="max-w-4xl mx-auto">
+            <ContextInput 
+              sessionId={sessionId} 
+              onContextSaved={() => setShowContextInput(false)} 
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6">
