@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rnd } from 'react-rnd';
-import { Bot, Mic, MicOff, Send, X, Minus, Settings } from 'lucide-react';
+import { Bot, Mic, MicOff, Send, X, Minus, Settings, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,12 +39,29 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
-    return saved ? JSON.parse(saved) : {
-      width: isMobile ? Math.min(340, window.innerWidth - 20) : isTablet ? 370 : 380,
-      height: isMobile ? Math.min(420, window.innerHeight - 120) : 480,
-      x: isMobile ? 10 : window.innerWidth - (isTablet ? 390 : 400),
-      y: isMobile ? 60 : 100
+    // Default positioning to be more centered and accessible
+    const defaultState = {
+      width: isMobile ? Math.min(340, window.innerWidth - 20) : isTablet ? 370 : 400,
+      height: isMobile ? Math.min(450, window.innerHeight - 100) : 520,
+      x: isMobile ? 10 : Math.max(20, window.innerWidth - (isTablet ? 390 : 420)),
+      y: isMobile ? 80 : Math.max(20, (window.innerHeight - 520) / 2)
     };
+
+    if (saved) {
+      try {
+        const parsedState = JSON.parse(saved);
+        // Validate the saved state to ensure it's within viewport
+        if (parsedState.x >= 0 && parsedState.y >= 0 && 
+            parsedState.x + parsedState.width <= window.innerWidth &&
+            parsedState.y + parsedState.height <= window.innerHeight) {
+          return parsedState;
+        }
+      } catch (e) {
+        console.warn('Invalid saved window state, using default');
+      }
+    }
+    
+    return defaultState;
   });
 
   const {
@@ -63,6 +80,27 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
   useEffect(() => {
     localStorage.setItem('velari-window-state', JSON.stringify(windowState));
   }, [windowState]);
+
+  // Reset window position if it's off-screen
+  useEffect(() => {
+    if (isOpen) {
+      const { x, y, width, height } = windowState;
+      const isOffScreen = x < 0 || y < 0 || 
+                         x + width > window.innerWidth || 
+                         y + height > window.innerHeight;
+      
+      if (isOffScreen) {
+        const centerX = Math.max(20, (window.innerWidth - width) / 2);
+        const centerY = Math.max(20, (window.innerHeight - height) / 2);
+        
+        setWindowState(prev => ({
+          ...prev,
+          x: centerX,
+          y: centerY
+        }));
+      }
+    }
+  }, [isOpen, windowState]);
 
   // Keyboard shortcut
   useEffect(() => {
@@ -215,7 +253,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               <span className="font-semibold text-sm sm:text-base">VelariAI</span>
               {isStreaming && (
                 <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-xs hidden sm:inline">Responding...</span>
                 </div>
               )}
@@ -225,15 +263,17 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 size="sm"
                 variant="ghost"
                 onClick={() => setShowContextInput(!showContextInput)}
-                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
+                className={`text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0 ${showContextInput ? 'bg-white/20' : ''}`}
+                title={showContextInput ? "Hide Context" : "Add Background Context"}
               >
-                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
+                title="Minimize"
               >
                 <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
@@ -242,21 +282,58 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 variant="ghost"
                 onClick={onClose}
                 className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
+                title="Close"
               >
                 <X className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>
+          
+          {/* Context Toggle Bar */}
+          {!isMinimized && (
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs opacity-75">Context:</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowContextInput(!showContextInput)}
+                  className="text-white hover:bg-white/20 text-xs h-5 px-2"
+                >
+                  {showContextInput ? 'Hide' : 'Add Resume/Notes'}
+                </Button>
+              </div>
+              <div className="text-xs opacity-75">
+                Drag to move • Resize corners
+              </div>
+            </div>
+          )}
         </div>
 
         {!isMinimized && (
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-2 border-b border-gray-200 bg-gray-50/30" style={{ overflowY: 'hidden' }}>
+              <div className="p-3 border-b border-gray-200 bg-gray-50/50" style={{ overflowY: 'hidden' }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Background Context</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowContextInput(false)}
+                    className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
                 <ContextInput 
                   sessionId={sessionId} 
-                  onContextSaved={() => setShowContextInput(false)} 
+                  onContextSaved={() => {
+                    toast({
+                      title: "Context Updated",
+                      description: "Background information saved successfully.",
+                    });
+                  }} 
                 />
               </div>
             )}
