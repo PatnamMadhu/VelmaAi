@@ -80,8 +80,10 @@ The desktop app uses a hybrid approach:
 │   ├── main.js          # Electron main process
 │   ├── preload.js       # Security bridge
 │   └── assets/          # Desktop icons and resources
+│       └── icon.svg     # Application icon
 ├── client/src/components/
 │   └── DesktopWrapper.tsx  # Desktop-specific UI enhancements
+├── desktop-start.js     # Node.js desktop launcher
 ├── start-desktop.sh     # Linux/macOS startup script
 ├── start-desktop.bat    # Windows startup script
 └── electron-builder.json  # Build configuration

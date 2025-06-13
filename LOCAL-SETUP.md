@@ -193,12 +193,32 @@ npx electron .
 
 ```
 velari-ai/
-├── client/          # Frontend (React + TypeScript)
-├── server/          # Backend (Node.js + Express)
-├── electron/        # Desktop app configuration
-├── shared/          # Shared types and schemas
-├── .env            # Your environment variables
-└── package.json    # Project configuration
+├── client/                 # Frontend (React + TypeScript)
+│   ├── src/
+│   │   ├── components/     # React components
+│   │   │   └── ui/         # UI component library
+│   │   ├── pages/          # Application pages
+│   │   ├── hooks/          # Custom React hooks
+│   │   └── lib/            # Utilities and configuration
+│   └── index.html          # Main HTML file
+├── server/                 # Backend (Node.js + Express)
+│   ├── services/           # Business logic services
+│   ├── index.ts            # Main server file
+│   ├── routes.ts           # API routes
+│   ├── storage.ts          # Data storage interface
+│   └── vite.ts             # Vite development server
+├── electron/               # Desktop app configuration
+│   ├── main.js             # Electron main process
+│   ├── preload.js          # Security bridge
+│   └── assets/             # Desktop app assets
+├── shared/                 # Shared types and schemas
+│   └── schema.ts           # Database schemas and types
+├── desktop-start.js        # Desktop app launcher script
+├── start-desktop.sh        # Linux/macOS startup script
+├── start-desktop.bat       # Windows startup script
+├── electron-builder.json   # Electron build configuration
+├── .env                    # Your environment variables
+└── package.json            # Project configuration
 ```
 
 #### Making Changes

@@ -130,6 +130,7 @@ velari-ai/
 ├── client/                 # Frontend React application
 │   ├── src/
 │   │   ├── components/     # React components
+│   │   │   └── ui/         # UI component library
 │   │   ├── pages/          # Application pages
 │   │   ├── hooks/          # Custom React hooks
 │   │   └── lib/            # Utilities and configuration
@@ -138,14 +139,22 @@ velari-ai/
 │   ├── services/           # Business logic services
 │   ├── index.ts            # Main server file
 │   ├── routes.ts           # API routes
-│   └── storage.ts          # Data storage interface
+│   ├── storage.ts          # Data storage interface
+│   └── vite.ts             # Vite development server
 ├── electron/               # Desktop app configuration
 │   ├── main.js             # Electron main process
 │   ├── preload.js          # Security bridge
 │   └── assets/             # Desktop app assets
 ├── shared/                 # Shared types and schemas
+│   └── schema.ts           # Database schemas and types
+├── components.json         # UI components configuration
+├── desktop-start.js        # Desktop app launcher script
 ├── start-desktop.sh        # Linux/macOS startup script
 ├── start-desktop.bat       # Windows startup script
+├── electron-builder.json   # Electron build configuration
+├── drizzle.config.ts       # Database configuration
+├── tailwind.config.ts      # Tailwind CSS configuration
+├── vite.config.ts          # Vite build configuration
 └── package.json            # Dependencies and scripts
 ```
 
