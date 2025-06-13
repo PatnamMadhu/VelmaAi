@@ -20,14 +20,16 @@ export function AgenticSuggestions({ sessionId, onSuggestionClick, hasMessages }
     refetchInterval: 10000, // Refresh every 10 seconds for proactive suggestions
   });
 
+  const suggestions = (suggestionsData as any)?.suggestions || [];
+
   useEffect(() => {
-    if (suggestionsData?.suggestions?.length > 0) {
+    if (suggestions.length > 0) {
       setIsVisible(true);
       // Auto-hide after 30 seconds to avoid clutter
       const timer = setTimeout(() => setIsVisible(false), 30000);
       return () => clearTimeout(timer);
     }
-  }, [suggestionsData]);
+  }, [suggestions]);
 
   useEffect(() => {
     if (hasMessages) {
@@ -37,7 +39,7 @@ export function AgenticSuggestions({ sessionId, onSuggestionClick, hasMessages }
     }
   }, [hasMessages, refetch]);
 
-  if (!isVisible || !suggestionsData?.suggestions?.length) {
+  if (!isVisible || !suggestions.length) {
     return null;
   }
 
@@ -60,7 +62,7 @@ export function AgenticSuggestions({ sessionId, onSuggestionClick, hasMessages }
             </p>
             
             <div className="space-y-2">
-              {suggestionsData.suggestions.map((suggestion: string, index: number) => (
+              {suggestions.map((suggestion: string, index: number) => (
                 <Button
                   key={index}
                   variant="ghost"

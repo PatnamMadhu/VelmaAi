@@ -10,6 +10,7 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { ContextInput } from '@/components/ContextInput';
+import { AgenticSuggestions } from '@/components/AgenticSuggestions';
 
 interface FloatingAssistantProps {
   isOpen: boolean;
@@ -408,6 +409,18 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 </div>
               </div>
             )}
+
+            {/* Agentic Suggestions */}
+            <div className="px-2 sm:px-4 pb-2">
+              <AgenticSuggestions
+                sessionId={sessionId}
+                hasMessages={!!(currentQuestion || currentAnswer)}
+                onSuggestionClick={(suggestion) => {
+                  setTextInput(suggestion);
+                  handleSendMessage(suggestion);
+                }}
+              />
+            </div>
 
             {/* Input Section */}
             <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
