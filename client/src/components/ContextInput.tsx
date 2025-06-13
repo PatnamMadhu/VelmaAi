@@ -65,123 +65,109 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
 
   if (!isExpanded && !hasContext) {
     return (
-      <Card className="border-dashed border-2 border-gray-300 hover:border-primary/50 transition-colors cursor-pointer" 
-            onClick={() => setIsExpanded(true)}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center space-x-3 text-gray-500 hover:text-primary transition-colors">
-            <Plus className="w-5 h-5" />
-            <span className="text-sm font-medium">Add Background Context</span>
-          </div>
-          <p className="text-xs text-gray-400 text-center mt-2">
-            Upload your resume, job description, or interview notes
-          </p>
-        </CardContent>
-      </Card>
+      <div 
+        className="border-dashed border border-gray-300 hover:border-primary/50 transition-colors cursor-pointer rounded-md p-3 bg-gray-50/50" 
+        onClick={() => setIsExpanded(true)}
+      >
+        <div className="flex items-center justify-center space-x-2 text-gray-500 hover:text-primary transition-colors">
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="text-xs sm:text-sm font-medium">Add Background Context</span>
+        </div>
+        <p className="text-xs text-gray-400 text-center mt-1">
+          Resume, job description, or notes
+        </p>
+      </div>
     );
   }
 
   if (!isExpanded && hasContext) {
     return (
-      <Card className="border-green-200 bg-green-50">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <FileText className="w-5 h-5 text-green-600" />
-              <div>
-                <span className="text-sm font-medium text-green-800">Context Active</span>
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {context.length} characters
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsExpanded(true)}
-                className="text-xs"
-              >
-                Edit
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleClearContext}
-                className="text-xs text-red-600 hover:text-red-700"
-              >
-                <X className="w-3 h-3" />
-              </Button>
+      <div className="border border-green-200 bg-green-50 rounded-md p-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+            <div>
+              <span className="text-xs sm:text-sm font-medium text-green-800">Context Active</span>
+              <Badge variant="secondary" className="ml-1 text-xs px-1">
+                {context.length} chars
+              </Badge>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center space-x-1">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsExpanded(true)}
+              className="text-xs h-6 px-2"
+            >
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleClearContext}
+              className="text-xs h-6 px-1 text-red-600 hover:text-red-700"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2 sm:pb-3">
-        <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
-          <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span>Background Context</span>
-          <Badge variant="outline" className="text-xs">Optional</Badge>
-        </CardTitle>
-        <p className="text-xs sm:text-sm text-gray-600">
-          Add your resume, job description, or any relevant background information to get personalized responses.
-        </p>
-      </CardHeader>
-      
-      <CardContent className="space-y-3 sm:space-y-4">
-        <Textarea
-          value={context}
-          onChange={(e) => setContext(e.target.value)}
-          placeholder="Paste your resume, job description, or interview preparation notes here...
-
-Example:
-- Current role: Senior Software Engineer at TechCorp
-- Experience: 5 years in full-stack development
-- Skills: React, Node.js, Python, AWS
-- Interviewing for: Lead Developer position
-- Focus areas: System design, team leadership"
-          rows={6}
-          className="resize-none text-xs sm:text-sm"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        />
-        
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-500">
-            {context.length} characters
-          </span>
-          
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsExpanded(false)}
-              disabled={isSaving}
-              size="sm"
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-            
-            <Button
-              onClick={handleSaveContext}
-              disabled={isSaving || !context.trim()}
-              size="sm"
-              className="min-w-[80px] text-xs"
-            >
-              {isSaving ? (
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <Save className="w-3 h-3 mr-1 sm:mr-2" />
-                  Save
-                </>
-              )}
-            </Button>
-          </div>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="text-xs sm:text-sm font-medium">Background Context</span>
+          <Badge variant="outline" className="text-xs px-1">Optional</Badge>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <Textarea
+        value={context}
+        onChange={(e) => setContext(e.target.value)}
+        placeholder="Add your resume, job description, or interview notes..."
+        rows={4}
+        className="resize-none text-xs border border-gray-300 rounded-md p-2"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      />
+      
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500">
+          {context.length} chars
+        </span>
+        
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="outline"
+            onClick={() => setIsExpanded(false)}
+            disabled={isSaving}
+            size="sm"
+            className="text-xs h-6 px-2"
+          >
+            Cancel
+          </Button>
+          
+          <Button
+            onClick={handleSaveContext}
+            disabled={isSaving || !context.trim()}
+            size="sm"
+            className="text-xs h-6 px-2"
+          >
+            {isSaving ? (
+              <div className="w-2 h-2 border border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <>
+                <Save className="w-2 h-2 mr-1" />
+                Save
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

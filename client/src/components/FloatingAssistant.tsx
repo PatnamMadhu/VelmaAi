@@ -253,7 +253,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-2 sm:p-3 border-b border-gray-200 bg-gray-50 max-h-36 sm:max-h-40" style={{ overflowY: 'hidden' }}>
+              <div className="p-2 border-b border-gray-200 bg-gray-50/30" style={{ overflowY: 'hidden' }}>
                 <ContextInput 
                   sessionId={sessionId} 
                   onContextSaved={() => setShowContextInput(false)} 
