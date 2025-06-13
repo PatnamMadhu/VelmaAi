@@ -38,15 +38,15 @@ export class GroqService {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
         temperature: 0.5, // Lower temperature for faster, more consistent responses
-        max_tokens: 200, // Reduced for quicker generation
+        max_tokens: 800, // Increased for complete responses
         stream: !!onStream,
       };
       
       console.log('Groq API request:', JSON.stringify(requestBody, null, 2));
       
-      // Add timeout for sub-1s guarantee
+      // Add timeout for response completion
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 800); // 800ms timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout for complete responses
       
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: "POST",
