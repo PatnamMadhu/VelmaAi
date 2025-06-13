@@ -34,24 +34,31 @@ export class GroqService {
     }
 
     try {
+      const requestBody = {
+        model: "llama-3.3-70b-versatile",
+        messages,
+        temperature: 0.7,
+        max_tokens: 1024,
+        stream: !!onStream,
+      };
+      
+      console.log('Groq API request:', JSON.stringify(requestBody, null, 2));
+      
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${this.apiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          model: "llama-3.1-70b-versatile",
-          messages,
-          temperature: 0.7,
-          max_tokens: 1024,
-          stream: !!onStream,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!onStream) {
         if (!response.ok) {
-          throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          console.error(`Groq API error: ${response.status} ${response.statusText}`);
+          console.error('Error response body:', errorText);
+          throw new Error(`Groq API error: ${response.status} ${response.statusText} - ${errorText}`);
         }
         const data: GroqResponse = await response.json();
         console.log('Groq response:', JSON.stringify(data, null, 2));
