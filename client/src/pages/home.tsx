@@ -27,9 +27,9 @@ export default function Home() {
     queryClient.invalidateQueries({ queryKey: [`/api/messages/${sessionId}`] });
   };
 
-  const memoryUsage = memoryStatus?.memoryUsage || 0;
-  const messageCount = memoryStatus?.messageCount || 0;
-  const maxMessages = memoryStatus?.maxMessages || 10;
+  const memoryUsage = (memoryStatus && typeof memoryStatus === 'object' && 'memoryUsage' in memoryStatus) ? (memoryStatus as any).memoryUsage : 0;
+  const messageCount = (memoryStatus && typeof memoryStatus === 'object' && 'messageCount' in memoryStatus) ? (memoryStatus as any).messageCount : 0;
+  const maxMessages = (memoryStatus && typeof memoryStatus === 'object' && 'maxMessages' in memoryStatus) ? (memoryStatus as any).maxMessages : 10;
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -42,8 +42,8 @@ export default function Home() {
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">AI Assistant</h1>
-              <p className="text-sm text-gray-500">Interview Helper</p>
+              <h1 className="text-xl font-semibold text-gray-900">VelariAI</h1>
+              <p className="text-sm text-gray-500">Real-time AI Assistant</p>
             </div>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function Home() {
           />
 
           {/* Context Status */}
-          {memoryStatus?.hasContext && (
+          {(memoryStatus && typeof memoryStatus === 'object' && 'hasContext' in memoryStatus && (memoryStatus as any).hasContext) && (
             <Card className="mt-4 border-green-200 bg-green-50">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">

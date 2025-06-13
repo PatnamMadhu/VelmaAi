@@ -111,8 +111,8 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">AI Interview Assistant</h2>
-          <p className="text-gray-600">Start by speaking or typing your question. I'll use your context to provide relevant responses.</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">VelariAI</h2>
+          <p className="text-gray-600">Start by speaking or typing your question. I'll use your context to provide intelligent, real-time responses.</p>
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                     <Mic className="w-3 h-3 text-gray-400" />
                   )}
                   <span className="text-xs text-gray-500">
-                    {formatTime(message.timestamp)}
+                    {message.timestamp ? formatTime(message.timestamp) : ''}
                   </span>
                 </div>
               </div>
@@ -174,7 +174,7 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                     
                     <div className="flex items-center mt-1 space-x-2">
                       <span className="text-xs text-gray-500">
-                        {formatTime(message.timestamp)}
+                        {message.timestamp ? formatTime(message.timestamp) : ''}
                       </span>
                       {!message.isStreaming && (
                         <Badge variant="secondary" className="text-xs">
