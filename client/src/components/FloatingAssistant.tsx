@@ -206,7 +206,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden">
+      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden floating-assistant">
         {/* Header */}
         <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-2 sm:p-3 cursor-move">
           <div className="flex items-center justify-between">
@@ -253,7 +253,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-2 sm:p-4 border-b border-gray-200 bg-gray-50 max-h-40 sm:max-h-48 overflow-hidden">
+              <div className="p-2 sm:p-3 border-b border-gray-200 bg-gray-50 max-h-36 sm:max-h-40" style={{ overflowY: 'hidden' }}>
                 <ContextInput 
                   sessionId={sessionId} 
                   onContextSaved={() => setShowContextInput(false)} 
@@ -262,7 +262,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 overflow-y-hidden min-h-0">
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'hidden' }}>
               {/* Current Question */}
               {currentQuestion && (
                 <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
@@ -270,7 +270,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                       <span className="text-xs font-semibold text-primary">Q</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">{currentQuestion}</p>
+                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">{currentQuestion}</p>
                   </div>
                 </div>
               )}
@@ -283,7 +283,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">
                         {currentAnswer}
                       </div>
                       
