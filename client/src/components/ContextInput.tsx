@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Save, X, Plus } from 'lucide-react';
+import { FileText, Save, X, Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -16,8 +16,38 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
   const [context, setContext] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasContext, setHasContext] = useState(false);
   const { toast } = useToast();
+
+  // Load existing context on mount
+  useEffect(() => {
+    const loadContext = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiRequest('GET', `/api/context/${sessionId}`);
+        const data = await response.json();
+        
+        if (data.context) {
+          setContext(data.context);
+          setHasContext(true);
+        } else {
+          setContext('');
+          setHasContext(false);
+        }
+      } catch (error) {
+        console.error('Failed to load context:', error);
+        setContext('');
+        setHasContext(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (sessionId) {
+      loadContext();
+    }
+  }, [sessionId]);
 
   const handleSaveContext = async () => {
     if (!context.trim()) {
@@ -57,11 +87,49 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
     }
   };
 
-  const handleClearContext = () => {
-    setContext('');
-    setHasContext(false);
-    setIsExpanded(false);
+  const handleClearContext = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Clear context on server
+      await apiRequest('POST', '/api/context', {
+        sessionId,
+        content: '',
+      });
+
+      setContext('');
+      setHasContext(false);
+      setIsExpanded(false);
+      
+      toast({
+        title: "Context Cleared",
+        description: "Background information has been removed.",
+      });
+
+      onContextSaved?.();
+    } catch (error) {
+      console.error('Failed to clear context:', error);
+      toast({
+        title: "Clear Failed",
+        description: "Failed to clear context. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="border-dashed border border-gray-300 rounded-md p-3 bg-gray-50/50">
+        <div className="flex items-center justify-center space-x-2 text-gray-500">
+          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+          <span className="text-xs sm:text-sm">Loading context...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isExpanded && !hasContext) {
     return (
@@ -106,9 +174,14 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
               size="sm"
               variant="ghost"
               onClick={handleClearContext}
+              disabled={isSaving}
               className="text-xs h-6 px-1 text-red-600 hover:text-red-700"
             >
-              <X className="w-3 h-3" />
+              {isSaving ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <X className="w-3 h-3" />
+              )}
             </Button>
           </div>
         </div>
@@ -158,7 +231,7 @@ export function ContextInput({ sessionId, onContextSaved }: ContextInputProps) {
             className="text-xs h-6 px-2"
           >
             {isSaving ? (
-              <div className="w-2 h-2 border border-white border-t-transparent rounded-full animate-spin"></div>
+              <Loader2 className="w-2 h-2 animate-spin" />
             ) : (
               <>
                 <Save className="w-2 h-2 mr-1" />

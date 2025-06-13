@@ -157,6 +157,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/context - Save context
+  app.post('/api/context', async (req, res) => {
+    try {
+      const validatedData = contextRequestSchema.parse(req.body);
+      const { sessionId, content } = validatedData;
+      
+      await memoryService.updateContext(sessionId, content);
+      
+      res.json({ 
+        success: true,
+        message: 'Context saved successfully' 
+      });
+    } catch (error) {
+      console.error('Context save error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: 'Invalid request data', 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ 
+        error: 'Failed to save context' 
+      });
+    }
+  });
+
+  // GET /api/context/:sessionId - Get context
+  app.get('/api/context/:sessionId', async (req, res) => {
+    try {
+      const sessionId = req.params.sessionId;
+      const { context } = await memoryService.getConversationContext(sessionId);
+      
+      res.json({ 
+        context: context || null,
+        hasContext: !!context
+      });
+    } catch (error) {
+      console.error('Context fetch error:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch context' 
+      });
+    }
+  });
+
   // GET /api/memory/:sessionId - Get memory status
   app.get('/api/memory/:sessionId', async (req, res) => {
     try {
@@ -168,28 +212,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         messageCount,
         memoryUsage: memoryService.getMemoryUsage(messageCount),
         maxMessages: 10,
+        contextPreview: context ? context.substring(0, 100) + '...' : null
       });
     } catch (error) {
       console.error('Memory status error:', error);
       res.status(500).json({ 
         error: 'Failed to get memory status' 
       });
-    }
-  });
-
-  // GET /api/memory/:sessionId - Check context and memory status
-  app.get('/api/memory/:sessionId', async (req, res) => {
-    try {
-      const { context, recentMessages } = await memoryService.getConversationContext(req.params.sessionId);
-      
-      res.json({ 
-        hasContext: !!context,
-        messageCount: recentMessages.length,
-        contextPreview: context ? context.substring(0, 100) + '...' : null
-      });
-    } catch (error) {
-      console.error('Error checking memory:', error);
-      res.status(500).json({ error: 'Failed to check memory' });
     }
   });
 
