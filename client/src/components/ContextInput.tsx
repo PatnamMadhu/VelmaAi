@@ -143,8 +143,9 @@ Example:
 - Skills: React, Node.js, Python, AWS
 - Interviewing for: Lead Developer position
 - Focus areas: System design, team leadership"
-          rows={8}
+          rows={6}
           className="resize-none text-xs sm:text-sm"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         />
         
         <div className="flex items-center justify-between">

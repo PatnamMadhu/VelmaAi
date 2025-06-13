@@ -40,10 +40,10 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
     return saved ? JSON.parse(saved) : {
-      width: isMobile ? Math.min(350, window.innerWidth - 20) : isTablet ? 380 : 400,
-      height: isMobile ? Math.min(450, window.innerHeight - 100) : 500,
-      x: isMobile ? 10 : window.innerWidth - (isTablet ? 400 : 420),
-      y: isMobile ? 50 : 100
+      width: isMobile ? Math.min(340, window.innerWidth - 20) : isTablet ? 370 : 380,
+      height: isMobile ? Math.min(420, window.innerHeight - 120) : 480,
+      x: isMobile ? 10 : window.innerWidth - (isTablet ? 390 : 400),
+      y: isMobile ? 60 : 100
     };
   });
 
@@ -253,7 +253,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-2 sm:p-4 border-b border-gray-200 bg-gray-50 max-h-48 sm:max-h-60 overflow-y-auto">
+              <div className="p-2 sm:p-4 border-b border-gray-200 bg-gray-50 max-h-40 sm:max-h-48 overflow-hidden">
                 <ContextInput 
                   sessionId={sessionId} 
                   onContextSaved={() => setShowContextInput(false)} 
@@ -262,7 +262,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 overflow-y-auto min-h-0">
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 overflow-y-hidden min-h-0">
               {/* Current Question */}
               {currentQuestion && (
                 <div className="bg-primary/10 rounded-lg p-2 sm:p-3">

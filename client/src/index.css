@@ -84,3 +84,43 @@
 .floating-assistant .drag-handle:hover {
   cursor: move;
 }
+
+/* Hide scrollbars globally for professional appearance */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Ensure textarea elements also hide scrollbars */
+textarea {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+textarea::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Hide scrollbars for all overflow containers */
+.overflow-y-auto,
+.overflow-auto,
+.overflow-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar,
+.overflow-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Professional styling for floating components */
+.floating-assistant {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
