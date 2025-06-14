@@ -514,6 +514,17 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     if ('maxAlternatives' in recognition) {
       (recognition as any).maxAlternatives = 5;
     }
+    
+    // Extend listening timeout for longer sessions
+    if ('speechTimeoutMs' in recognition) {
+      (recognition as any).speechTimeoutMs = 30000; // 30 seconds
+    }
+    if ('speechStartTimeoutMs' in recognition) {
+      (recognition as any).speechStartTimeoutMs = 10000; // 10 seconds to start
+    }
+    if ('speechEndTimeoutMs' in recognition) {
+      (recognition as any).speechEndTimeoutMs = 5000; // 5 seconds after speech ends
+    }
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -521,7 +532,21 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onend = () => {
-      setIsListening(false);
+      // Auto-restart if we were listening (handles browser timeouts)
+      if (isListening) {
+        setTimeout(() => {
+          try {
+            if (recognitionRef.current && isListening) {
+              recognitionRef.current.start();
+            }
+          } catch (error) {
+            console.log('Auto-restart failed, user may have stopped manually');
+            setIsListening(false);
+          }
+        }, 100); // Small delay to prevent rapid restarts
+      } else {
+        setIsListening(false);
+      }
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -560,8 +585,37 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
-      setError(`Speech recognition error: ${event.error}`);
+      
+      // Handle different types of errors
+      if (event.error === 'no-speech') {
+        // Don't show error for no-speech, just continue listening
+        console.log('No speech detected, continuing to listen...');
+        return;
+      } else if (event.error === 'aborted') {
+        // User manually stopped, don't restart
+        setIsListening(false);
+        return;
+      } else if (event.error === 'network') {
+        setError('Network error - check your internet connection');
+      } else if (event.error === 'not-allowed') {
+        setError('Microphone permission denied - please allow microphone access');
+      } else {
+        setError(`Speech recognition error: ${event.error}`);
+      }
+      
+      // For other errors, try to restart after a delay
       setIsListening(false);
+      if (isListening) {
+        setTimeout(() => {
+          try {
+            if (recognitionRef.current) {
+              recognitionRef.current.start();
+            }
+          } catch (error) {
+            console.log('Failed to restart after error');
+          }
+        }, 2000); // 2 second delay before restart
+      }
     };
 
     return () => {
