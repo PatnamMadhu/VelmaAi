@@ -129,7 +129,7 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
             {message.role === 'user' ? (
               <div className="max-w-xs lg:max-w-md">
                 <div className="bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white rounded-2xl rounded-br-md px-4 py-3 shadow-lg animate-fade-in" style={{boxShadow: '0 4px 16px rgba(124, 58, 237, 0.3), 0 0 12px rgba(236, 72, 153, 0.2)'}}>
-                  <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap font-medium text-white">{message.content}</p>
                 </div>
                 <div className="flex items-center justify-end mt-1 space-x-2">
                   {message.isVoice && (
