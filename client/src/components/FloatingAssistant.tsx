@@ -406,16 +406,16 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Voice Transcription Preview - Always visible */}
-            <div className="px-2 sm:px-4 pb-2">
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            {/* Voice Transcription Preview - Fixed positioning */}
+            <div className="px-2 sm:px-4 pb-2 mt-auto">
+              <div className="bg-[#1E293B] border border-[#6366F1]/30 rounded-lg p-3 shadow-velari">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-orange-600 font-medium">Voice Input:</span>
+                    <span className="text-xs text-[#6366F1] font-medium">Voice Input:</span>
                     {isListening && (
                       <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-orange-600">Listening...</span>
+                        <div className="w-2 h-2 bg-[#6366F1] rounded-full animate-pulse"></div>
+                        <span className="text-xs text-[#6366F1]">Listening...</span>
                       </div>
                     )}
                   </div>
@@ -426,7 +426,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   value={editableTranscript || ""}
                   onChange={(e) => setEditableTranscript(e.target.value)}
                   placeholder="Click 'Listen' to start speaking or type to edit..."
-                  className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full min-h-[60px] p-3 text-xs sm:text-sm text-[#F9FAFB] bg-[#334155] border border-[#6366F1]/20 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] transition-velari placeholder-[#94A3B8]"
                   rows={3}
                 />
                 
@@ -436,7 +436,11 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       size="sm"
                       onClick={handleVoiceToggle}
                       variant={isListening ? "destructive" : "default"}
-                      className="h-8 px-3"
+                      className={`h-8 px-3 transition-velari ${
+                        isListening 
+                          ? 'bg-red-500 hover:bg-red-600 text-white' 
+                          : 'bg-[#6366F1] hover:bg-[#5855EB] text-white'
+                      }`}
                       disabled={!isSupported}
                     >
                       {isListening ? (
@@ -458,7 +462,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                         resetTranscript();
                       }}
                       variant="outline"
-                      className="h-8 px-3"
+                      className="h-8 px-3 border-[#6366F1]/30 text-[#94A3B8] hover:text-[#F9FAFB] hover:border-[#6366F1] transition-velari"
                       disabled={!editableTranscript.trim()}
                     >
                       Clear
@@ -476,7 +480,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       }
                     }}
                     disabled={!editableTranscript.trim() || isProcessing}
-                    className="h-8 px-3"
+                    className="h-8 px-3 bg-[#6366F1] hover:bg-[#5855EB] text-white transition-velari"
                   >
                     <Send className="w-3 h-3 mr-1" />
                     Send
