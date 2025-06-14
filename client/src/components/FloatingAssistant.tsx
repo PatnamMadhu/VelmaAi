@@ -410,27 +410,47 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     )}
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm text-orange-800 mb-3 min-h-[20px] leading-relaxed">{transcript || "Click 'Listen' to start speaking..."}</p>
-                <div className="flex items-center justify-between">
-                  <Button 
-                    size="sm"
-                    onClick={handleVoiceToggle}
-                    variant={isListening ? "destructive" : "default"}
-                    className="h-8 px-3"
-                    disabled={!isSupported}
-                  >
-                    {isListening ? (
-                      <>
-                        <MicOff className="w-3 h-3 mr-1" />
-                        Stop
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="w-3 h-3 mr-1" />
-                        Listen
-                      </>
-                    )}
-                  </Button>
+                
+                {/* Editable voice transcript */}
+                <textarea
+                  value={transcript || ""}
+                  onChange={(e) => setTranscript(e.target.value)}
+                  placeholder="Click 'Listen' to start speaking or type to edit..."
+                  className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  rows={3}
+                />
+                
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      size="sm"
+                      onClick={handleVoiceToggle}
+                      variant={isListening ? "destructive" : "default"}
+                      className="h-8 px-3"
+                      disabled={!isSupported}
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff className="w-3 h-3 mr-1" />
+                          Stop
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-3 h-3 mr-1" />
+                          Listen
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={resetTranscript}
+                      variant="outline"
+                      className="h-8 px-3"
+                      disabled={!transcript.trim()}
+                    >
+                      Clear
+                    </Button>
+                  </div>
                   <Button 
                     size="sm"
                     onClick={handleVoiceSend}
@@ -438,7 +458,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     className="h-8 px-3"
                   >
                     <Send className="w-3 h-3 mr-1" />
-                    Send Voice
+                    Send
                   </Button>
                 </div>
               </div>
