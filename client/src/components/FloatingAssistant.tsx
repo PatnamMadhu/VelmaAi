@@ -211,6 +211,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
   const handleTranscriptSend = () => {
     if (transcript.trim()) {
       handleSendMessage(transcript, true);
+      resetTranscript(); // Clear transcript after sending
+    }
+  };
+
+  const handleVoiceSend = () => {
+    if (transcript.trim()) {
+      handleSendMessage(transcript, true);
+      resetTranscript(); // Clear transcript after sending
     }
   };
 
@@ -388,74 +396,58 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Voice Transcription Preview */}
-            {transcript && (
-              <div className="px-2 sm:px-4 pb-2">
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <span className="text-xs text-orange-600 font-medium">Transcribed:</span>
-                      <p className="text-xs sm:text-sm text-orange-800 mt-1">{transcript}</p>
-                    </div>
-                    <Button 
-                      size="sm"
-                      onClick={handleTranscriptSend}
-                      disabled={isProcessing}
-                      className="ml-2 h-6 w-6 sm:h-8 sm:w-8 p-0"
-                    >
-                      <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    </Button>
+            {/* Voice Transcription Preview - Always visible */}
+            <div className="px-2 sm:px-4 pb-2">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-orange-600 font-medium">Voice Input:</span>
+                    {isListening && (
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-orange-600">Listening...</span>
+                      </div>
+                    )}
                   </div>
                 </div>
+                <p className="text-xs sm:text-sm text-orange-800 mb-3 min-h-[20px] leading-relaxed">{transcript || "Click 'Listen' to start speaking..."}</p>
+                <div className="flex items-center justify-between">
+                  <Button 
+                    size="sm"
+                    onClick={handleVoiceToggle}
+                    variant={isListening ? "destructive" : "default"}
+                    className="h-8 px-3"
+                    disabled={!isSupported}
+                  >
+                    {isListening ? (
+                      <>
+                        <MicOff className="w-3 h-3 mr-1" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-3 h-3 mr-1" />
+                        Listen
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={handleVoiceSend}
+                    disabled={!transcript.trim() || isProcessing}
+                    className="h-8 px-3"
+                  >
+                    <Send className="w-3 h-3 mr-1" />
+                    Send Voice
+                  </Button>
+                </div>
               </div>
-            )}
+            </div>
 
 
 
             {/* Input Section */}
             <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
-              {/* Voice Button */}
-              <div className="flex justify-center">
-                <Button
-                  size={window.innerWidth < 768 ? "default" : "lg"}
-                  onClick={handleVoiceToggle}
-                  disabled={!isSupported || isProcessing}
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${
-                    isListening 
-                      ? 'bg-red-500 hover:bg-red-600' 
-                      : 'bg-primary hover:bg-blue-700'
-                  }`}
-                >
-                  {isListening ? (
-                    <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </Button>
-              </div>
-
-              {/* Voice Status */}
-              <div className="text-center">
-                {!isSupported && (
-                  <div className="text-xs text-red-600">
-                    <MicOff className="inline w-3 h-3 mr-1" />
-                    Speech not supported
-                  </div>
-                )}
-                
-                {isSupported && !isListening && !transcript && (
-                  <div className="text-xs text-gray-600">
-                    Tap microphone to speak
-                  </div>
-                )}
-                
-                {isListening && (
-                  <div className="text-xs text-orange-600">
-                    <div className="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full mr-2"></div>
-                    Listening...
-                  </div>
-                )}
-              </div>
 
               {/* Text Input */}
               <div className="flex items-center space-x-1 sm:space-x-2">

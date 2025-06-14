@@ -143,7 +143,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     recognitionRef.current = new SpeechRecognitionConstructor();
 
     const recognition = recognitionRef.current;
-    recognition.continuous = false;
+    recognition.continuous = true; // Enable continuous listening
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
