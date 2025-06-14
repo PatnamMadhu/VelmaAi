@@ -75,6 +75,16 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     resetTranscript,
   } = useSpeechRecognition();
 
+  // Local editable transcript state
+  const [editableTranscript, setEditableTranscript] = useState('');
+
+  // Sync voice transcript with editable transcript
+  useEffect(() => {
+    if (transcript && transcript !== editableTranscript) {
+      setEditableTranscript(transcript);
+    }
+  }, [transcript]);
+
   const { lastMessage } = useWebSocket(sessionId);
 
   // Save window state to localStorage
@@ -413,8 +423,8 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 
                 {/* Editable voice transcript */}
                 <textarea
-                  value={transcript || ""}
-                  onChange={(e) => setTranscript(e.target.value)}
+                  value={editableTranscript || ""}
+                  onChange={(e) => setEditableTranscript(e.target.value)}
                   placeholder="Click 'Listen' to start speaking or type to edit..."
                   className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
                   rows={3}
@@ -443,18 +453,27 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     </Button>
                     <Button 
                       size="sm"
-                      onClick={resetTranscript}
+                      onClick={() => {
+                        setEditableTranscript('');
+                        resetTranscript();
+                      }}
                       variant="outline"
                       className="h-8 px-3"
-                      disabled={!transcript.trim()}
+                      disabled={!editableTranscript.trim()}
                     >
                       Clear
                     </Button>
                   </div>
                   <Button 
                     size="sm"
-                    onClick={handleVoiceSend}
-                    disabled={!transcript.trim() || isProcessing}
+                    onClick={() => {
+                      if (editableTranscript.trim()) {
+                        handleSendMessage(editableTranscript, true);
+                        setEditableTranscript('');
+                        resetTranscript();
+                      }
+                    }}
+                    disabled={!editableTranscript.trim() || isProcessing}
                     className="h-8 px-3"
                   >
                     <Send className="w-3 h-3 mr-1" />

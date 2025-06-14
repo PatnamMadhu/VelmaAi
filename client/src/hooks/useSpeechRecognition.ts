@@ -681,37 +681,39 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+      let completeTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      // Process all results to build complete transcript
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         
-        // Collect all alternatives for this result segment
-        const alternatives: string[] = [];
-        for (let j = 0; j < result.length && j < 5; j++) {
-          if (result[j] && result[j].transcript) {
-            alternatives.push(result[j].transcript);
-          }
-        }
-        
-        // Use enhanced alternative selection for better accuracy
-        const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
-
         if (result.isFinal) {
+          // For final results, use the best alternative and apply corrections
+          const alternatives: string[] = [];
+          for (let j = 0; j < Math.min(result.length, 3); j++) {
+            if (result[j] && result[j].transcript) {
+              alternatives.push(result[j].transcript);
+            }
+          }
+          
+          const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
           const corrected = correctTechnicalTerms(bestTranscript);
-          // Capitalize first letter and ensure proper sentence ending
-          const capitalized = corrected.charAt(0).toUpperCase() + corrected.slice(1);
-          finalTranscript += capitalized + (capitalized.match(/[.!?]$/) ? ' ' : '. ');
+          completeTranscript += corrected + ' ';
         } else {
-          // For interim results, apply basic corrections for real-time feedback
-          interimTranscript += correctTechnicalTerms(bestTranscript);
+          // For interim results, use simple correction
+          const interim = correctTechnicalTerms(result[0].transcript);
+          completeTranscript += interim + ' ';
         }
       }
 
-      // Clean up transcript and set the result
-      const cleanedTranscript = (finalTranscript || interimTranscript).trim();
-      setTranscript(cleanedTranscript);
+      // Clean up and set the final transcript
+      const cleanedTranscript = completeTranscript
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (cleanedTranscript) {
+        setTranscript(cleanedTranscript);
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
