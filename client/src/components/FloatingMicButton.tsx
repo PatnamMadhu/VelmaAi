@@ -16,31 +16,34 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm ${
+        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full backdrop-blur-lg border border-white/20 transition-all duration-300 ${
           isActive 
-            ? 'bg-green-500 hover:bg-green-600' 
-            : 'bg-primary hover:bg-blue-700'
+            ? 'bg-[#6366F1] hover:bg-[#5855EB] text-white shadow-velari animate-pulse' 
+            : 'bg-[#6366F1] hover:bg-[#5855EB] text-white shadow-velari hover:shadow-velari-lg hover:scale-110'
         }`}
+        style={{
+          boxShadow: '0 0 12px #6366F1, 0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}
       >
         {isActive ? (
-          <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         ) : (
-          <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <Mic className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
         )}
       </Button>
       
       {/* Tooltip - only show on larger screens */}
       {isHovered && !isActive && (
-        <div className="absolute bottom-14 sm:bottom-16 right-0 bg-black/80 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm hidden sm:block">
+        <div className="absolute bottom-16 sm:bottom-18 right-0 glassmorphism text-[#F9FAFB] text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in">
           Start VelariAI Assistant
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#1E293B]"></div>
         </div>
       )}
       
       {isActive && (
-        <div className="absolute bottom-14 sm:bottom-16 right-0 bg-green-600/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm hidden sm:block">
+        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-[#6366F1]/90 backdrop-blur-lg text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in">
           Assistant Active
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600/90"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#6366F1]"></div>
         </div>
       )}
     </div>

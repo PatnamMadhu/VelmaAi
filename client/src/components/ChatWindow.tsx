@@ -128,14 +128,14 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
           >
             {message.role === 'user' ? (
               <div className="max-w-xs lg:max-w-md">
-                <div className="bg-primary text-white rounded-2xl rounded-br-md px-4 py-3">
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <div className="bg-[#4F46E5] text-white rounded-2xl rounded-br-md px-4 py-3 shadow-lg animate-fade-in">
+                  <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
                 </div>
                 <div className="flex items-center justify-end mt-1 space-x-2">
                   {message.isVoice && (
-                    <Mic className="w-3 h-3 text-gray-400" />
+                    <Mic className="w-3 h-3 text-[#94A3B8]" />
                   )}
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-[#94A3B8]">
                     {message.timestamp ? formatTime(message.timestamp) : ''}
                   </span>
                 </div>
@@ -143,41 +143,39 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
             ) : (
               <div className="max-w-xs lg:max-w-2xl">
                 <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-gray-600" />
+                  <div className="w-8 h-8 bg-[#334155] rounded-full flex items-center justify-center flex-shrink-0 shadow-velari">
+                    <Bot className="w-4 h-4 text-[#6366F1]" />
                   </div>
                   <div className="flex-1">
-                    <Card className="shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="prose prose-sm max-w-none">
-                          <div className="whitespace-pre-wrap">
-                            {message.isStreaming 
-                              ? message.streamContent || '' 
-                              : message.content
-                            }
-                          </div>
-                          
-                          {/* Streaming indicator */}
-                          {message.isStreaming && (
-                            <div className="flex items-center space-x-1 mt-2">
-                              <div className="flex space-x-1">
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                              </div>
-                              <span className="text-xs text-gray-500">AI is typing...</span>
-                            </div>
-                          )}
+                    <div className="bg-[#334155] text-[#F9FAFB] rounded-2xl rounded-bl-md px-4 py-3 shadow-lg animate-fade-in">
+                      <div className="prose prose-sm max-w-none text-[#F9FAFB]">
+                        <div className="whitespace-pre-wrap leading-relaxed">
+                          {message.isStreaming 
+                            ? message.streamContent || '' 
+                            : message.content
+                          }
                         </div>
-                      </CardContent>
-                    </Card>
+                        
+                        {/* Typing indicator */}
+                        {message.isStreaming && (
+                          <div className="flex items-center space-x-1 mt-3">
+                            <div className="flex space-x-1">
+                              <div className="w-2 h-2 bg-[#6366F1] rounded-full typing-dot"></div>
+                              <div className="w-2 h-2 bg-[#6366F1] rounded-full typing-dot"></div>
+                              <div className="w-2 h-2 bg-[#6366F1] rounded-full typing-dot"></div>
+                            </div>
+                            <span className="text-xs text-[#94A3B8] ml-2">AI is typing...</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     
                     <div className="flex items-center mt-1 space-x-2">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-[#94A3B8]">
                         {message.timestamp ? formatTime(message.timestamp) : ''}
                       </span>
                       {!message.isStreaming && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-[#6366F1]/20 text-[#6366F1] border-[#6366F1]/30">
                           <Zap className="w-2 h-2 mr-1" />
                           &lt;0.8s
                         </Badge>
