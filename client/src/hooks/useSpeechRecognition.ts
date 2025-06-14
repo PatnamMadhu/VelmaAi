@@ -369,7 +369,7 @@ function findBestAlternative(alternatives: string[], defaultTranscript: string):
   return scoredOptions[0]?.text || defaultTranscript;
 }
 
-// Correct technical terms in the transcript
+// Correct technical terms in the transcript with enhanced slang and accent handling
 function correctTechnicalTerms(transcript: string): string {
   let corrected = transcript;
   
@@ -379,11 +379,73 @@ function correctTechnicalTerms(transcript: string): string {
     return technicalTermsMap[lowerTranscript];
   }
   
-  // Check for partial matches and word boundaries
+  // Enhanced correction with fuzzy matching for slang and accents
   Object.entries(technicalTermsMap).forEach(([incorrect, correct]) => {
-    const regex = new RegExp(`\\b${incorrect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-    corrected = corrected.replace(regex, correct);
+    // Exact word boundary matches
+    const exactRegex = new RegExp(`\\b${incorrect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    corrected = corrected.replace(exactRegex, correct);
+    
+    // Handle common accent variations and slang
+    const accentVariations = [
+      // Indian accent variations
+      incorrect.replace(/v/g, 'w').replace(/w/g, 'v'), // v/w confusion
+      incorrect.replace(/th/g, 'd').replace(/d/g, 'th'), // th/d variations
+      incorrect.replace(/er$/g, 'a'), // -er to -a endings
+      incorrect.replace(/ing$/g, 'in'), // -ing to -in endings
+      
+      // Common mispronunciations
+      incorrect.replace(/tion/g, 'shun'),
+      incorrect.replace(/sure/g, 'cher'),
+      incorrect.replace(/ture/g, 'cher'),
+      
+      // Syllable stress variations
+      incorrect.replace(/([aeiou])([bcdfghjklmnpqrstvwxyz])\1/g, '$1$2'), // Remove doubled vowels
+      incorrect.replace(/([bcdfghjklmnpqrstvwxyz])\1+/g, '$1'), // Remove doubled consonants
+    ];
+    
+    accentVariations.forEach(variation => {
+      if (variation !== incorrect && variation.length > 2) {
+        const variationRegex = new RegExp(`\\b${variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+        corrected = corrected.replace(variationRegex, correct);
+      }
+    });
   });
+  
+  // Additional corrections for common speech recognition errors
+  corrected = corrected
+    // Fix common homophones in tech context
+    .replace(/\brite\b/gi, 'write')
+    .replace(/\bread\b/gi, 'read')
+    .replace(/\bthere\b/gi, 'their')
+    .replace(/\byour\b/gi, 'you are')
+    .replace(/\bits\b/gi, "it's")
+    
+    // Fix common tech term corruptions
+    .replace(/\bjava script\b/gi, 'JavaScript')
+    .replace(/\bnode js\b/gi, 'Node.js')
+    .replace(/\breact js\b/gi, 'React.js')
+    .replace(/\bangular js\b/gi, 'Angular.js')
+    .replace(/\btype script\b/gi, 'TypeScript')
+    .replace(/\bmy sql\b/gi, 'MySQL')
+    .replace(/\bpost gres\b/gi, 'PostgreSQL')
+    .replace(/\bmongo db\b/gi, 'MongoDB')
+    .replace(/\bgit hub\b/gi, 'GitHub')
+    .replace(/\bpost man\b/gi, 'Postman')
+    .replace(/\brest api\b/gi, 'REST API')
+    .replace(/\bgraph ql\b/gi, 'GraphQL')
+    .replace(/\bspring boot\b/gi, 'Spring Boot')
+    .replace(/\bvisual studio code\b/gi, 'Visual Studio Code')
+    .replace(/\bvs code\b/gi, 'VS Code')
+    
+    // Fix number pronunciations in tech context
+    .replace(/\bwon\b/gi, 'one')
+    .replace(/\btoo\b/gi, 'two')
+    .replace(/\bfor\b/gi, 'four')
+    .replace(/\bate\b/gi, 'eight')
+    
+    // Clean up extra spaces and formatting
+    .replace(/\s+/g, ' ')
+    .trim();
   
   return corrected;
 }
