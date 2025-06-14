@@ -67,6 +67,24 @@ const technicalTermsMap: { [key: string]: string } = {
   'maria db': 'MariaDB',
   'mariadb': 'MariaDB',
   
+  // Frontend/Backend terminology
+  'front end': 'frontend',
+  'frontend': 'frontend',
+  'front-end': 'frontend',
+  'fainting': 'frontend',
+  'frant end': 'frontend',
+  'front and': 'frontend',
+  'fronted': 'frontend',
+  'back end': 'backend',
+  'backend': 'backend',
+  'back-end': 'backend',
+  'back and': 'backend',
+  'backed': 'backend',
+  'full stack': 'full stack',
+  'fullstack': 'full stack',
+  'full-stack': 'full stack',
+  'full stuck': 'full stack',
+  
   // Frameworks with slang
   'node j s': 'Node.js',
   'nodejs': 'Node.js',
@@ -419,6 +437,17 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bthere\b/gi, 'their')
     .replace(/\byour\b/gi, 'you are')
     .replace(/\bits\b/gi, "it's")
+    
+    // Fix common frontend/backend mispronunciations
+    .replace(/\bfainting\b/gi, 'frontend')
+    .replace(/\bfrant end\b/gi, 'frontend')
+    .replace(/\bfront and\b/gi, 'frontend')
+    .replace(/\bfronted\b/gi, 'frontend')
+    .replace(/\bbackend\b/gi, 'backend')
+    .replace(/\bback and\b/gi, 'backend')
+    .replace(/\bbacked\b/gi, 'backend')
+    .replace(/\bfull stack\b/gi, 'full stack')
+    .replace(/\bfull stuck\b/gi, 'full stack')
     
     // Fix common tech term corruptions
     .replace(/\bjava script\b/gi, 'JavaScript')
