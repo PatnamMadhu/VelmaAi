@@ -38,7 +38,7 @@ export class GroqService {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
         temperature: 0.5, // Lower temperature for faster, more consistent responses
-        max_tokens: 80, // Hard limit for ultra-concise responses
+        max_tokens: 50, // Ultra-hard limit for concise responses
         stream: !!onStream,
       };
       
@@ -133,10 +133,10 @@ export class GroqService {
       .replace(/\n{3,}/g, '\n\n') // Limit excessive line breaks
       .trim();
 
-    // Split into words and enforce 100-word limit
+    // Split into words and enforce 50-word limit for ultra-concise responses
     const words = cleanResponse.split(/\s+/);
-    if (words.length > 100) {
-      cleanResponse = words.slice(0, 100).join(' ') + '...';
+    if (words.length > 50) {
+      cleanResponse = words.slice(0, 50).join(' ');
     }
 
     // Ensure it starts with Sure!, Absolutely!, or Great question!
@@ -193,16 +193,12 @@ The key is balancing technical excellence with practical delivery timelines.`;
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // Ultra-concise system prompt - no formatting allowed
-    let systemPrompt = `You are VelariAI. Answer in 80 words maximum.
+    // Ultra-concise system prompt - maximum 40 words
+    let systemPrompt = `You are VelariAI. Give VERY short answers (30-40 words max).
 
-RULES:
-- Start with "Sure!" or "Absolutely!"
-- Plain paragraphs only - NO asterisks, bullets, or headings
-- Conversational tone like talking to an interviewer
-- Cut off at 80 words even mid-sentence
+Start with "Sure!" or "Absolutely!" then give ONE key point. Stop immediately.
 
-FORBIDDEN: **, *, bullets, sections, long explanations`;
+NO formatting, NO long explanations, NO multiple sentences.`;
     
     if (context) {
       systemPrompt += `\n\nYour Professional Background:\n${context}\n\nIMPORTANT CONTEXT RULES:
