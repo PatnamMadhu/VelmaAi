@@ -130,18 +130,25 @@ export class GroqService {
       .replace(/^[•\-\*]\s+/gm, '') // Remove bullet points
       .replace(/^\d+\.\s+/gm, '') // Remove numbered lists
       .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers
-      .replace(/\n{3,}/g, '\n\n') // Limit excessive line breaks
+      .replace(/\n{3,}/g, ' ') // Replace line breaks with spaces
+      .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();
 
-    // Split into words and enforce 50-word limit for ultra-concise responses
+    // Force ultra-short responses: maximum 35 words
     const words = cleanResponse.split(/\s+/);
-    if (words.length > 50) {
-      cleanResponse = words.slice(0, 50).join(' ');
+    if (words.length > 35) {
+      cleanResponse = words.slice(0, 35).join(' ');
     }
 
     // Ensure it starts with Sure!, Absolutely!, or Great question!
     if (!cleanResponse.match(/^(Sure!|Absolutely!|Great question!)/i)) {
       cleanResponse = 'Sure! ' + cleanResponse;
+    }
+
+    // Final word count check - cut if still too long
+    const finalWords = cleanResponse.split(/\s+/);
+    if (finalWords.length > 40) {
+      cleanResponse = finalWords.slice(0, 40).join(' ');
     }
 
     return cleanResponse;
