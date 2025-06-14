@@ -16,13 +16,15 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full backdrop-blur-lg border border-white/20 transition-all duration-300 ${
+        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full backdrop-blur-lg border transition-all duration-300 ${
           isActive 
-            ? 'bg-[#6366F1] hover:bg-[#5855EB] text-white shadow-velari animate-pulse' 
-            : 'bg-[#6366F1] hover:bg-[#5855EB] text-white shadow-velari hover:shadow-velari-lg hover:scale-110'
+            ? 'bg-gradient-to-r from-[#7C3AED] to-[#EC4899] border-[#00D9FF]/50 text-white animate-pulse' 
+            : 'bg-gradient-to-r from-[#7C3AED] to-[#EC4899] border-[#00D9FF]/30 text-white hover:scale-110 hover:border-[#00D9FF]/70'
         }`}
         style={{
-          boxShadow: '0 0 12px #6366F1, 0 8px 32px rgba(0, 0, 0, 0.3)'
+          boxShadow: isActive 
+            ? '0 0 20px rgba(0, 217, 255, 0.6), 0 0 40px rgba(124, 58, 237, 0.4)' 
+            : '0 0 12px rgba(0, 217, 255, 0.4), 0 4px 20px rgba(124, 58, 237, 0.3)'
         }}
       >
         {isActive ? (

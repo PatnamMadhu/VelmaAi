@@ -5,15 +5,18 @@
 @tailwind utilities;
 
 :root {
-  /* Velari Theme Color Palette */
-  --background: #0F172A;
-  --card-background: #1E293B;
-  --user-bubble: #4F46E5;
-  --ai-bubble: #334155;
-  --primary-text: #F9FAFB;
-  --muted-text: #94A3B8;
-  --accent: #3B82F6;
-  --highlight: #6366F1;
+  /* Futuristic Elegant Theme Color Palette */
+  --background: #0A0A0F;
+  --card-background: #161B22;
+  --surface: #1C2128;
+  --user-bubble: #7C3AED;
+  --ai-bubble: #27272A;
+  --primary-text: #FFFFFF;
+  --muted-text: #A1A1AA;
+  --accent: #00D9FF;
+  --secondary: #EC4899;
+  --glow: #00D9FF;
+  --border: #27272A;
 }
 
 * {
@@ -31,7 +34,7 @@ html, body {
 
 body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  background: radial-gradient(ellipse at top, #161B22 0%, #0A0A0F 50%, #000000 100%);
 }
 
 #root {
