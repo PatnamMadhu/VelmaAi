@@ -357,27 +357,43 @@ function findBestAlternative(alternatives: string[], defaultTranscript: string):
     // High bonus for exact technical term matches
     Object.keys(technicalTermsMap).forEach(term => {
       if (lowercased.includes(term.toLowerCase())) {
-        score += 5; // Increased weight for technical terms
+        score += 10; // Higher weight for technical terms
       }
+    });
+    
+    // Bonus for containing correctable terms (shows potential for improvement)
+    const correctableTerms = ['front', 'back', 'end', 'script', 'node', 'react', 'angular', 'java', 'python', 'data', 'base', 'api', 'sql'];
+    correctableTerms.forEach(term => {
+      if (lowercased.includes(term)) score += 3;
     });
     
     // Bonus for longer, more complete sentences
     if (option.length > 20) score += 2;
     if (option.split(' ').length > 3) score += 2;
     
-    // Bonus for proper capitalization and punctuation
-    if (/[A-Z]/.test(option)) score += 1;
-    if (/[.!?]$/.test(option)) score += 1;
+    // Higher bonus for proper sentence structure
+    if (/^[A-Z]/.test(option)) score += 2; // Starts with capital
+    if (/[.!?]$/.test(option)) score += 1; // Ends with punctuation
+    if (option.includes(' and ') || option.includes(' with ') || option.includes(' using ')) score += 1; // Natural connectors
     
     // Penalty for very short or incomplete responses
-    if (option.length < 5) score -= 3;
-    if (option.split(' ').length < 2) score -= 2;
+    if (option.length < 5) score -= 5;
+    if (option.split(' ').length < 2) score -= 3;
     
-    // Bonus for containing common interview words
-    const interviewWords = ['experience', 'project', 'technology', 'framework', 'database', 'api', 'development', 'team', 'challenge', 'solution'];
-    interviewWords.forEach(word => {
-      if (lowercased.includes(word)) score += 1;
+    // Penalty for nonsense words or unclear speech
+    const nonsenseIndicators = ['umm', 'uhh', 'err', 'hmm', '...'];
+    nonsenseIndicators.forEach(indicator => {
+      if (lowercased.includes(indicator)) score -= 2;
     });
+    
+    // Bonus for containing common interview and tech words
+    const interviewWords = ['experience', 'project', 'technology', 'framework', 'database', 'api', 'development', 'team', 'challenge', 'solution', 'worked', 'built', 'created', 'implemented', 'used', 'technologies', 'skills', 'knowledge'];
+    interviewWords.forEach(word => {
+      if (lowercased.includes(word)) score += 2;
+    });
+    
+    // Bonus for grammatically correct patterns
+    if (lowercased.includes('i have') || lowercased.includes('i worked') || lowercased.includes('i used') || lowercased.includes('i built')) score += 3;
     
     return { text: option, score };
   });
@@ -403,7 +419,7 @@ function correctTechnicalTerms(transcript: string): string {
     const exactRegex = new RegExp(`\\b${incorrect.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
     corrected = corrected.replace(exactRegex, correct);
     
-    // Handle common accent variations and slang
+    // Handle comprehensive accent variations and speech patterns
     const accentVariations = [
       // Indian accent variations
       incorrect.replace(/v/g, 'w').replace(/w/g, 'v'), // v/w confusion
@@ -419,6 +435,30 @@ function correctTechnicalTerms(transcript: string): string {
       // Syllable stress variations
       incorrect.replace(/([aeiou])([bcdfghjklmnpqrstvwxyz])\1/g, '$1$2'), // Remove doubled vowels
       incorrect.replace(/([bcdfghjklmnpqrstvwxyz])\1+/g, '$1'), // Remove doubled consonants
+      
+      // Additional phonetic variations for better recognition
+      incorrect.replace(/f/g, 'ph').replace(/ph/g, 'f'), // f/ph confusion
+      incorrect.replace(/s/g, 'z').replace(/z/g, 's'), // s/z confusion
+      incorrect.replace(/c/g, 'k').replace(/k/g, 'c'), // c/k confusion
+      incorrect.replace(/x/g, 'ks').replace(/ks/g, 'x'), // x/ks variations
+      
+      // Vowel confusion patterns common in accents
+      incorrect.replace(/a/g, 'e').replace(/e/g, 'a'), // a/e confusion
+      incorrect.replace(/i/g, 'e').replace(/e/g, 'i'), // i/e confusion
+      incorrect.replace(/o/g, 'a').replace(/a/g, 'o'), // o/a confusion
+      
+      // Silent letter handling
+      incorrect.replace(/h/g, ''), // Silent h
+      incorrect.replace(/([bcdgkpt])$/g, ''), // Silent final consonants
+      
+      // Common speech patterns
+      incorrect.replace(/ly$/g, 'lee'), // -ly to -lee
+      incorrect.replace(/ary$/g, 'ery'), // -ary to -ery
+      incorrect.replace(/ory$/g, 'ary'), // -ory to -ary
+      
+      // Stress pattern variations
+      incorrect.charAt(0).toUpperCase() + incorrect.slice(1), // Capitalize first letter
+      incorrect.toLowerCase(), // All lowercase
     ];
     
     accentVariations.forEach(variation => {
@@ -429,7 +469,7 @@ function correctTechnicalTerms(transcript: string): string {
     });
   });
   
-  // Additional corrections for common speech recognition errors
+  // Comprehensive corrections for speech recognition errors across all words
   corrected = corrected
     // Fix common homophones in tech context
     .replace(/\brite\b/gi, 'write')
@@ -437,17 +477,76 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bthere\b/gi, 'their')
     .replace(/\byour\b/gi, 'you are')
     .replace(/\bits\b/gi, "it's")
+    .replace(/\btoo\b/gi, 'to')
+    .replace(/\bfor\b/gi, 'for')
     
     // Fix common frontend/backend mispronunciations
     .replace(/\bfainting\b/gi, 'frontend')
     .replace(/\bfrant end\b/gi, 'frontend')
     .replace(/\bfront and\b/gi, 'frontend')
     .replace(/\bfronted\b/gi, 'frontend')
+    .replace(/\bfrontent\b/gi, 'frontend')
     .replace(/\bbackend\b/gi, 'backend')
     .replace(/\bback and\b/gi, 'backend')
     .replace(/\bbacked\b/gi, 'backend')
     .replace(/\bfull stack\b/gi, 'full stack')
     .replace(/\bfull stuck\b/gi, 'full stack')
+    
+    // Common word mispronunciations due to accents
+    .replace(/\bwith\b/gi, 'with')
+    .replace(/\bwid\b/gi, 'with')
+    .replace(/\bwhen\b/gi, 'when')
+    .replace(/\bwen\b/gi, 'when')
+    .replace(/\bwhat\b/gi, 'what')
+    .replace(/\bwat\b/gi, 'what')
+    .replace(/\bwhere\b/gi, 'where')
+    .replace(/\bwere\b/gi, 'where')
+    .replace(/\bwhich\b/gi, 'which')
+    .replace(/\bwich\b/gi, 'which')
+    .replace(/\bthis\b/gi, 'this')
+    .replace(/\bdis\b/gi, 'this')
+    .replace(/\bthat\b/gi, 'that')
+    .replace(/\bdat\b/gi, 'that')
+    .replace(/\bthese\b/gi, 'these')
+    .replace(/\bdese\b/gi, 'these')
+    .replace(/\bthose\b/gi, 'those')
+    .replace(/\bdose\b/gi, 'those')
+    
+    // Technical interview common words
+    .replace(/\bexperience\b/gi, 'experience')
+    .replace(/\bexperiens\b/gi, 'experience')
+    .replace(/\bproject\b/gi, 'project')
+    .replace(/\bprojects\b/gi, 'projects')
+    .replace(/\btechnology\b/gi, 'technology')
+    .replace(/\btechnologies\b/gi, 'technologies')
+    .replace(/\btecnology\b/gi, 'technology')
+    .replace(/\bframework\b/gi, 'framework')
+    .replace(/\bframeworks\b/gi, 'frameworks')
+    .replace(/\bdatabase\b/gi, 'database')
+    .replace(/\bdatabases\b/gi, 'databases')
+    .replace(/\bdevelopment\b/gi, 'development')
+    .replace(/\bdeveloping\b/gi, 'developing')
+    .replace(/\bdeveloper\b/gi, 'developer')
+    .replace(/\bapplication\b/gi, 'application')
+    .replace(/\bapplications\b/gi, 'applications')
+    
+    // Common pronunciation variations
+    .replace(/\babout\b/gi, 'about')
+    .replace(/\babout\b/gi, 'about')
+    .replace(/\bworked\b/gi, 'worked')
+    .replace(/\bwork\b/gi, 'work')
+    .replace(/\bworking\b/gi, 'working')
+    .replace(/\bused\b/gi, 'used')
+    .replace(/\busing\b/gi, 'using')
+    .replace(/\bcreated\b/gi, 'created')
+    .replace(/\bcreate\b/gi, 'create')
+    .replace(/\bcreating\b/gi, 'creating')
+    .replace(/\bbuilt\b/gi, 'built')
+    .replace(/\bbuild\b/gi, 'build')
+    .replace(/\bbuilding\b/gi, 'building')
+    .replace(/\bimplemented\b/gi, 'implemented')
+    .replace(/\bimplement\b/gi, 'implement')
+    .replace(/\bimplementing\b/gi, 'implementing')
     
     // Fix common tech term corruptions
     .replace(/\bjava script\b/gi, 'JavaScript')
@@ -524,6 +623,9 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  
+  // Adaptive learning storage for user-specific patterns
+  const userPatternsRef = useRef<{ [key: string]: string }>({});
 
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
