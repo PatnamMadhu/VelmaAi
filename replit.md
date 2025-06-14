@@ -126,13 +126,6 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 14, 2025. AI Response Quality & UI Layout Fixes
-  * Fixed voice input layout issues preventing overlap with chat content
-  * Updated voice input styling to match futuristic theme with proper colors
-  * Implemented ultra-strict AI response constraints (80 words max, no formatting)
-  * Added post-processing filter to remove asterisks, bullets, and enforce word limits
-  * Fixed question text visibility issues with explicit white text color
-  * Reduced AI response length from 200+ words to under 100 words for interview appropriateness
 - June 14, 2025. Complete UI redesign with futuristic elegant theme
   * Replaced Velari dark theme with sophisticated futuristic design
   * Updated color palette: #0A0A0F background, #7C3AED/EC4899 gradients, #00D9FF accent

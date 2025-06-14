@@ -38,7 +38,7 @@ export class GroqService {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
         temperature: 0.5, // Lower temperature for faster, more consistent responses
-        max_tokens: 50, // Ultra-hard limit for concise responses
+        max_tokens: 800, // Increased for complete responses
         stream: !!onStream,
       };
       
@@ -69,10 +69,7 @@ export class GroqService {
         }
         const data: GroqResponse = await response.json();
         console.log('Groq response:', JSON.stringify(data, null, 2));
-        const rawResponse = data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response.";
-        
-        // Post-process to enforce constraints
-        return this.enforceResponseConstraints(rawResponse);
+        return data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response.";
       }
 
       // Handle streaming response
@@ -122,38 +119,6 @@ export class GroqService {
     }
   }
 
-  private enforceResponseConstraints(response: string): string {
-    // Remove all formatting (asterisks, bullets, etc.)
-    let cleanResponse = response
-      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold formatting
-      .replace(/\*([^*]+)\*/g, '$1') // Remove italic formatting
-      .replace(/^[•\-\*]\s+/gm, '') // Remove bullet points
-      .replace(/^\d+\.\s+/gm, '') // Remove numbered lists
-      .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers
-      .replace(/\n{3,}/g, ' ') // Replace line breaks with spaces
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-
-    // Force ultra-short responses: maximum 35 words
-    const words = cleanResponse.split(/\s+/);
-    if (words.length > 35) {
-      cleanResponse = words.slice(0, 35).join(' ');
-    }
-
-    // Ensure it starts with Sure!, Absolutely!, or Great question!
-    if (!cleanResponse.match(/^(Sure!|Absolutely!|Great question!)/i)) {
-      cleanResponse = 'Sure! ' + cleanResponse;
-    }
-
-    // Final word count check - cut if still too long
-    const finalWords = cleanResponse.split(/\s+/);
-    if (finalWords.length > 40) {
-      cleanResponse = finalWords.slice(0, 40).join(' ');
-    }
-
-    return cleanResponse;
-  }
-
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     const responseStarters = [
       "Sure! In my experience with that technology,",
@@ -200,20 +165,44 @@ The key is balancing technical excellence with practical delivery timelines.`;
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // Ultra-concise system prompt - maximum 40 words
-    let systemPrompt = `You are VelariAI. Give VERY short answers (30-40 words max).
+    // Enhanced system prompt for accurate, contextual interview responses
+    let systemPrompt = `You are VelariAI, a technical interview preparation assistant. You help users practice answering complex technical questions with clarity and confidence. 
 
-Start with "Sure!" or "Absolutely!" then give ONE key point. Stop immediately.
+CRITICAL RESPONSE REQUIREMENTS:
+- Listen carefully to the exact question being asked
+- Answer the specific question directly and completely
+- Use clear, structured responses with logical flow
+- Include practical examples and real-world context
+- Keep responses conversational but thorough (60-90 seconds when spoken)
+- Start confidently: "Sure!", "Absolutely!", "Great question..."
 
-NO formatting, NO long explanations, NO multiple sentences.`;
+TECHNICAL ACCURACY:
+- Provide accurate, up-to-date technical information
+- Use proper terminology and industry standards
+- Include relevant details about implementation, scaling, and best practices
+- Reference common tools, frameworks, and methodologies appropriately
+- Address both functional and non-functional requirements when relevant
+
+STRUCTURE YOUR ANSWERS:
+1. Direct answer to the question
+2. Brief explanation of key concepts
+3. Practical example or implementation details
+4. Considerations for scale, performance, or best practices
+5. Conclude with confidence and readiness for follow-up questions`;
     
     if (context) {
-      systemPrompt += `\n\nYour Professional Background:\n${context}\n\nIMPORTANT CONTEXT RULES:
-- Only mention your experience when it's directly relevant to the question
-- Don't force connections between questions and your background
-- If your experience relates naturally, mention it briefly using "I" statements
-- Answer the question first, then add relevant experience if it helps
-- Stay within 150 words total including any experience references`;
+      systemPrompt += `\n\nYour Professional Identity:\n${context}\n\nCRITICAL INSTRUCTIONS:
+- You ARE this person - speak in first person using "I" statements
+- Reference your actual experience, skills, and projects from the context above
+- Use specific details from your background when answering
+- Never make up information not in your background
+- When asked about specific companies, reference ONLY your actual work experience there
+- For Brillio: mention 5G Verizon project, Go backend development, MySQL optimization, Goroutines/channels
+- For Capgemini: mention Angular/Spring applications, CI/CD with Jenkins, JWT authentication
+- For Reward360: mention HDFC Bank project, team leadership, Angular/PHP/Spring Boot
+- Structure responses with clear, confident flow
+- Share practical examples from your listed experience
+- Keep responses conversational and interview-appropriate (60-90 seconds when spoken)`;
     } else {
       systemPrompt += `\n\nYou are helping with general interview preparation. Respond as a confident software engineer would speak in an interview. Use practical examples and "I" statements. Structure answers clearly with short paragraphs. Avoid theoretical explanations unless specifically requested.`;
     }
