@@ -263,17 +263,17 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <Card className="w-full h-full rounded-2xl shadow-velari-lg glassmorphism border-white/10 overflow-hidden floating-assistant">
-        {/* Header */}
-        <div className="drag-handle bg-gradient-to-r from-velari-highlight to-velari-accent text-velari-text p-2 sm:p-3 cursor-move">
+      <Card className="w-full h-full rounded-2xl overflow-hidden floating-assistant bg-[#161B22] border border-[#00D9FF]/30" style={{boxShadow: '0 8px 32px rgba(0, 217, 255, 0.2), 0 0 20px rgba(124, 58, 237, 0.1)'}}>
+        {/* Futuristic Header */}
+        <div className="drag-handle bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white p-2 sm:p-3 cursor-move border-b border-[#00D9FF]/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="font-semibold text-sm sm:text-base">VelariAI</span>
               {isStreaming && (
                 <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs hidden sm:inline">Responding...</span>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#00D9FF] rounded-full animate-pulse" style={{boxShadow: '0 0 4px rgba(0, 217, 255, 0.6)'}}></div>
+                  <span className="text-xs hidden sm:inline">Processing...</span>
                 </div>
               )}
             </div>

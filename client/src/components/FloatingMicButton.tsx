@@ -34,18 +34,18 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
         )}
       </Button>
       
-      {/* Tooltip - only show on larger screens */}
+      {/* Futuristic tooltip */}
       {isHovered && !isActive && (
-        <div className="absolute bottom-16 sm:bottom-18 right-0 glassmorphism text-[#F9FAFB] text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in">
+        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-[#161B22]/90 backdrop-blur-lg border border-[#00D9FF]/30 text-[#FFFFFF] text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in" style={{boxShadow: '0 0 8px rgba(0, 217, 255, 0.3)'}}>
           Start VelariAI Assistant
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#1E293B]"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#161B22]"></div>
         </div>
       )}
       
       {isActive && (
-        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-[#6366F1]/90 backdrop-blur-lg text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in">
+        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-gradient-to-r from-[#7C3AED]/90 to-[#EC4899]/90 backdrop-blur-lg border border-[#00D9FF]/50 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in" style={{boxShadow: '0 0 12px rgba(0, 217, 255, 0.4)'}}>
           Assistant Active
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#6366F1]"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#7C3AED]"></div>
         </div>
       )}
     </div>

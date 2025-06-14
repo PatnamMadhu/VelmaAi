@@ -126,6 +126,12 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
+- June 14, 2025. Complete UI redesign with futuristic elegant theme
+  * Replaced Velari dark theme with sophisticated futuristic design
+  * Updated color palette: #0A0A0F background, #7C3AED/EC4899 gradients, #00D9FF accent
+  * Enhanced visual effects with neon glows and advanced glassmorphism
+  * Redesigned all components: FloatingAssistant, ChatWindow, FloatingMicButton, Home page
+  * Improved typography with gradient text effects and enhanced animations
 - June 13, 2025. Initial setup
 ```
 
