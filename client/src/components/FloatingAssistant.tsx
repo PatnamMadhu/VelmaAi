@@ -263,9 +263,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <Card className="w-full h-full rounded-2xl shadow-2xl backdrop-blur-lg bg-white/95 border-gray-200 overflow-hidden floating-assistant">
+      <Card className="w-full h-full rounded-2xl shadow-velari-lg glassmorphism border-white/10 overflow-hidden floating-assistant">
         {/* Header */}
-        <div className="drag-handle bg-gradient-to-r from-primary to-blue-600 text-white p-2 sm:p-3 cursor-move">
+        <div className="drag-handle bg-gradient-to-r from-velari-highlight to-velari-accent text-velari-text p-2 sm:p-3 cursor-move">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Bot className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -108,11 +108,11 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center py-8 max-w-md">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 bg-velari-highlight/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-velari">
+            <MessageCircle className="w-8 h-8 text-velari-highlight" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">VelariAI</h2>
-          <p className="text-gray-600">Start by speaking or typing your question. I'll use your context to provide intelligent, real-time responses.</p>
+          <h2 className="text-2xl font-semibold text-velari-text mb-2">VelariAI</h2>
+          <p className="text-velari-muted">Start by speaking or typing your question. I'll use your context to provide intelligent, real-time responses.</p>
         </div>
       </div>
     );
