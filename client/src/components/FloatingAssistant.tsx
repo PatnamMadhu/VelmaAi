@@ -468,9 +468,11 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     size="sm"
                     onClick={() => {
                       if (editableTranscript.trim()) {
-                        handleSendMessage(editableTranscript, true);
+                        const messageToSend = editableTranscript.trim();
+                        // Clear immediately to provide instant UI feedback
                         setEditableTranscript('');
                         resetTranscript();
+                        handleSendMessage(messageToSend, true);
                       }
                     }}
                     disabled={!editableTranscript.trim() || isProcessing}
