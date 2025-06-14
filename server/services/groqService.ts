@@ -38,7 +38,7 @@ export class GroqService {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
         temperature: 0.5, // Lower temperature for faster, more consistent responses
-        max_tokens: 180, // Strict limit for concise responses
+        max_tokens: 80, // Hard limit for ultra-concise responses
         stream: !!onStream,
       };
       
@@ -69,7 +69,10 @@ export class GroqService {
         }
         const data: GroqResponse = await response.json();
         console.log('Groq response:', JSON.stringify(data, null, 2));
-        return data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response.";
+        const rawResponse = data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response.";
+        
+        // Post-process to enforce constraints
+        return this.enforceResponseConstraints(rawResponse);
       }
 
       // Handle streaming response
@@ -119,6 +122,31 @@ export class GroqService {
     }
   }
 
+  private enforceResponseConstraints(response: string): string {
+    // Remove all formatting (asterisks, bullets, etc.)
+    let cleanResponse = response
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold formatting
+      .replace(/\*([^*]+)\*/g, '$1') // Remove italic formatting
+      .replace(/^[•\-\*]\s+/gm, '') // Remove bullet points
+      .replace(/^\d+\.\s+/gm, '') // Remove numbered lists
+      .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers
+      .replace(/\n{3,}/g, '\n\n') // Limit excessive line breaks
+      .trim();
+
+    // Split into words and enforce 100-word limit
+    const words = cleanResponse.split(/\s+/);
+    if (words.length > 100) {
+      cleanResponse = words.slice(0, 100).join(' ') + '...';
+    }
+
+    // Ensure it starts with Sure!, Absolutely!, or Great question!
+    if (!cleanResponse.match(/^(Sure!|Absolutely!|Great question!)/i)) {
+      cleanResponse = 'Sure! ' + cleanResponse;
+    }
+
+    return cleanResponse;
+  }
+
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     const responseStarters = [
       "Sure! In my experience with that technology,",
@@ -165,22 +193,16 @@ The key is balancing technical excellence with practical delivery timelines.`;
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // System prompt for ultra-concise interview responses
-    let systemPrompt = `You are VelariAI. Give SHORT, engaging interview answers.
+    // Ultra-concise system prompt - no formatting allowed
+    let systemPrompt = `You are VelariAI. Answer in 80 words maximum.
 
-STRICT RULES:
-- MAXIMUM 120 words total
+RULES:
 - Start with "Sure!" or "Absolutely!"
-- NO lists, bullets, or long explanations
-- Be conversational, not academic
+- Plain paragraphs only - NO asterisks, bullets, or headings
+- Conversational tone like talking to an interviewer
+- Cut off at 80 words even mid-sentence
 
-ANSWER FORMAT:
-- Direct answer (1 sentence)
-- Quick example (2-3 sentences max)
-- Brief insight (1 sentence)
-- Confident close (1 sentence)
-
-STOP writing after 120 words. Cut off mid-sentence if needed.`;
+FORBIDDEN: **, *, bullets, sections, long explanations`;
     
     if (context) {
       systemPrompt += `\n\nYour Professional Background:\n${context}\n\nIMPORTANT CONTEXT RULES:
