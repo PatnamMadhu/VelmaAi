@@ -336,7 +336,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         </div>
 
         {!isMinimized && (
-          <div className="p-0 h-full flex flex-col bg-black/20 backdrop-blur-sm">
+          <div className="p-0 h-full flex flex-col bg-gray-800/95 backdrop-blur-sm">
             {/* Context Input */}
             {showContextInput && (
               <div className="p-3 border-b border-white/10 bg-black/30" style={{ overflowY: 'hidden' }}>
@@ -367,32 +367,35 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
               {/* Current Question */}
               {currentQuestion && (
-                <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-xs font-semibold text-primary">Q</span>
+                <div className="chat-message-user">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-white">Q</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">{currentQuestion}</p>
+                    <p className="text-white font-medium leading-relaxed break-words">{currentQuestion}</p>
                   </div>
                 </div>
               )}
 
               {/* Current Answer */}
               {(currentAnswer || isStreaming) && (
-                <div className="bg-green-50 rounded-lg p-2 sm:p-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
+                <div className="chat-message-ai">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0 chat-container">
-                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed chat-response-text">
+                      <div className="text-white leading-relaxed chat-response-text">
                         {currentAnswer}
                       </div>
                       
                       {/* Streaming indicator */}
                       {isStreaming && (
-                        <div className="flex items-center space-x-2 mt-2">
-                          <div className="text-xs text-gray-500">Typing...</div>
+                        <div className="typing-indicator mt-2">
+                          <div className="typing-dot"></div>
+                          <div className="typing-dot"></div>
+                          <div className="typing-dot"></div>
+                          <span className="text-white/60 ml-3">VelariAI is thinking...</span>
                         </div>
                       )}
                     </div>
@@ -402,26 +405,26 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
               {/* Welcome Message */}
               {!currentQuestion && !currentAnswer && (
-                <div className="text-center py-4 sm:py-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 premium-glow">
+                    <Bot className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
+                  <h3 className="text-xl font-bold text-white mb-3 gradient-text">VelariAI Assistant</h3>
+                  <p className="text-white/70 text-base">Ask me anything or use voice input to get started!</p>
                 </div>
               )}
             </div>
 
             {/* Voice Transcription Preview - Always visible */}
-            <div className="px-2 sm:px-4 pb-2">
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <div className="flex items-start justify-between mb-2">
+            <div className="px-4 pb-4">
+              <div className="premium-glass p-4 rounded-xl border border-purple-500/30">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-orange-600 font-medium">Voice Input:</span>
+                    <span className="text-sm text-white font-medium">Voice Input:</span>
                     {isListening && (
-                      <div className="flex items-center space-x-1">
+                      <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-orange-600">Listening...</span>
+                        <span className="text-sm text-red-400">Listening...</span>
                       </div>
                     )}
                   </div>
@@ -432,61 +435,55 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   value={editableTranscript || ""}
                   onChange={(e) => setEditableTranscript(e.target.value)}
                   placeholder="Click 'Listen' to start speaking or type to edit..."
-                  className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="context-input w-full min-h-[80px] text-white bg-black/40 border border-purple-500/40 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
                   rows={3}
                 />
                 
-                <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      size="sm"
+                    <button 
                       onClick={handleVoiceToggle}
-                      variant={isListening ? "destructive" : "default"}
-                      className="h-8 px-3"
                       disabled={!isSupported}
+                      className={`premium-button px-4 py-2 text-sm ${isListening ? 'bg-red-600 hover:bg-red-700' : ''}`}
                     >
                       {isListening ? (
                         <>
-                          <MicOff className="w-3 h-3 mr-1" />
+                          <MicOff className="w-4 h-4 mr-1" />
                           Stop
                         </>
                       ) : (
                         <>
-                          <Mic className="w-3 h-3 mr-1" />
+                          <Mic className="w-4 h-4 mr-1" />
                           Listen
                         </>
                       )}
-                    </Button>
-                    <Button 
-                      size="sm"
+                    </button>
+                    <button 
                       onClick={() => {
                         setEditableTranscript('');
                         resetTranscript();
                       }}
-                      variant="outline"
-                      className="h-8 px-3"
                       disabled={!editableTranscript.trim()}
+                      className="px-4 py-2 text-sm text-white/70 hover:text-white border border-white/20 rounded-xl hover:bg-white/10 transition-all duration-300"
                     >
                       Clear
-                    </Button>
+                    </button>
                   </div>
-                  <Button 
-                    size="sm"
+                  <button 
                     onClick={() => {
                       if (editableTranscript.trim()) {
                         const messageToSend = editableTranscript.trim();
-                        // Clear immediately to provide instant UI feedback
                         setEditableTranscript('');
                         resetTranscript();
                         handleSendMessage(messageToSend, true);
                       }
                     }}
                     disabled={!editableTranscript.trim() || isProcessing}
-                    className="h-8 px-3"
+                    className="premium-button px-4 py-2 text-sm"
                   >
-                    <Send className="w-3 h-3 mr-1" />
+                    <Send className="w-4 h-4 mr-1" />
                     Send
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
