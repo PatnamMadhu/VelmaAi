@@ -263,47 +263,53 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <Card className="w-full h-full rounded-2xl overflow-hidden floating-assistant bg-[#161B22] border border-[#00D9FF]/30" style={{boxShadow: '0 8px 32px rgba(0, 217, 255, 0.2), 0 0 20px rgba(124, 58, 237, 0.1)'}}>
-        {/* Futuristic Header */}
-        <div className="drag-handle bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white p-2 sm:p-3 cursor-move border-b border-[#00D9FF]/20">
+      <div className="premium-glass w-full h-full rounded-2xl overflow-hidden ultra-smooth">
+        {/* Ultra-modern Header */}
+        <div className="drag-handle bg-gradient-to-r from-black/80 to-black/60 text-white p-3 cursor-move border-b border-white/5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-semibold text-sm sm:text-base">VelariAI</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center premium-glow">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-bold text-lg gradient-text">VelariAI</span>
               {isStreaming && (
-                <div className="flex items-center space-x-1">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#00D9FF] rounded-full animate-pulse" style={{boxShadow: '0 0 4px rgba(0, 217, 255, 0.6)'}}></div>
-                  <span className="text-xs hidden sm:inline">Processing...</span>
+                <div className="flex items-center space-x-2">
+                  <div className="typing-indicator">
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                    <div className="typing-dot"></div>
+                  </div>
+                  <span className="text-sm text-white/60 hidden sm:inline">Processing...</span>
                 </div>
               )}
             </div>
-            <div className="flex items-center space-x-0.5 sm:space-x-1">
+            <div className="flex items-center space-x-2">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setShowContextInput(!showContextInput)}
-                className={`text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0 ${showContextInput ? 'bg-white/20' : ''}`}
+                className={`text-white/70 hover:text-white hover:bg-white/10 w-8 h-8 p-0 rounded-xl transition-all duration-300 ${showContextInput ? 'bg-white/10 text-white' : ''}`}
                 title={showContextInput ? "Hide Context" : "Add Background Context"}
               >
-                <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                <FileText className="w-4 h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
+                className="text-white/70 hover:text-white hover:bg-white/10 w-8 h-8 p-0 rounded-xl transition-all duration-300"
                 title="Minimize"
               >
-                <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                <Minus className="w-4 h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={onClose}
-                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
+                className="text-white/70 hover:text-white hover:bg-red-500/20 w-8 h-8 p-0 rounded-xl transition-all duration-300"
                 title="Close"
               >
-                <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -515,9 +521,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                 </Button>
               </div>
             </div>
-          </CardContent>
+          </div>
         )}
-      </Card>
+      </div>
     </Rnd>
   );
 
