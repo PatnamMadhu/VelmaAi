@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rnd } from 'react-rnd';
 import { Bot, Mic, MicOff, Send, X, Minus, Settings, FileText } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -336,17 +336,17 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         </div>
 
         {!isMinimized && (
-          <CardContent className="p-0 h-full flex flex-col">
+          <div className="p-0 h-full flex flex-col bg-black/20 backdrop-blur-sm">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-3 border-b border-gray-200 bg-gray-50/50" style={{ overflowY: 'hidden' }}>
+              <div className="p-3 border-b border-white/10 bg-black/30" style={{ overflowY: 'hidden' }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Background Context</span>
+                  <span className="text-sm font-medium text-white">Background Context</span>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setShowContextInput(false)}
-                    className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
+                    className="text-white/70 hover:text-white h-6 w-6 p-0"
                   >
                     <X className="w-3 h-3" />
                   </Button>
@@ -494,7 +494,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
 
             {/* Input Section */}
-            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
+            <div className="p-4 border-t border-white/10 bg-black/40 space-y-3">
 
               {/* Text Input */}
               <div className="flex items-center space-x-1 sm:space-x-2">
