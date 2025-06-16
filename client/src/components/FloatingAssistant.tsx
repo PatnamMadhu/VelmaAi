@@ -363,8 +363,8 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               </div>
             )}
 
-            {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
+            {/* Chat Area - Maximized for responses */}
+            <div className="flex-1 flex flex-col p-4 space-y-4 min-h-0 overflow-y-auto">
               {/* Current Question */}
               {currentQuestion && (
                 <div className="chat-message-user">
@@ -415,107 +415,67 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Voice Transcription Preview - Always visible */}
-            <div className="px-4 pb-4">
-              <div className="premium-glass p-4 rounded-xl border border-purple-500/30">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-white font-medium">Voice Input:</span>
-                    {isListening && (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm text-red-400">Listening...</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Editable voice transcript */}
-                <textarea
-                  value={editableTranscript || ""}
-                  onChange={(e) => setEditableTranscript(e.target.value)}
-                  placeholder="Click 'Listen' to start speaking or type to edit..."
-                  className="context-input w-full min-h-[80px] text-white bg-black/40 border border-purple-500/40 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  rows={3}
-                />
-                
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-2">
+            {/* Voice Input - Compact */}
+            <div className="px-4 pb-2">
+              <div className="premium-glass p-3 rounded-lg border border-purple-500/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 flex-1">
+                    <input
+                      value={editableTranscript || ""}
+                      onChange={(e) => setEditableTranscript(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          if (editableTranscript.trim()) {
+                            const messageToSend = editableTranscript.trim();
+                            setEditableTranscript('');
+                            resetTranscript();
+                            handleSendMessage(messageToSend, false);
+                          }
+                        }
+                      }}
+                      placeholder="Voice input or type here..."
+                      className="flex-1 px-3 py-2 text-sm text-white bg-black/40 border border-purple-500/40 rounded-lg placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    />
                     <button 
                       onClick={handleVoiceToggle}
                       disabled={!isSupported}
-                      className={`premium-button px-4 py-2 text-sm ${isListening ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
                     >
                       {isListening ? (
-                        <>
-                          <MicOff className="w-4 h-4 mr-1" />
-                          Stop
-                        </>
+                        <MicOff className="w-4 h-4 text-white" />
                       ) : (
-                        <>
-                          <Mic className="w-4 h-4 mr-1" />
-                          Listen
-                        </>
+                        <Mic className="w-4 h-4 text-white" />
                       )}
                     </button>
                     <button 
                       onClick={() => {
-                        setEditableTranscript('');
-                        resetTranscript();
+                        if (editableTranscript.trim()) {
+                          const messageToSend = editableTranscript.trim();
+                          setEditableTranscript('');
+                          resetTranscript();
+                          handleSendMessage(messageToSend, true);
+                        }
                       }}
-                      disabled={!editableTranscript.trim()}
-                      className="px-4 py-2 text-sm text-white/70 hover:text-white border border-white/20 rounded-xl hover:bg-white/10 transition-all duration-300"
+                      disabled={!editableTranscript.trim() || isProcessing}
+                      className="premium-button w-10 h-10 p-0 rounded-lg"
                     >
-                      Clear
+                      <Send className="w-4 h-4" />
                     </button>
                   </div>
-                  <button 
-                    onClick={() => {
-                      if (editableTranscript.trim()) {
-                        const messageToSend = editableTranscript.trim();
-                        setEditableTranscript('');
-                        resetTranscript();
-                        handleSendMessage(messageToSend, true);
-                      }
-                    }}
-                    disabled={!editableTranscript.trim() || isProcessing}
-                    className="premium-button px-4 py-2 text-sm"
-                  >
-                    <Send className="w-4 h-4 mr-1" />
-                    Send
-                  </button>
                 </div>
+                {isListening && (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-red-400">Listening...</span>
+                  </div>
+                )}
               </div>
             </div>
 
 
 
-            {/* Input Section */}
-            <div className="p-4 border-t border-white/10 bg-black/50 space-y-3">
-              {/* Text Input */}
-              <div className="flex items-center space-x-3">
-                <input 
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your question..."
-                  disabled={isProcessing}
-                  className="flex-1 px-4 py-3 text-white bg-black/40 border border-purple-500/40 rounded-xl placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-                
-                <button 
-                  onClick={() => handleSendMessage(textInput)}
-                  disabled={!textInput.trim() || isProcessing}
-                  className="premium-button w-12 h-12 p-0 rounded-xl"
-                >
-                  {isProcessing ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
+
           </div>
         )}
       </div>
