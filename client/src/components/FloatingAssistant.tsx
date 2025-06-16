@@ -491,31 +491,29 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
 
             {/* Input Section */}
-            <div className="p-4 border-t border-white/10 bg-black/40 space-y-3">
-
+            <div className="p-4 border-t border-white/10 bg-black/50 space-y-3">
               {/* Text Input */}
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <Input 
+              <div className="flex items-center space-x-3">
+                <input 
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your question..."
                   disabled={isProcessing}
-                  className="text-xs sm:text-sm"
+                  className="flex-1 px-4 py-3 text-white bg-black/40 border border-purple-500/40 rounded-xl placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
                 
-                <Button 
+                <button 
                   onClick={() => handleSendMessage(textInput)}
                   disabled={!textInput.trim() || isProcessing}
-                  size="sm"
-                  className="h-8 w-8 sm:h-9 sm:w-9 p-0"
+                  className="premium-button w-12 h-12 p-0 rounded-xl"
                 >
                   {isProcessing ? (
-                    <div className="animate-spin rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
-                    <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    <Send className="w-5 h-5" />
                   )}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
