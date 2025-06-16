@@ -681,10 +681,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let completeTranscript = '';
+      let currentTranscript = '';
 
-      // Process all results to build complete transcript
-      for (let i = 0; i < event.results.length; i++) {
+      // Process only new results (from resultIndex onwards)
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         
         if (result.isFinal) {
@@ -698,21 +698,24 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
           
           const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
           const corrected = correctTechnicalTerms(bestTranscript);
-          completeTranscript += corrected + ' ';
+          currentTranscript += corrected + ' ';
         } else {
           // For interim results, use simple correction
           const interim = correctTechnicalTerms(result[0].transcript);
-          completeTranscript += interim + ' ';
+          currentTranscript += interim + ' ';
         }
       }
 
-      // Clean up and set the final transcript
-      const cleanedTranscript = completeTranscript
+      // Clean up and update transcript (append to existing for continuous speech)
+      const cleanedNewText = currentTranscript
         .replace(/\s+/g, ' ')
         .trim();
       
-      if (cleanedTranscript) {
-        setTranscript(cleanedTranscript);
+      if (cleanedNewText) {
+        setTranscript(prev => {
+          const combined = prev ? prev + ' ' + cleanedNewText : cleanedNewText;
+          return combined.replace(/\s+/g, ' ').trim();
+        });
       }
     };
 
