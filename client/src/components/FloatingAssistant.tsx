@@ -252,7 +252,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         }
       }}
       minWidth={window.innerWidth < 768 ? 280 : 300}
-      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 350 : 400}
+      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 400 : 450}
       maxWidth={window.innerWidth < 768 ? window.innerWidth - 10 : 800}
       maxHeight={isMinimized ? 60 : window.innerHeight - 50}
       dragHandleClassName="drag-handle"
@@ -336,7 +336,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         </div>
 
         {!isMinimized && (
-          <div className="p-0 h-full flex flex-col bg-gray-800/95 backdrop-blur-sm">
+          <div className="flex flex-col h-full bg-gray-800/95 backdrop-blur-sm">
             {/* Context Input */}
             {showContextInput && (
               <div className="p-3 border-b border-white/10 bg-black/30" style={{ overflowY: 'hidden' }}>
@@ -364,7 +364,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area - Maximized for responses */}
-            <div className="flex-1 flex flex-col p-4 space-y-4 min-h-0 overflow-y-auto">
+            <div className="flex-1 p-4 space-y-4 min-h-0 overflow-y-auto">
               {/* Current Question */}
               {currentQuestion && (
                 <div className="chat-message-user">
@@ -415,8 +415,8 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Compact Input at Bottom */}
-            <div className="p-3 border-t border-white/10 bg-black/30">
+            {/* Input Section - Fixed at Bottom */}
+            <div className="flex-shrink-0 p-3 border-t border-white/20 bg-black/50">
               <div className="flex items-center space-x-2">
                 <input
                   value={editableTranscript || ""}
