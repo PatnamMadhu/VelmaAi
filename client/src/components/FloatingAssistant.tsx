@@ -415,62 +415,65 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Voice Input - Compact */}
-            <div className="px-4 pb-2">
-              <div className="premium-glass p-3 rounded-lg border border-purple-500/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 flex-1">
-                    <input
-                      value={editableTranscript || ""}
-                      onChange={(e) => setEditableTranscript(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          if (editableTranscript.trim()) {
-                            const messageToSend = editableTranscript.trim();
-                            setEditableTranscript('');
-                            resetTranscript();
-                            handleSendMessage(messageToSend, false);
-                          }
-                        }
-                      }}
-                      placeholder="Voice input or type here..."
-                      className="flex-1 px-3 py-2 text-sm text-white bg-black/40 border border-purple-500/40 rounded-lg placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                    />
-                    <button 
-                      onClick={handleVoiceToggle}
-                      disabled={!isSupported}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                    >
-                      {isListening ? (
-                        <MicOff className="w-4 h-4 text-white" />
-                      ) : (
-                        <Mic className="w-4 h-4 text-white" />
-                      )}
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (editableTranscript.trim()) {
-                          const messageToSend = editableTranscript.trim();
-                          setEditableTranscript('');
-                          resetTranscript();
-                          handleSendMessage(messageToSend, true);
-                        }
-                      }}
-                      disabled={!editableTranscript.trim() || isProcessing}
-                      className="premium-button w-10 h-10 p-0 rounded-lg"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                {isListening && (
-                  <div className="flex items-center space-x-2 mt-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-red-400">Listening...</span>
-                  </div>
-                )}
+            {/* Compact Input at Bottom */}
+            <div className="p-3 border-t border-white/10 bg-black/30">
+              <div className="flex items-center space-x-2">
+                <input
+                  value={editableTranscript || ""}
+                  onChange={(e) => setEditableTranscript(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (editableTranscript.trim()) {
+                        const messageToSend = editableTranscript.trim();
+                        setEditableTranscript('');
+                        resetTranscript();
+                        handleSendMessage(messageToSend, false);
+                      }
+                    }
+                  }}
+                  placeholder="Type or use voice..."
+                  disabled={isProcessing}
+                  className="flex-1 px-3 py-2 text-white bg-black/50 border border-purple-500/40 rounded-lg placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
+                />
+                <button 
+                  onClick={handleVoiceToggle}
+                  disabled={!isSupported}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                  title={isListening ? "Stop listening" : "Start voice input"}
+                >
+                  {isListening ? (
+                    <MicOff className="w-4 h-4 text-white" />
+                  ) : (
+                    <Mic className="w-4 h-4 text-white" />
+                  )}
+                </button>
+                <button 
+                  onClick={() => {
+                    if (editableTranscript.trim()) {
+                      const messageToSend = editableTranscript.trim();
+                      setEditableTranscript('');
+                      resetTranscript();
+                      handleSendMessage(messageToSend, false);
+                    }
+                  }}
+                  disabled={!editableTranscript.trim() || isProcessing}
+                  className="w-9 h-9 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg flex items-center justify-center transition-all duration-300 disabled:opacity-50"
+                  title="Send message"
+                >
+                  {isProcessing ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Send className="w-4 h-4 text-white" />
+                  )}
+                </button>
               </div>
+              {isListening && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-red-400">Listening...</span>
+                </div>
+              )}
             </div>
 
 
