@@ -126,12 +126,14 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 16, 2025. Layout optimization for response space maximization
+- June 16, 2025. Layout optimization and input visibility fixes
+  * Fixed critical input visibility issue using absolute positioning
   * Redesigned FloatingAssistant with compact bottom input area
   * Combined voice and text input into single streamlined interface
   * Maximized chat response area height for better readability
   * Improved color contrast and visibility throughout interface
   * Fixed voice input text accumulation issue for fresh sessions
+  * Resolved React state update loop causing rendering errors
 - June 14, 2025. Complete UI redesign with futuristic elegant theme
   * Replaced Velari dark theme with sophisticated futuristic design
   * Updated color palette: #0A0A0F background, #7C3AED/EC4899 gradients, #00D9FF accent

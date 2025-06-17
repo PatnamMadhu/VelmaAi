@@ -52,7 +52,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     if (transcript && transcript !== editableTranscript) {
       setEditableTranscript(transcript);
     }
-  }, [transcript]);
+  }, [transcript, editableTranscript]);
 
   const handleSendMessage = async (message: string, isVoice: boolean = false) => {
     if (!message.trim() || isProcessing) return;
@@ -295,9 +295,18 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* INPUT SECTION - FIXED AT BOTTOM */}
-            <div className="flex-shrink-0 p-4 border-t-2 border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-pink-900/40 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
+            {/* INPUT SECTION - ALWAYS VISIBLE AT BOTTOM */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: 'rgba(139, 69, 19, 0.8)',
+              borderTop: '2px solid rgba(168, 85, 247, 0.6)',
+              padding: '16px',
+              zIndex: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <input
                   type="text"
                   value={editableTranscript || ""}
@@ -305,22 +314,38 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   onKeyDown={handleKeyPress}
                   placeholder="Type your message or use voice..."
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-3 text-white bg-black/70 border-2 border-purple-500/50 rounded-xl placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-sm font-medium"
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    color: 'white',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    border: '2px solid rgba(168, 85, 247, 0.5)',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    fontSize: '14px'
+                  }}
                 />
                 <button 
                   onClick={handleVoiceToggle}
                   disabled={!isSupported}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 font-medium border-2 ${
-                    isListening 
-                      ? 'bg-red-600 hover:bg-red-700 border-red-400 shadow-lg shadow-red-500/30' 
-                      : 'bg-purple-600 hover:bg-purple-700 border-purple-400 shadow-lg shadow-purple-500/30'
-                  }`}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: isListening ? '#DC2626' : '#9333EA',
+                    border: '2px solid rgba(168, 85, 247, 0.6)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s'
+                  }}
                   title={isListening ? "Stop voice input" : "Start voice input"}
                 >
                   {isListening ? (
-                    <MicOff className="w-5 h-5 text-white" />
+                    <MicOff style={{ width: '20px', height: '20px', color: 'white' }} />
                   ) : (
-                    <Mic className="w-5 h-5 text-white" />
+                    <Mic style={{ width: '20px', height: '20px', color: 'white' }} />
                   )}
                 </button>
                 <button 
@@ -333,20 +358,47 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     }
                   }}
                   disabled={!editableTranscript.trim() || isProcessing}
-                  className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 border-2 border-purple-400"
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    background: 'linear-gradient(to right, #9333EA, #EC4899)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid rgba(168, 85, 247, 0.6)',
+                    cursor: editableTranscript.trim() && !isProcessing ? 'pointer' : 'not-allowed',
+                    opacity: editableTranscript.trim() && !isProcessing ? 1 : 0.5,
+                    transition: 'all 0.3s'
+                  }}
                   title="Send message"
                 >
                   {isProcessing ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid white',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
                   ) : (
-                    <Send className="w-5 h-5 text-white" />
+                    <Send style={{ width: '20px', height: '20px', color: 'white' }} />
                   )}
                 </button>
               </div>
               {isListening && (
-                <div className="flex items-center space-x-2 mt-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-red-300 font-medium">Listening for voice input...</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    backgroundColor: '#EF4444',
+                    borderRadius: '50%',
+                    animation: 'pulse 1s infinite'
+                  }}></div>
+                  <span style={{ fontSize: '14px', color: '#FCA5A5', fontWeight: '500' }}>
+                    Listening for voice input...
+                  </span>
                 </div>
               )}
             </div>
