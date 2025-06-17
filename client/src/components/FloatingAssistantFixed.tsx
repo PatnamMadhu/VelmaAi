@@ -49,10 +49,10 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
   // Update editable transcript when speech recognition provides new transcript
   useEffect(() => {
-    if (transcript && transcript !== editableTranscript) {
+    if (transcript) {
       setEditableTranscript(transcript);
     }
-  }, [transcript, editableTranscript]);
+  }, [transcript]);
 
   const handleSendMessage = async (message: string, isVoice: boolean = false) => {
     if (!message.trim() || isProcessing) return;
