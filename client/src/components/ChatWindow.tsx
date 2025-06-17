@@ -17,11 +17,23 @@ interface ChatWindowProps {
 interface DisplayMessage extends Message {
   isStreaming?: boolean;
   streamContent?: string;
+  questionAnalysis?: {
+    type: string;
+    category: string;
+    confidence: number;
+    format: string;
+    complexity: string;
+    estimatedTime: number;
+  };
+  followUpSuggestions?: string[];
 }
 
 export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [currentQuestionAnalysis, setCurrentQuestionAnalysis] = useState<any>(null);
+  const [isAnalyzingQuestion, setIsAnalyzingQuestion] = useState(false);
+  const [latestFollowUps, setLatestFollowUps] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { lastMessage, isStreaming } = useWebSocket(sessionId);
@@ -49,6 +61,8 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
       case 'stream_start':
         if (lastMessage.messageId) {
           setStreamingMessageId(lastMessage.messageId);
+          setIsAnalyzingQuestion(true);
+          
           // Add a new streaming message placeholder
           const streamingMsg: DisplayMessage = {
             id: parseInt(lastMessage.messageId),
@@ -83,9 +97,20 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                   content: lastMessage.fullResponse || '',
                   isStreaming: false,
                   streamContent: undefined,
+                  questionAnalysis: lastMessage.questionAnalysis,
+                  followUpSuggestions: lastMessage.followUpSuggestions,
                 }
               : msg
           ));
+          
+          // Update global state for UI components
+          if (lastMessage.questionAnalysis) {
+            setCurrentQuestionAnalysis(lastMessage.questionAnalysis);
+          }
+          if (lastMessage.followUpSuggestions) {
+            setLatestFollowUps(lastMessage.followUpSuggestions);
+          }
+          setIsAnalyzingQuestion(false);
           setStreamingMessageId(null);
           onNewMessage?.();
         }
@@ -121,9 +146,28 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
     );
   }
 
+  const handleFollowUpClick = (suggestion: string) => {
+    // This will be handled by the parent component via onNewMessage
+    onNewMessage?.();
+  };
+
+  const getLastUserQuestion = () => {
+    const userMessages = messages.filter(msg => msg.role === 'user');
+    return userMessages.length > 0 ? userMessages[userMessages.length - 1].content : '';
+  };
+
   return (
-    <div className="flex-1 p-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-4xl mx-auto space-y-6 p-6">
+        {/* Question Analysis Component */}
+        {(isAnalyzingQuestion || currentQuestionAnalysis) && (
+          <QuestionAnalyzer
+            question={getLastUserQuestion()}
+            analysis={currentQuestionAnalysis}
+            isAnalyzing={isAnalyzingQuestion}
+          />
+        )}
+
         {messages.map((message, index) => (
           <div
             key={`${message.id}-${index}`}
@@ -190,6 +234,25 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
             )}
           </div>
         ))}
+
+        {/* Follow-up Suggestions Component */}
+        {latestFollowUps.length > 0 && (
+          <FollowUpSuggestions
+            suggestions={latestFollowUps}
+            questionType={currentQuestionAnalysis?.type}
+            onSuggestionClick={handleFollowUpClick}
+            isVisible={!isStreaming}
+          />
+        )}
+
+        {/* Interview Insights Component */}
+        {messages.length > 2 && (
+          <InterviewInsights
+            sessionId={sessionId}
+            isVisible={messages.length > 3}
+          />
+        )}
+
         <div ref={messagesEndRef} />
       </div>
     </div>

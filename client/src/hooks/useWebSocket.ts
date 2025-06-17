@@ -6,6 +6,15 @@ interface WebSocketMessage {
   messageId?: string;
   fullResponse?: string;
   error?: string;
+  questionAnalysis?: {
+    type: string;
+    category: string;
+    confidence: number;
+    format: string;
+    complexity: string;
+    estimatedTime: number;
+  };
+  followUpSuggestions?: string[];
 }
 
 interface UseWebSocketReturn {
