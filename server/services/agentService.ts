@@ -48,12 +48,13 @@ export class AgentService {
     const systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
     
     // Step 3: Generate raw AI response
-    const rawResponse = await groqService.generateResponse(
-      userMessage,
-      systemPrompt,
-      recentMessages.map(msg => ({ role: msg.role, content: msg.content })),
-      onStream
-    );
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...recentMessages.slice(-3).map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+      { role: 'user' as const, content: userMessage }
+    ];
+    
+    const rawResponse = await groqService.generateResponse(messages, onStream);
     
     // Step 4: Format response based on question type
     const formattedResponse = responseFormatter.formatResponse(
@@ -63,10 +64,9 @@ export class AgentService {
     );
     
     // Step 5: Generate follow-up suggestions
-    const followUpQuestions = await this.generateFollowUpSuggestions(
-      userMessage,
+    const followUpQuestions = this.generateInterviewFollowUps(
       questionAnalysis.questionType.type,
-      context
+      questionAnalysis.questionType.category
     );
     
     return {
@@ -94,6 +94,43 @@ export class AgentService {
       },
       responseStructure: formattedResponse.structure
     };
+  }
+
+  private generateInterviewFollowUps(questionType: string, category: string): string[] {
+    const followUpMap = {
+      'technical': [
+        "Can you walk me through a time you implemented this in production?",
+        "What challenges did you face with this technology?",
+        "How would you optimize this for better performance?",
+        "What alternatives would you consider and why?"
+      ],
+      'behavioral': [
+        "Tell me about another situation where you showed leadership",
+        "How do you handle feedback from team members?",
+        "Describe a time you had to make a difficult decision",
+        "What's your approach to conflict resolution?"
+      ],
+      'system_design': [
+        "How would you handle system failures in this architecture?",
+        "What monitoring would you implement?",
+        "How would you scale this to 10x traffic?",
+        "What security considerations are important here?"
+      ],
+      'coding': [
+        "How would you test this implementation?",
+        "What if the constraints were different?",
+        "Can you optimize this further?",
+        "Walk me through your debugging process"
+      ],
+      'general': [
+        "Can you elaborate on that experience?",
+        "How does this apply to team collaboration?",
+        "What would you do differently next time?",
+        "How do you stay updated with industry trends?"
+      ]
+    };
+
+    return followUpMap[questionType as keyof typeof followUpMap] || followUpMap.general;
   }
 
   private buildInterviewPrompt(questionAnalysis: any, context?: string): string {

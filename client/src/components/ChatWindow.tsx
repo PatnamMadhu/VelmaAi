@@ -5,6 +5,9 @@ import { Bot, User, Mic, Zap, MessageCircle } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useQuery } from '@tanstack/react-query';
 import { Message } from '@shared/schema';
+import { QuestionAnalyzer } from './QuestionAnalyzer';
+import { FollowUpSuggestions } from './FollowUpSuggestions';
+import { InterviewInsights } from './InterviewInsights';
 
 interface ChatWindowProps {
   sessionId: string;
