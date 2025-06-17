@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rnd } from 'react-rnd';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,16 @@ interface WindowState {
   y: number;
 }
 
+interface Message {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant';
+  timestamp: Date;
+  isVoice?: boolean;
+  isStreaming?: boolean;
+  streamContent?: string;
+}
+
 export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssistantProps) {
   const [windowState, setWindowState] = useState<WindowState>({
     width: window.innerWidth < 768 ? 320 : 400,
@@ -33,6 +43,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
   const [showContextInput, setShowContextInput] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editableTranscript, setEditableTranscript] = useState('');
+  const [messages, setMessages] = useState<Message[]>([]);
   
   const { toast } = useToast();
   const { isConnected, sendMessage, lastMessage, isStreaming } = useWebSocket(sessionId);
@@ -45,37 +56,26 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     resetTranscript
   } = useSpeechRecognition();
 
-  // State for managing messages
-  const [messages, setMessages] = useState<Array<{
-    id: string;
-    content: string;
-    role: 'user' | 'assistant';
-    timestamp: Date;
-    isVoice?: boolean;
-    isStreaming?: boolean;
-    streamContent?: string;
-  }>>([]);
-
-  // Update transcript when speech recognition changes
+  // Update transcript safely
   useEffect(() => {
     if (transcript && transcript !== editableTranscript) {
       setEditableTranscript(transcript);
     }
-  }, [transcript, editableTranscript]);
+  }, [transcript]);
 
   // Handle WebSocket messages
   useEffect(() => {
     if (lastMessage) {
       if (lastMessage.type === 'stream_start') {
-        const newAssistantMessage = {
+        const newMessage: Message = {
           id: lastMessage.messageId || Date.now().toString(),
           content: '',
-          role: 'assistant' as const,
+          role: 'assistant',
           timestamp: new Date(),
           isStreaming: true,
           streamContent: ''
         };
-        setMessages(prev => [...prev, newAssistantMessage]);
+        setMessages(prev => [...prev, newMessage]);
       } else if (lastMessage.type === 'stream_chunk') {
         setMessages(prev => prev.map(msg => 
           msg.isStreaming ? {
@@ -100,18 +100,17 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
   const handleSendMessage = (message: string, isVoice: boolean = false) => {
     if (!message.trim() || isProcessing || !isConnected) return;
 
-    // Add user message to display
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       content: message.trim(),
-      role: 'user' as const,
+      role: 'user',
       timestamp: new Date(),
       isVoice
     };
+    
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
 
-    // Send via WebSocket
     sendMessage({
       type: 'chat',
       message: message.trim(),
@@ -159,9 +158,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           });
         }
       }}
-      minWidth={window.innerWidth < 768 ? 280 : 300}
-      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 400 : 450}
-      maxWidth={window.innerWidth < 768 ? window.innerWidth - 10 : 800}
+      minWidth={280}
+      minHeight={isMinimized ? 60 : 400}
+      maxWidth={800}
       maxHeight={isMinimized ? 60 : window.innerHeight - 50}
       dragHandleClassName="drag-handle"
       disableDragging={false}
@@ -222,7 +221,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             </div>
           </div>
           
-          {/* Context Toggle Bar */}
           {!isMinimized && (
             <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
               <div className="flex items-center space-x-2">
@@ -324,18 +322,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* INPUT SECTION - ALWAYS VISIBLE AT BOTTOM */}
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: 'rgba(139, 69, 19, 0.8)',
-              borderTop: '2px solid rgba(168, 85, 247, 0.6)',
-              padding: '16px',
-              zIndex: 10
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Input Section - Fixed at Bottom */}
+            <div className="flex-shrink-0 p-4 border-t-2 border-purple-500/60 bg-gradient-to-r from-purple-900/40 to-pink-900/40 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
                 <input
                   type="text"
                   value={editableTranscript || ""}
@@ -343,38 +332,22 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   onKeyDown={handleKeyPress}
                   placeholder="Type your message or use voice..."
                   disabled={isProcessing}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    color: 'white',
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    border: '2px solid rgba(168, 85, 247, 0.5)',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    fontSize: '14px'
-                  }}
+                  className="flex-1 px-4 py-3 text-white bg-black/70 border-2 border-purple-500/50 rounded-xl placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-sm font-medium"
                 />
                 <button 
                   onClick={handleVoiceToggle}
                   disabled={!isSupported}
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: isListening ? '#DC2626' : '#9333EA',
-                    border: '2px solid rgba(168, 85, 247, 0.6)',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                  }}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 font-medium border-2 ${
+                    isListening 
+                      ? 'bg-red-600 hover:bg-red-700 border-red-400 shadow-lg shadow-red-500/30' 
+                      : 'bg-purple-600 hover:bg-purple-700 border-purple-400 shadow-lg shadow-purple-500/30'
+                  }`}
                   title={isListening ? "Stop voice input" : "Start voice input"}
                 >
                   {isListening ? (
-                    <MicOff style={{ width: '20px', height: '20px', color: 'white' }} />
+                    <MicOff className="w-5 h-5 text-white" />
                   ) : (
-                    <Mic style={{ width: '20px', height: '20px', color: 'white' }} />
+                    <Mic className="w-5 h-5 text-white" />
                   )}
                 </button>
                 <button 
@@ -387,47 +360,20 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     }
                   }}
                   disabled={!editableTranscript.trim() || isProcessing}
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    background: 'linear-gradient(to right, #9333EA, #EC4899)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid rgba(168, 85, 247, 0.6)',
-                    cursor: editableTranscript.trim() && !isProcessing ? 'pointer' : 'not-allowed',
-                    opacity: editableTranscript.trim() && !isProcessing ? 1 : 0.5,
-                    transition: 'all 0.3s'
-                  }}
+                  className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 border-2 border-purple-400"
                   title="Send message"
                 >
                   {isProcessing ? (
-                    <div style={{
-                      width: '20px',
-                      height: '20px',
-                      border: '2px solid white',
-                      borderTop: '2px solid transparent',
-                      borderRadius: '50%',
-                      animation: 'spin 1s linear infinite'
-                    }}></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
                   ) : (
-                    <Send style={{ width: '20px', height: '20px', color: 'white' }} />
+                    <Send className="w-5 h-5 text-white" />
                   )}
                 </button>
               </div>
               {isListening && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    backgroundColor: '#EF4444',
-                    borderRadius: '50%',
-                    animation: 'pulse 1s infinite'
-                  }}></div>
-                  <span style={{ fontSize: '14px', color: '#FCA5A5', fontWeight: '500' }}>
-                    Listening for voice input...
-                  </span>
+                <div className="flex items-center space-x-2 mt-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-red-300 font-medium">Listening for voice input...</span>
                 </div>
               )}
             </div>
