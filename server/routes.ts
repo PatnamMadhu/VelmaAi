@@ -5,6 +5,7 @@ import { z } from "zod";
 import { storage } from "./storage";
 import { groqService } from "./services/groqService";
 import { memoryService } from "./services/memory";
+import { agentService } from "./services/agentService";
 
 import { chatRequestSchema, contextRequestSchema } from "@shared/schema";
 
@@ -95,40 +96,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const wsClient = connections.get(sessionId);
       
       if (wsClient && wsClient.readyState === WebSocket.OPEN) {
-        // Stream response via WebSocket
+        // Stream response via WebSocket with intelligent analysis
+        const messageId = Date.now().toString();
         wsClient.send(JSON.stringify({
           type: 'stream_start',
-          messageId: Date.now().toString(),
+          messageId,
         }));
 
-        const messages = groqService.buildMessages(message, context, recentMessages);
-        console.log('Messages being sent to Groq:', JSON.stringify(messages, null, 2));
-        
-        let fullResponse = '';
-        const aiResponse = await groqService.generateResponse(messages, (chunk) => {
-          fullResponse += chunk;
+        try {
+          // Use enhanced agent service with intelligent question analysis
+          const agentResponse = await agentService.generateAgenticResponse(
+            message,
+            context,
+            recentMessages,
+            (chunk) => {
+              if (wsClient.readyState === WebSocket.OPEN) {
+                wsClient.send(JSON.stringify({
+                  type: 'stream_chunk',
+                  content: chunk,
+                }));
+              }
+            }
+          );
+
+          // Save AI response
+          await memoryService.addMessage(sessionId, agentResponse.finalAnswer, 'assistant');
+
+          // Send completion signal with enhanced metadata
           if (wsClient.readyState === WebSocket.OPEN) {
             wsClient.send(JSON.stringify({
-              type: 'stream_chunk',
-              content: chunk,
+              type: 'stream_end',
+              fullResponse: agentResponse.finalAnswer,
+              questionAnalysis: agentResponse.questionAnalysis,
+              followUpSuggestions: agentResponse.followUpQuestions,
+              responseStructure: agentResponse.responseStructure,
             }));
           }
-        });
 
-        // Save AI response
-        await memoryService.addMessage(sessionId, aiResponse, 'assistant');
+          return res.json({ 
+            success: true, 
+            response: agentResponse.finalAnswer,
+            streaming: true,
+            analysis: agentResponse.questionAnalysis
+          });
+        } catch (agentError) {
+          console.error('Agent service error, falling back to basic service:', agentError);
+          
+          // Fallback to basic groq service
+          const messages = groqService.buildMessages(message, context, recentMessages);
+          const aiResponse = await groqService.generateResponse(messages, (chunk) => {
+            if (wsClient.readyState === WebSocket.OPEN) {
+              wsClient.send(JSON.stringify({
+                type: 'stream_chunk',
+                content: chunk,
+              }));
+            }
+          });
 
-        // Send completion signal
-        if (wsClient.readyState === WebSocket.OPEN) {
-          wsClient.send(JSON.stringify({
-            type: 'stream_end',
-            fullResponse: aiResponse,
-          }));
+          await memoryService.addMessage(sessionId, aiResponse, 'assistant');
+
+          if (wsClient.readyState === WebSocket.OPEN) {
+            wsClient.send(JSON.stringify({
+              type: 'stream_end',
+              fullResponse: aiResponse,
+            }));
+          }
         }
 
         res.json({ 
           success: true, 
-          response: aiResponse,
+          response: 'Response generated successfully',
           streaming: true 
         });
       } else {
