@@ -1,4 +1,7 @@
 import { groqService } from './groqService';
+import { memoryService } from './memory';
+import { questionAnalyzer } from './questionAnalyzer';
+import { responseFormatter } from './responseFormatter';
 
 interface AgentAction {
   type: 'analyze' | 'plan' | 'execute' | 'followup';
@@ -19,6 +22,15 @@ interface AgentResponse {
   finalAnswer: string;
   suggestedActions?: string[];
   followUpQuestions?: string[];
+  questionAnalysis?: {
+    type: string;
+    category: string;
+    confidence: number;
+    format: string;
+    complexity: string;
+    estimatedTime: number;
+  };
+  responseStructure?: string;
 }
 
 export class AgentService {
@@ -27,18 +39,147 @@ export class AgentService {
     context?: string,
     recentMessages: any[] = [],
     onStream?: (chunk: string) => void
-  ): Promise<string> {
+  ): Promise<AgentResponse> {
     
-    // Step 1: Analyze the user's request
-    const analysis = await this.analyzeRequest(userMessage, context, recentMessages);
+    // Step 1: Analyze the question intelligently
+    const questionAnalysis = questionAnalyzer.analyzeQuestion(userMessage);
     
-    // Step 2: Plan the response strategy
-    const plan = await this.planResponse(analysis, userMessage, context);
+    // Step 2: Generate context-aware system prompt
+    const systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
     
-    // Step 3: Execute the planned response
-    const response = await this.executeResponse(plan, userMessage, context, recentMessages, onStream);
+    // Step 3: Generate raw AI response
+    const rawResponse = await groqService.generateResponse(
+      userMessage,
+      systemPrompt,
+      recentMessages.map(msg => ({ role: msg.role, content: msg.content })),
+      onStream
+    );
     
-    return response;
+    // Step 4: Format response based on question type
+    const formattedResponse = responseFormatter.formatResponse(
+      questionAnalysis,
+      rawResponse,
+      context
+    );
+    
+    // Step 5: Generate follow-up suggestions
+    const followUpQuestions = await this.generateFollowUpSuggestions(
+      userMessage,
+      questionAnalysis.questionType.type,
+      context
+    );
+    
+    return {
+      thoughts: [{
+        observation: `Detected ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
+        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format for optimal interview response`,
+        action: {
+          type: 'execute',
+          description: `Providing structured ${questionAnalysis.questionType.category} answer`,
+          reasoning: `Question requires ${questionAnalysis.questionType.suggestedFormat} format`,
+          confidence: questionAnalysis.questionType.confidence
+        },
+        result: formattedResponse.structure
+      }],
+      finalAnswer: formattedResponse.content,
+      followUpQuestions: followUpQuestions,
+      suggestedActions: formattedResponse.followUpSuggestions,
+      questionAnalysis: {
+        type: questionAnalysis.questionType.type,
+        category: questionAnalysis.questionType.category,
+        confidence: questionAnalysis.questionType.confidence,
+        format: questionAnalysis.questionType.suggestedFormat,
+        complexity: questionAnalysis.complexity,
+        estimatedTime: questionAnalysis.estimatedTime
+      },
+      responseStructure: formattedResponse.structure
+    };
+  }
+
+  private buildInterviewPrompt(questionAnalysis: any, context?: string): string {
+    const basePrompt = `You are VelariAI, a specialized AI interview assistant designed to help candidates excel in technical interviews.
+
+QUESTION ANALYSIS:
+- Type: ${questionAnalysis.questionType.type}
+- Category: ${questionAnalysis.questionType.category}
+- Format Required: ${questionAnalysis.questionType.suggestedFormat}
+- Complexity: ${questionAnalysis.complexity}
+- Keywords: ${questionAnalysis.keywords.join(', ')}
+
+RESPONSE GUIDELINES:`;
+
+    switch (questionAnalysis.questionType.suggestedFormat) {
+      case 'star':
+        return basePrompt + `
+- Use STAR format (Situation, Task, Action, Result)
+- Be specific with metrics and outcomes
+- Draw from relevant experience when possible
+- Keep each section concise but detailed
+- Show leadership and problem-solving skills
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Provide a structured STAR response that demonstrates competency and growth mindset.`;
+
+      case 'definition':
+        return basePrompt + `
+- Start with a clear, concise definition
+- Explain key components or principles
+- Provide a practical example or use case
+- Mention relevant technologies or implementations
+- Keep explanations interview-appropriate (2-3 minutes max)
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Answer as a confident candidate who understands both theory and practical application.`;
+
+      case 'comparison':
+        return basePrompt + `
+- Present both options fairly
+- Highlight key differences and trade-offs
+- Discuss use cases for each approach
+- Provide a clear recommendation based on context
+- Show understanding of decision-making factors
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Demonstrate analytical thinking and practical experience with both approaches.`;
+
+      case 'architecture':
+        return basePrompt + `
+- Start with high-level system overview
+- Break down into core components
+- Explain data flow and interactions
+- Address scalability and reliability concerns
+- Mention specific technologies and rationale
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Show system design thinking and ability to handle complex distributed systems.`;
+
+      case 'step_by_step':
+        return basePrompt + `
+- Explain your approach and reasoning
+- Break down the algorithm or solution
+- Discuss time and space complexity
+- Consider edge cases and optimizations
+- Show problem-solving methodology
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Demonstrate strong algorithmic thinking and coding best practices.`;
+
+      default:
+        return basePrompt + `
+- Provide clear, structured answers
+- Show depth of knowledge
+- Relate to practical experience when relevant
+- Keep responses concise but comprehensive
+
+${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+
+Answer naturally and confidently as an experienced professional.`;
+    }
   }
 
   private async analyzeRequest(

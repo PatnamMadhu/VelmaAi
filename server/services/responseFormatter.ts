@@ -224,11 +224,32 @@ ${coding.code}
   }
 
   private extractSTARComponents(response: string): STARComponents {
-    // Try to identify STAR components from the response
-    const situationMatch = response.match(/(?:situation|context|background):\s*(.+?)(?=\n|task|action|result|$)/i);
-    const taskMatch = response.match(/(?:task|challenge|goal|objective):\s*(.+?)(?=\n|action|result|$)/i);
-    const actionMatch = response.match(/(?:action|steps|approach|solution):\s*(.+?)(?=\n|result|$)/i);
-    const resultMatch = response.match(/(?:result|outcome|impact|achievement):\s*(.+?)$/i);
+    // Try to identify STAR components from the response using simpler patterns
+    const situationKeywords = ['situation', 'context', 'background'];
+    const taskKeywords = ['task', 'challenge', 'goal', 'objective'];
+    const actionKeywords = ['action', 'steps', 'approach', 'solution'];
+    const resultKeywords = ['result', 'outcome', 'impact', 'achievement'];
+    
+    const findSection = (keywords: string[], text: string) => {
+      for (const keyword of keywords) {
+        const index = text.toLowerCase().indexOf(keyword + ':');
+        if (index !== -1) {
+          const start = index + keyword.length + 1;
+          const nextKeywordIndex = Math.min(
+            ...['task', 'action', 'result', 'situation'].map(k => text.toLowerCase().indexOf(k + ':', start))
+              .filter(i => i > start)
+          );
+          const end = nextKeywordIndex === Infinity ? text.length : nextKeywordIndex;
+          return text.substring(start, end).trim();
+        }
+      }
+      return null;
+    };
+    
+    const situationMatch = findSection(situationKeywords, response);
+    const taskMatch = findSection(taskKeywords, response);
+    const actionMatch = findSection(actionKeywords, response);
+    const resultMatch = findSection(resultKeywords, response);
 
     // If structured components aren't found, create them from the response
     if (!situationMatch && !taskMatch && !actionMatch && !resultMatch) {
@@ -244,10 +265,10 @@ ${coding.code}
     }
 
     return {
-      situation: situationMatch?.[1]?.trim() || "In a previous role, I encountered a situation that required careful handling.",
-      task: taskMatch?.[1]?.trim() || "My objective was to resolve the issue while maintaining team productivity.",
-      action: actionMatch?.[1]?.trim() || "I took a systematic approach, focusing on clear communication and collaboration.",
-      result: resultMatch?.[1]?.trim() || "The outcome was successful, leading to improved processes and team satisfaction."
+      situation: situationMatch || "In a previous role, I encountered a situation that required careful handling.",
+      task: taskMatch || "My objective was to resolve the issue while maintaining team productivity.",
+      action: actionMatch || "I took a systematic approach, focusing on clear communication and collaboration.",
+      result: resultMatch || "The outcome was successful, leading to improved processes and team satisfaction."
     };
   }
 
