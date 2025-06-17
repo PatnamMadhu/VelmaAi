@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Rnd } from 'react-rnd';
 import { Bot, Mic, MicOff, Send, X, Minus, Settings, FileText } from 'lucide-react';
-
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -252,7 +252,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         }
       }}
       minWidth={window.innerWidth < 768 ? 280 : 300}
-      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 400 : 450}
+      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 350 : 400}
       maxWidth={window.innerWidth < 768 ? window.innerWidth - 10 : 800}
       maxHeight={isMinimized ? 60 : window.innerHeight - 50}
       dragHandleClassName="drag-handle"
@@ -263,53 +263,47 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         zIndex: 1000,
       }}
     >
-      <div className="premium-glass w-full h-full rounded-2xl overflow-hidden ultra-smooth">
-        {/* Ultra-modern Header */}
-        <div className="drag-handle bg-gradient-to-r from-black/80 to-black/60 text-white p-3 cursor-move border-b border-white/5">
+      <Card className="w-full h-full rounded-2xl overflow-hidden floating-assistant bg-[#161B22] border border-[#00D9FF]/30" style={{boxShadow: '0 8px 32px rgba(0, 217, 255, 0.2), 0 0 20px rgba(124, 58, 237, 0.1)'}}>
+        {/* Futuristic Header */}
+        <div className="drag-handle bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white p-2 sm:p-3 cursor-move border-b border-[#00D9FF]/20">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center premium-glow">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-lg gradient-text">VelariAI</span>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="font-semibold text-sm sm:text-base">VelariAI</span>
               {isStreaming && (
-                <div className="flex items-center space-x-2">
-                  <div className="typing-indicator">
-                    <div className="typing-dot"></div>
-                    <div className="typing-dot"></div>
-                    <div className="typing-dot"></div>
-                  </div>
-                  <span className="text-sm text-white/60 hidden sm:inline">Processing...</span>
+                <div className="flex items-center space-x-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#00D9FF] rounded-full animate-pulse" style={{boxShadow: '0 0 4px rgba(0, 217, 255, 0.6)'}}></div>
+                  <span className="text-xs hidden sm:inline">Processing...</span>
                 </div>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-0.5 sm:space-x-1">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setShowContextInput(!showContextInput)}
-                className={`text-white/70 hover:text-white hover:bg-white/10 w-8 h-8 p-0 rounded-xl transition-all duration-300 ${showContextInput ? 'bg-white/10 text-white' : ''}`}
+                className={`text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0 ${showContextInput ? 'bg-white/20' : ''}`}
                 title={showContextInput ? "Hide Context" : "Add Background Context"}
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="text-white/70 hover:text-white hover:bg-white/10 w-8 h-8 p-0 rounded-xl transition-all duration-300"
+                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
                 title="Minimize"
               >
-                <Minus className="w-4 h-4" />
+                <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={onClose}
-                className="text-white/70 hover:text-white hover:bg-red-500/20 w-8 h-8 p-0 rounded-xl transition-all duration-300"
+                className="text-white hover:bg-white/20 w-6 h-6 sm:w-8 sm:h-8 p-0"
                 title="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
             </div>
           </div>
@@ -336,17 +330,17 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         </div>
 
         {!isMinimized && (
-          <div className="flex flex-col h-full bg-gray-800/95 backdrop-blur-sm">
+          <CardContent className="p-0 h-full flex flex-col">
             {/* Context Input */}
             {showContextInput && (
-              <div className="p-3 border-b border-white/10 bg-black/30" style={{ overflowY: 'hidden' }}>
+              <div className="p-3 border-b border-gray-200 bg-gray-50/50" style={{ overflowY: 'hidden' }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-white">Background Context</span>
+                  <span className="text-sm font-medium text-gray-700">Background Context</span>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setShowContextInput(false)}
-                    className="text-white/70 hover:text-white h-6 w-6 p-0"
+                    className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
                   >
                     <X className="w-3 h-3" />
                   </Button>
@@ -363,39 +357,36 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               </div>
             )}
 
-            {/* Chat Area - Maximized for responses */}
-            <div className="flex-1 p-4 space-y-4 min-h-0 overflow-y-auto">
+            {/* Chat Area */}
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
               {/* Current Question */}
               {currentQuestion && (
-                <div className="chat-message-user">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-white">Q</span>
+                <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-xs font-semibold text-primary">Q</span>
                     </div>
-                    <p className="text-white font-medium leading-relaxed break-words">{currentQuestion}</p>
+                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">{currentQuestion}</p>
                   </div>
                 </div>
               )}
 
               {/* Current Answer */}
               {(currentAnswer || isStreaming) && (
-                <div className="chat-message-ai">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-white" />
+                <div className="bg-green-50 rounded-lg p-2 sm:p-3">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
                     </div>
                     <div className="flex-1 min-w-0 chat-container">
-                      <div className="text-white leading-relaxed chat-response-text">
+                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed chat-response-text">
                         {currentAnswer}
                       </div>
                       
                       {/* Streaming indicator */}
                       {isStreaming && (
-                        <div className="typing-indicator mt-2">
-                          <div className="typing-dot"></div>
-                          <div className="typing-dot"></div>
-                          <div className="typing-dot"></div>
-                          <span className="text-white/60 ml-3">VelariAI is thinking...</span>
+                        <div className="flex items-center space-x-2 mt-2">
+                          <div className="text-xs text-gray-500">Typing...</div>
                         </div>
                       )}
                     </div>
@@ -405,85 +396,126 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
 
               {/* Welcome Message */}
               {!currentQuestion && !currentAnswer && (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 premium-glow">
-                    <Bot className="w-8 h-8 text-white" />
+                <div className="text-center py-4 sm:py-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3 gradient-text">VelariAI Assistant</h3>
-                  <p className="text-white/70 text-base">Ask me anything or use voice input to get started!</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
                 </div>
               )}
             </div>
 
-
-
-            {/* Bottom Input Area */}
-            <div className="flex-shrink-0 p-3 border-t-2 border-purple-500/50 bg-gradient-to-r from-black/80 to-gray-900/80">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="text"
+            {/* Voice Transcription Preview - Always visible */}
+            <div className="px-2 sm:px-4 pb-2">
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-orange-600 font-medium">Voice Input:</span>
+                    {isListening && (
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-orange-600">Listening...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Editable voice transcript */}
+                <textarea
                   value={editableTranscript || ""}
                   onChange={(e) => setEditableTranscript(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      if (editableTranscript.trim()) {
-                        const messageToSend = editableTranscript.trim();
+                  placeholder="Click 'Listen' to start speaking or type to edit..."
+                  className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  rows={3}
+                />
+                
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      size="sm"
+                      onClick={handleVoiceToggle}
+                      variant={isListening ? "destructive" : "default"}
+                      className="h-8 px-3"
+                      disabled={!isSupported}
+                    >
+                      {isListening ? (
+                        <>
+                          <MicOff className="w-3 h-3 mr-1" />
+                          Stop
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-3 h-3 mr-1" />
+                          Listen
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => {
                         setEditableTranscript('');
                         resetTranscript();
-                        handleSendMessage(messageToSend, false);
+                      }}
+                      variant="outline"
+                      className="h-8 px-3"
+                      disabled={!editableTranscript.trim()}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      if (editableTranscript.trim()) {
+                        handleSendMessage(editableTranscript, true);
+                        setEditableTranscript('');
+                        resetTranscript();
                       }
-                    }
-                  }}
-                  placeholder="Type your message or use voice..."
+                    }}
+                    disabled={!editableTranscript.trim() || isProcessing}
+                    className="h-8 px-3"
+                  >
+                    <Send className="w-3 h-3 mr-1" />
+                    Send
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+
+
+            {/* Input Section */}
+            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
+
+              {/* Text Input */}
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <Input 
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your question..."
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-3 text-white bg-black/60 border border-purple-400/50 rounded-xl placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="text-xs sm:text-sm"
                 />
-                <button 
-                  onClick={handleVoiceToggle}
-                  disabled={!isSupported}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 font-medium ${isListening 
-                    ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/30' 
-                    : 'bg-purple-600 hover:bg-purple-700 shadow-lg shadow-purple-500/30'
-                  }`}
-                  title={isListening ? "Stop voice input" : "Start voice input"}
-                >
-                  {isListening ? (
-                    <MicOff className="w-5 h-5 text-white" />
-                  ) : (
-                    <Mic className="w-5 h-5 text-white" />
-                  )}
-                </button>
-                <button 
-                  onClick={() => {
-                    if (editableTranscript.trim()) {
-                      const messageToSend = editableTranscript.trim();
-                      setEditableTranscript('');
-                      resetTranscript();
-                      handleSendMessage(messageToSend, false);
-                    }
-                  }}
-                  disabled={!editableTranscript.trim() || isProcessing}
-                  className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
-                  title="Send message"
+                
+                <Button 
+                  onClick={() => handleSendMessage(textInput)}
+                  disabled={!textInput.trim() || isProcessing}
+                  size="sm"
+                  className="h-8 w-8 sm:h-9 sm:w-9 p-0"
                 >
                   {isProcessing ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <div className="animate-spin rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 border-b-2 border-white"></div>
                   ) : (
-                    <Send className="w-5 h-5 text-white" />
+                    <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   )}
-                </button>
+                </Button>
               </div>
-              {isListening && (
-                <div className="flex items-center space-x-2 mt-3">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-red-400 font-medium">Listening for voice input...</span>
-                </div>
-              )}
             </div>
-          </div>
+          </CardContent>
         )}
-      </div>
+      </Card>
     </Rnd>
   );
 

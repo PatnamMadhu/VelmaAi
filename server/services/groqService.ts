@@ -121,27 +121,24 @@ export class GroqService {
 
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     const responseStarters = [
-      "Absolutely! I've used this approach in several projects.",
-      "Sure! From my experience working with this,",
-      "Great question! I've implemented this before and",
-      "Yes, I've dealt with this exact scenario.",
-      "In my experience with this technology,",
+      "Sure! In my experience with that technology,",
+      "Absolutely! I've worked with this extensively.",
+      "Great question! From my projects, here's how I approached it:",
+      "Yes, I've dealt with this challenge before.",
     ];
 
     const starter = responseStarters[Math.floor(Math.random() * responseStarters.length)];
     
-    // Generate natural, conversational interview-style response
-    const fullResponse = `${starter} let me walk you through how I typically handle it.
+    // Generate natural, interview-style response
+    const fullResponse = `${starter} I typically break this down into a few key areas:
 
-First, I focus on understanding the specific requirements and constraints. Then I implement a solution that balances performance with maintainability.
+• **Implementation approach:** I start by understanding the specific requirements and constraints
+• **Best practices:** I follow industry standards and leverage proven patterns  
+• **Real-world considerations:** I always think about scalability, maintainability, and performance
 
-• **My approach:** I start with a solid foundation and iterate based on real feedback
-• **Tools I use:** I leverage proven frameworks and libraries that fit the project needs  
-• **Best practices:** I always consider scalability and how the team will maintain the code
+For example, in one of my recent projects, I had to solve a similar challenge. I implemented a solution that improved efficiency by about 30% while keeping the code clean and well-documented.
 
-For instance, in a recent project, I implemented something similar and saw about a 30% improvement in performance. The key was choosing the right architecture pattern and keeping the implementation clean.
-
-I find this approach works well because it's both practical and scalable. Happy to dive deeper into any specific aspect you're curious about.`;
+The key is balancing technical excellence with practical delivery timelines.`;
 
     if (onStream) {
       // Stream naturally with slight delays between sentences
@@ -168,33 +165,30 @@ I find this approach works well because it's both practical and scalable. Happy 
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
-    // Natural interview-style system prompt for confident responses
-    let systemPrompt = `You are VelariAI, a real-time AI assistant helping users sound confident and clear during technical conversations. Always respond as if you're an experienced software engineer answering in a real-world context.
+    // Enhanced system prompt for accurate, contextual interview responses
+    let systemPrompt = `You are VelariAI, a technical interview preparation assistant. You help users practice answering complex technical questions with clarity and confidence. 
 
-RESPONSE STYLE:
-- Sound like a real software engineer explaining their experience
-- Use natural, confident language - avoid robotic or textbook definitions
-- Start with confident phrases: "Sure!", "Absolutely!", "In my experience...", "I've worked with this extensively"
-- Keep tone conversational but professional
-- Use "I" statements when describing implementation approaches
+CRITICAL RESPONSE REQUIREMENTS:
+- Listen carefully to the exact question being asked
+- Answer the specific question directly and completely
+- Use clear, structured responses with logical flow
+- Include practical examples and real-world context
+- Keep responses conversational but thorough (60-90 seconds when spoken)
+- Start confidently: "Sure!", "Absolutely!", "Great question..."
 
-STRUCTURE REQUIREMENTS:
-- Use short paragraphs and bullet points for clarity
-- Limit responses to 60-90 seconds when spoken aloud
-- Include practical examples where relevant, but keep them concise
-- Focus on real-world application over theoretical explanations
+TECHNICAL ACCURACY:
+- Provide accurate, up-to-date technical information
+- Use proper terminology and industry standards
+- Include relevant details about implementation, scaling, and best practices
+- Reference common tools, frameworks, and methodologies appropriately
+- Address both functional and non-functional requirements when relevant
 
-CONTENT APPROACH:
-- Answer the specific question directly first
-- Share practical implementation details
-- Mention relevant tools, frameworks, and best practices naturally
-- Include brief examples from "your experience" when helpful
-- Conclude confidently, ready for follow-up questions
-
-AVOID:
-- Overly textbook definitions unless explicitly asked
-- Long theoretical explanations without practical context
-- Academic or formal language that sounds unnatural in conversation`;
+STRUCTURE YOUR ANSWERS:
+1. Direct answer to the question
+2. Brief explanation of key concepts
+3. Practical example or implementation details
+4. Considerations for scale, performance, or best practices
+5. Conclude with confidence and readiness for follow-up questions`;
     
     if (context) {
       systemPrompt += `\n\nYour Professional Identity:\n${context}\n\nCRITICAL INSTRUCTIONS:
@@ -202,10 +196,6 @@ AVOID:
 - Reference your actual experience, skills, and projects from the context above
 - Use specific details from your background when answering
 - Never make up information not in your background
-- When asked about specific companies, reference ONLY your actual work experience there
-- For Brillio: mention 5G Verizon project, Go backend development, MySQL optimization, Goroutines/channels
-- For Capgemini: mention Angular/Spring applications, CI/CD with Jenkins, JWT authentication
-- For Reward360: mention HDFC Bank project, team leadership, Angular/PHP/Spring Boot
 - Structure responses with clear, confident flow
 - Share practical examples from your listed experience
 - Keep responses conversational and interview-appropriate (60-90 seconds when spoken)`;

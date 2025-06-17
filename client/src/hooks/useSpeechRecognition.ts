@@ -342,45 +342,6 @@ const technicalTermsMap: { [key: string]: string } = {
   'xr': 'XR'
 };
 
-// Clean up repetitive fragments from speech recognition
-function cleanRepeatedFragments(transcript: string): string {
-  if (!transcript || transcript.trim().length === 0) return transcript;
-  
-  const words = transcript.toLowerCase().split(/\s+/);
-  const cleanedWords: string[] = [];
-  
-  // Remove consecutive duplicate words
-  for (let i = 0; i < words.length; i++) {
-    const currentWord = words[i];
-    const nextWord = words[i + 1];
-    
-    // Skip if current word is identical to next word
-    if (currentWord !== nextWord) {
-      cleanedWords.push(currentWord);
-    }
-  }
-  
-  // Remove partial word fragments followed by complete words
-  const finalWords: string[] = [];
-  for (let i = 0; i < cleanedWords.length; i++) {
-    const currentWord = cleanedWords[i];
-    const nextWord = cleanedWords[i + 1];
-    
-    // Skip if current word is a prefix of the next word (e.g., "pol" before "polymorphism")
-    if (nextWord && nextWord.startsWith(currentWord) && currentWord.length < nextWord.length) {
-      continue;
-    }
-    
-    finalWords.push(currentWord);
-  }
-  
-  // Reconstruct sentence with proper capitalization
-  if (finalWords.length === 0) return transcript;
-  
-  const cleanedSentence = finalWords.join(' ');
-  return cleanedSentence.charAt(0).toUpperCase() + cleanedSentence.slice(1);
-}
-
 // Find the best alternative from speech recognition results
 function findBestAlternative(alternatives: string[], defaultTranscript: string): string {
   if (!alternatives || alternatives.length === 0) return defaultTranscript;
@@ -444,8 +405,7 @@ function findBestAlternative(alternatives: string[], defaultTranscript: string):
 
 // Correct technical terms in the transcript with enhanced slang and accent handling
 function correctTechnicalTerms(transcript: string): string {
-  // First clean up repetitive fragments
-  let corrected = cleanRepeatedFragments(transcript);
+  let corrected = transcript;
   
   // Check for exact matches first
   const lowerTranscript = transcript.toLowerCase().trim();
@@ -721,10 +681,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let currentTranscript = '';
+      let completeTranscript = '';
 
-      // Process only new results (from resultIndex onwards)
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      // Process all results to build complete transcript
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         
         if (result.isFinal) {
@@ -738,24 +698,21 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
           
           const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
           const corrected = correctTechnicalTerms(bestTranscript);
-          currentTranscript += corrected + ' ';
+          completeTranscript += corrected + ' ';
         } else {
           // For interim results, use simple correction
           const interim = correctTechnicalTerms(result[0].transcript);
-          currentTranscript += interim + ' ';
+          completeTranscript += interim + ' ';
         }
       }
 
-      // Clean up and update transcript (append to existing for continuous speech)
-      const cleanedNewText = currentTranscript
+      // Clean up and set the final transcript
+      const cleanedTranscript = completeTranscript
         .replace(/\s+/g, ' ')
         .trim();
       
-      if (cleanedNewText) {
-        setTranscript(prev => {
-          const combined = prev ? prev + ' ' + cleanedNewText : cleanedNewText;
-          return combined.replace(/\s+/g, ' ').trim();
-        });
+      if (cleanedTranscript) {
+        setTranscript(cleanedTranscript);
       }
     };
 

@@ -126,18 +126,6 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 16, 2025. AI response enhancement and layout optimization
-  * Updated AI system prompt for natural, confident interview-style responses
-  * Responses now sound like experienced software engineer explaining their experience
-  * Uses short paragraphs, bullet points, and 60-90 second speaking length
-  * Avoids robotic definitions, focuses on practical real-world applications
-  * Fixed critical input visibility issue using absolute positioning
-  * Redesigned FloatingAssistant with compact bottom input area
-  * Combined voice and text input into single streamlined interface
-  * Maximized chat response area height for better readability
-  * Improved color contrast and visibility throughout interface
-  * Fixed voice input text accumulation issue for fresh sessions
-  * Resolved React state update loop causing rendering errors
 - June 14, 2025. Complete UI redesign with futuristic elegant theme
   * Replaced Velari dark theme with sophisticated futuristic design
   * Updated color palette: #0A0A0F background, #7C3AED/EC4899 gradients, #00D9FF accent
