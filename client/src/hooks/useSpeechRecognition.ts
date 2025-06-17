@@ -664,11 +664,6 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   
-  // Prevention of repeated/partial phrase capture
-  const lastTranscriptRef = useRef<string>('');
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastProcessedTimeRef = useRef<number>(0);
-  
   // Adaptive learning storage for user-specific patterns
   const userPatternsRef = useRef<{ [key: string]: string }>({});
 
@@ -751,50 +746,16 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
         }
       }
 
-      // Clean up the new transcript
+      // Clean up and update transcript (append to existing for continuous speech)
       const cleanedNewText = currentTranscript
         .replace(/\s+/g, ' ')
         .trim();
       
       if (cleanedNewText) {
-        // Apply anti-repetition filtering
-        const normalizedNew = cleanedNewText.toLowerCase().trim();
-        const normalizedLast = lastTranscriptRef.current.toLowerCase().trim();
-        const currentTime = Date.now();
-        
-        // Skip if this is a duplicate or substring of previous transcript
-        const isDuplicate = normalizedNew === normalizedLast;
-        const isSubstring = normalizedLast.includes(normalizedNew) && normalizedNew.length < normalizedLast.length;
-        const isPartialRepeat = normalizedNew.startsWith(normalizedLast) && normalizedLast.length > 3;
-        const isTooSoon = currentTime - lastProcessedTimeRef.current < 500; // 500ms debounce
-        
-        // Filter out short fragments and repetitive inputs
-        const isTooShort = cleanedNewText.length < 3;
-        const hasRepeatedWords = /\b(\w+)\s+\1\b/i.test(cleanedNewText); // "intro intro" pattern
-        
-        if (isDuplicate || isSubstring || isPartialRepeat || isTooSoon || isTooShort || hasRepeatedWords) {
-          console.log('Filtered repetitive speech:', cleanedNewText);
-          return;
-        }
-        
-        // Clear any existing debounce timeout
-        if (debounceTimeoutRef.current) {
-          clearTimeout(debounceTimeoutRef.current);
-        }
-        
-        // Use debounce for final processing to wait for speech completion
-        debounceTimeoutRef.current = setTimeout(() => {
-          setTranscript(prev => {
-            const combined = prev ? prev + ' ' + cleanedNewText : cleanedNewText;
-            const finalTranscript = combined.replace(/\s+/g, ' ').trim();
-            
-            // Update tracking variables
-            lastTranscriptRef.current = finalTranscript;
-            lastProcessedTimeRef.current = Date.now();
-            
-            return finalTranscript;
-          });
-        }, 300); // 300ms debounce delay
+        setTranscript(prev => {
+          const combined = prev ? prev + ' ' + cleanedNewText : cleanedNewText;
+          return combined.replace(/\s+/g, ' ').trim();
+        });
       }
     };
 
@@ -854,13 +815,6 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     try {
       setError(null);
       setTranscript('');
-      // Reset anti-repetition tracking
-      lastTranscriptRef.current = '';
-      lastProcessedTimeRef.current = 0;
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
-      }
       recognitionRef.current.start();
     } catch (error) {
       console.error('Error starting speech recognition:', error);
@@ -871,24 +825,12 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
-      // Clear any pending debounce when stopping
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-        debounceTimeoutRef.current = null;
-      }
     }
   }, [isListening]);
 
   const resetTranscript = useCallback(() => {
     setTranscript('');
     setError(null);
-    // Reset anti-repetition tracking
-    lastTranscriptRef.current = '';
-    lastProcessedTimeRef.current = 0;
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = null;
-    }
   }, []);
 
   return {

@@ -126,12 +126,7 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 16, 2025. Voice input enhancement, AI response optimization, and layout fixes
-  * Implemented advanced voice input filtering to prevent repeated/partial phrase capture
-  * Added anti-repetition tracking with lastTranscript comparison and debouncing
-  * Filters out duplicate, substring, and progressive repetitions ("Intro" → "Introduce")
-  * Added 300ms debounce delay and 500ms cooldown between accepted inputs
-  * Smart filtering for word repetition patterns and short fragments
+- June 16, 2025. AI response enhancement and layout optimization
   * Updated AI system prompt for natural, confident interview-style responses
   * Responses now sound like experienced software engineer explaining their experience
   * Uses short paragraphs, bullet points, and 60-90 second speaking length
