@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bot } from 'lucide-react';
-import { FloatingAssistant } from '@/components/FloatingAssistant';
+import { FloatingAssistant } from '@/components/FloatingAssistantFixed';
 import { FloatingMicButton } from '@/components/FloatingMicButton';
 
 export default function Home() {
