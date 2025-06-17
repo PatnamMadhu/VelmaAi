@@ -126,7 +126,11 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 16, 2025. Layout optimization and input visibility fixes
+- June 16, 2025. AI response enhancement and layout optimization
+  * Updated AI system prompt for natural, confident interview-style responses
+  * Responses now sound like experienced software engineer explaining their experience
+  * Uses short paragraphs, bullet points, and 60-90 second speaking length
+  * Avoids robotic definitions, focuses on practical real-world applications
   * Fixed critical input visibility issue using absolute positioning
   * Redesigned FloatingAssistant with compact bottom input area
   * Combined voice and text input into single streamlined interface
