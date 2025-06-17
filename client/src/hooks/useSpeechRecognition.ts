@@ -342,6 +342,45 @@ const technicalTermsMap: { [key: string]: string } = {
   'xr': 'XR'
 };
 
+// Clean up repetitive fragments from speech recognition
+function cleanRepeatedFragments(transcript: string): string {
+  if (!transcript || transcript.trim().length === 0) return transcript;
+  
+  const words = transcript.toLowerCase().split(/\s+/);
+  const cleanedWords: string[] = [];
+  
+  // Remove consecutive duplicate words
+  for (let i = 0; i < words.length; i++) {
+    const currentWord = words[i];
+    const nextWord = words[i + 1];
+    
+    // Skip if current word is identical to next word
+    if (currentWord !== nextWord) {
+      cleanedWords.push(currentWord);
+    }
+  }
+  
+  // Remove partial word fragments followed by complete words
+  const finalWords: string[] = [];
+  for (let i = 0; i < cleanedWords.length; i++) {
+    const currentWord = cleanedWords[i];
+    const nextWord = cleanedWords[i + 1];
+    
+    // Skip if current word is a prefix of the next word (e.g., "pol" before "polymorphism")
+    if (nextWord && nextWord.startsWith(currentWord) && currentWord.length < nextWord.length) {
+      continue;
+    }
+    
+    finalWords.push(currentWord);
+  }
+  
+  // Reconstruct sentence with proper capitalization
+  if (finalWords.length === 0) return transcript;
+  
+  const cleanedSentence = finalWords.join(' ');
+  return cleanedSentence.charAt(0).toUpperCase() + cleanedSentence.slice(1);
+}
+
 // Find the best alternative from speech recognition results
 function findBestAlternative(alternatives: string[], defaultTranscript: string): string {
   if (!alternatives || alternatives.length === 0) return defaultTranscript;
@@ -405,7 +444,8 @@ function findBestAlternative(alternatives: string[], defaultTranscript: string):
 
 // Correct technical terms in the transcript with enhanced slang and accent handling
 function correctTechnicalTerms(transcript: string): string {
-  let corrected = transcript;
+  // First clean up repetitive fragments
+  let corrected = cleanRepeatedFragments(transcript);
   
   // Check for exact matches first
   const lowerTranscript = transcript.toLowerCase().trim();
