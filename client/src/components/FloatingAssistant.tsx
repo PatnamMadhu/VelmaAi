@@ -415,13 +415,16 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Input Section - Fixed at Bottom */}
-            <div className="flex-shrink-0 p-3 border-t border-white/20 bg-black/50">
+
+
+            {/* Bottom Input Area */}
+            <div className="flex-shrink-0 p-3 border-t-2 border-purple-500/50 bg-gradient-to-r from-black/80 to-gray-900/80">
               <div className="flex items-center space-x-2">
                 <input
+                  type="text"
                   value={editableTranscript || ""}
                   onChange={(e) => setEditableTranscript(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       if (editableTranscript.trim()) {
@@ -432,20 +435,23 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                       }
                     }
                   }}
-                  placeholder="Type or use voice..."
+                  placeholder="Type your message or use voice..."
                   disabled={isProcessing}
-                  className="flex-1 px-3 py-2 text-white bg-black/50 border border-purple-500/40 rounded-lg placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
+                  className="flex-1 px-4 py-3 text-white bg-black/60 border border-purple-400/50 rounded-xl placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                 />
                 <button 
                   onClick={handleVoiceToggle}
                   disabled={!isSupported}
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
-                  title={isListening ? "Stop listening" : "Start voice input"}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 font-medium ${isListening 
+                    ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/30' 
+                    : 'bg-purple-600 hover:bg-purple-700 shadow-lg shadow-purple-500/30'
+                  }`}
+                  title={isListening ? "Stop voice input" : "Start voice input"}
                 >
                   {isListening ? (
-                    <MicOff className="w-4 h-4 text-white" />
+                    <MicOff className="w-5 h-5 text-white" />
                   ) : (
-                    <Mic className="w-4 h-4 text-white" />
+                    <Mic className="w-5 h-5 text-white" />
                   )}
                 </button>
                 <button 
@@ -458,27 +464,23 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     }
                   }}
                   disabled={!editableTranscript.trim() || isProcessing}
-                  className="w-9 h-9 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg flex items-center justify-center transition-all duration-300 disabled:opacity-50"
+                  className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
                   title="Send message"
                 >
                   {isProcessing ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
                   ) : (
-                    <Send className="w-4 h-4 text-white" />
+                    <Send className="w-5 h-5 text-white" />
                   )}
                 </button>
               </div>
               {isListening && (
-                <div className="flex items-center space-x-2 mt-2">
+                <div className="flex items-center space-x-2 mt-3">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-red-400">Listening...</span>
+                  <span className="text-sm text-red-400 font-medium">Listening for voice input...</span>
                 </div>
               )}
             </div>
-
-
-
-
           </div>
         )}
       </div>
