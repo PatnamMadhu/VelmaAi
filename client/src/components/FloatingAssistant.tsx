@@ -83,7 +83,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     if (transcript && transcript !== editableTranscript) {
       setEditableTranscript(transcript);
     }
-  }, [transcript]);
+  }, [transcript, editableTranscript]);
 
   const { lastMessage } = useWebSocket(sessionId);
 
@@ -92,7 +92,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     localStorage.setItem('velari-window-state', JSON.stringify(windowState));
   }, [windowState]);
 
-  // Reset window position if it's off-screen
+  // Reset window position if it's off-screen (only on initial open)
   useEffect(() => {
     if (isOpen) {
       const { x, y, width, height } = windowState;
@@ -111,7 +111,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         }));
       }
     }
-  }, [isOpen, windowState]);
+  }, [isOpen]); // Remove windowState dependency to prevent infinite loop
 
   // Keyboard shortcut
   useEffect(() => {
