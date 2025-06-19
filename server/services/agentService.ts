@@ -47,10 +47,15 @@ export class AgentService {
     // Step 2: Generate context-aware system prompt
     const systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
     
-    // Step 3: Generate raw AI response
+    // Step 3: Generate raw AI response with focused context
+    const contextMessages = recentMessages.slice(-2).map(msg => ({ 
+      role: msg.role as 'user' | 'assistant', 
+      content: msg.content 
+    }));
+    
     const messages = [
       { role: 'system' as const, content: systemPrompt },
-      ...recentMessages.slice(-3).map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+      ...contextMessages,
       { role: 'user' as const, content: userMessage }
     ];
     
