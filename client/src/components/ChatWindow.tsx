@@ -25,6 +25,8 @@ interface DisplayMessage extends Message {
     format: string;
     complexity: string;
     estimatedTime: number;
+    hasContext: boolean;
+    requiresContext: boolean;
   };
   followUpSuggestions?: string[];
 }
@@ -218,15 +220,25 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                       </div>
                     </div>
                     
-                    <div className="flex items-center mt-1 space-x-2">
-                      <span className="text-xs text-[#A1A1AA]">
-                        {message.timestamp ? formatTime(message.timestamp) : ''}
-                      </span>
-                      {!message.isStreaming && (
-                        <Badge variant="secondary" className="text-xs bg-[#00D9FF]/20 text-[#00D9FF] border-[#00D9FF]/30">
-                          <Zap className="w-2 h-2 mr-1" />
-                          &lt;0.8s
-                        </Badge>
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs text-[#A1A1AA]">
+                          {message.timestamp ? formatTime(message.timestamp) : ''}
+                        </span>
+                        {!message.isStreaming && (
+                          <Badge variant="secondary" className="text-xs bg-[#00D9FF]/20 text-[#00D9FF] border-[#00D9FF]/30">
+                            <Zap className="w-2 h-2 mr-1" />
+                            &lt;0.8s
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Context Indicator */}
+                      {message.questionAnalysis && (
+                        <ContextIndicator
+                          hasContext={message.questionAnalysis.hasContext}
+                          isPersonalized={message.questionAnalysis.requiresContext}
+                        />
                       )}
                     </div>
                   </div>

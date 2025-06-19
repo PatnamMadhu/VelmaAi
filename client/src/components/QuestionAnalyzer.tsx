@@ -11,6 +11,8 @@ interface QuestionAnalysis {
   format: string;
   complexity: string;
   estimatedTime: number;
+  hasContext?: boolean;
+  requiresContext?: boolean;
 }
 
 interface QuestionAnalyzerProps {

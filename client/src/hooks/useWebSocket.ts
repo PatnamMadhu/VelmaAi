@@ -13,6 +13,8 @@ interface WebSocketMessage {
     format: string;
     complexity: string;
     estimatedTime: number;
+    hasContext: boolean;
+    requiresContext: boolean;
   };
   followUpSuggestions?: string[];
 }
