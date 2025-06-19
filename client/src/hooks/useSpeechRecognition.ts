@@ -788,6 +788,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const resetTranscript = useCallback(() => {
     setTranscript('');
     setError(null);
+    console.log('Voice transcript reset - ready for new input');
   }, []);
 
   return {

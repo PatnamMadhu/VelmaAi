@@ -126,7 +126,7 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 19, 2025. Complete AI Interview Assistant Architecture with Context Integration
+- June 19, 2025. Complete AI Interview Assistant Architecture with Enhanced Context Integration
   * Implemented intelligent question analysis system detecting technical, behavioral, system design, and coding questions
   * Added STAR format responses for behavioral questions with structured formatting
   * Enhanced context-aware responses using resume/background information
@@ -135,7 +135,9 @@ Changelog:
   * Added interview insights dashboard tracking session progress and recommendations
   * Integrated context indicators showing when personal background is being used
   * Enhanced voice input with technical term correction for hands-free practice
-  * Optimized for sub-second streaming responses with intelligent question routing
+  * Fixed voice input to capture only current voice input while maintaining intelligent context for follow-ups
+  * Implemented smart context manager that detects follow-up questions and uses focused conversation history
+  * Optimized for sub-second streaming responses with intelligent question routing and clean interaction flow
 - June 14, 2025. Complete UI redesign with futuristic elegant theme
   * Replaced Velari dark theme with sophisticated futuristic design
   * Updated color palette: #0A0A0F background, #7C3AED/EC4899 gradients, #00D9FF accent
