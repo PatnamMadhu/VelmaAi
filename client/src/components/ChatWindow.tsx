@@ -8,6 +8,7 @@ import { Message } from '@shared/schema';
 import { QuestionAnalyzer } from './QuestionAnalyzer';
 import { FollowUpSuggestions } from './FollowUpSuggestions';
 import { InterviewInsights } from './InterviewInsights';
+import { ContextIndicator } from './ContextIndicator';
 
 interface ChatWindowProps {
   sessionId: string;

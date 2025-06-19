@@ -212,8 +212,28 @@ export class QuestionAnalyzer {
   }
 
   private requiresPersonalContext(question: string): boolean {
-    const contextKeywords = ['your experience', 'you worked', 'your project', 'in your role', 'at your company'];
-    return contextKeywords.some(keyword => question.includes(keyword));
+    const contextKeywords = [
+      'your experience', 'you worked', 'your project', 'in your role', 'at your company',
+      'tell me about', 'introduce yourself', 'your background', 'walk me through',
+      'you have experience', 'you used', 'you implemented', 'you built', 'you developed',
+      'your team', 'your responsibilities', 'your skills', 'you know', 'you familiar',
+      'you worked with', 'you handle', 'you approach', 'you solve', 'you debug',
+      'what have you', 'where have you', 'how do you', 'what do you',
+      'describe your', 'explain your', 'share your', 'give me an example'
+    ];
+    
+    // Also check for personal pronouns that suggest context is needed
+    const personalPronouns = ['you', 'your', 'yourself'];
+    const hasPersonalPronoun = personalPronouns.some(pronoun => 
+      question.toLowerCase().includes(pronoun)
+    );
+    
+    // Check for specific context phrases
+    const hasContextKeyword = contextKeywords.some(keyword => 
+      question.toLowerCase().includes(keyword)
+    );
+    
+    return hasContextKeyword || hasPersonalPronoun;
   }
 
   private isCommonWord(word: string): boolean {

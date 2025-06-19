@@ -72,7 +72,7 @@ export class AgentService {
     return {
       thoughts: [{
         observation: `Detected ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
-        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format for optimal interview response`,
+        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format for optimal interview response${context ? ' with personalized context' : ''}`,
         action: {
           type: 'execute',
           description: `Providing structured ${questionAnalysis.questionType.category} answer`,
@@ -90,7 +90,9 @@ export class AgentService {
         confidence: questionAnalysis.questionType.confidence,
         format: questionAnalysis.questionType.suggestedFormat,
         complexity: questionAnalysis.complexity,
-        estimatedTime: questionAnalysis.estimatedTime
+        estimatedTime: questionAnalysis.estimatedTime,
+        hasContext: !!context,
+        requiresContext: questionAnalysis.requiresContext
       },
       responseStructure: formattedResponse.structure
     };
@@ -162,60 +164,61 @@ Provide a structured STAR response that demonstrates competency and growth minds
         return basePrompt + `
 - Start with a clear, concise definition
 - Explain key components or principles
-- Provide a practical example or use case
-- Mention relevant technologies or implementations
+- Provide a practical example or use case from your experience when possible
+- Mention relevant technologies or implementations you've worked with
 - Keep explanations interview-appropriate (2-3 minutes max)
+- Reference your background and projects when applicable
 
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question. Speak as this candidate with their actual experience.` : ''}
 
-Answer as a confident candidate who understands both theory and practical application.`;
+Answer as a confident candidate drawing from your real experience and practical knowledge.`;
 
       case 'comparison':
         return basePrompt + `
-- Present both options fairly
-- Highlight key differences and trade-offs
-- Discuss use cases for each approach
-- Provide a clear recommendation based on context
-- Show understanding of decision-making factors
+- Present both options fairly based on your experience
+- Highlight key differences and trade-offs you've encountered
+- Discuss use cases for each approach from your work
+- Provide a clear recommendation based on your practical experience
+- Show understanding of decision-making factors from real projects
 
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference specific projects or experiences where you've used these technologies. Mention which approach you chose in past projects and why. Speak from your actual experience with these tools/frameworks.` : ''}
 
-Demonstrate analytical thinking and practical experience with both approaches.`;
+Demonstrate analytical thinking rooted in your practical experience with both approaches.`;
 
       case 'architecture':
         return basePrompt + `
-- Start with high-level system overview
-- Break down into core components
-- Explain data flow and interactions
-- Address scalability and reliability concerns
-- Mention specific technologies and rationale
+- Start with high-level system overview based on systems you've built
+- Break down into core components you've worked with
+- Explain data flow and interactions from your project experience
+- Address scalability and reliability concerns you've handled
+- Mention specific technologies from your stack and explain your choices
 
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference specific systems, architectures, or projects you've designed or worked on. Mention the technology stack you used, challenges you faced, and how you solved scalability/performance issues. Draw from your actual experience building distributed systems.` : ''}
 
-Show system design thinking and ability to handle complex distributed systems.`;
+Show system design thinking rooted in your hands-on experience with complex distributed systems.`;
 
       case 'step_by_step':
         return basePrompt + `
-- Explain your approach and reasoning
-- Break down the algorithm or solution
-- Discuss time and space complexity
-- Consider edge cases and optimizations
-- Show problem-solving methodology
+- Explain your approach and reasoning based on coding experience
+- Break down the algorithm or solution methodically
+- Discuss time and space complexity from your optimization experience
+- Consider edge cases you've encountered in production
+- Show problem-solving methodology from your development work
 
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference similar problems you've solved in your projects. Mention specific programming languages you've used for similar implementations. Draw from your debugging and optimization experience. Speak from your actual coding background.` : ''}
 
-Demonstrate strong algorithmic thinking and coding best practices.`;
+Demonstrate strong algorithmic thinking rooted in your hands-on coding experience and best practices.`;
 
       default:
         return basePrompt + `
-- Provide clear, structured answers
-- Show depth of knowledge
-- Relate to practical experience when relevant
-- Keep responses concise but comprehensive
+- Provide clear, structured answers drawing from your experience
+- Show depth of knowledge through specific examples from your work
+- Always relate to your practical experience and projects when relevant
+- Keep responses concise but comprehensive, using real examples
 
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
+${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: This question relates to your background. Reference specific experiences, projects, technologies, or situations from your professional history. Speak as this candidate with their actual background and expertise. Make your answer personal and authentic to your experience.` : ''}
 
-Answer naturally and confidently as an experienced professional.`;
+Answer naturally and confidently, drawing from your real professional experience and expertise.`;
     }
   }
 
