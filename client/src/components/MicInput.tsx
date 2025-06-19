@@ -86,6 +86,10 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleTranscriptSend = () => {
     if (transcript.trim()) {
       handleSendMessage(transcript, true);
+      // Auto-stop listening after sending to prevent capturing response
+      if (isListening) {
+        stopListening();
+      }
     }
   };
 

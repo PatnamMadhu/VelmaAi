@@ -2,6 +2,7 @@ import { groqService } from './groqService';
 import { memoryService } from './memory';
 import { questionAnalyzer } from './questionAnalyzer';
 import { responseFormatter } from './responseFormatter';
+import { contextManager } from './contextManager';
 
 interface AgentAction {
   type: 'analyze' | 'plan' | 'execute' | 'followup';
@@ -41,17 +42,33 @@ export class AgentService {
     onStream?: (chunk: string) => void
   ): Promise<AgentResponse> {
     
-    // Step 1: Analyze the question intelligently
+    // Step 1: Analyze message context for follow-ups
+    const contextualAnalysis = contextManager.analyzeMessageContext(userMessage, recentMessages, context);
+    
+    // Step 2: Analyze the question intelligently
     const questionAnalysis = questionAnalyzer.analyzeQuestion(userMessage);
     
-    // Step 2: Generate context-aware system prompt
-    const systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
+    // Step 3: Generate context-aware system prompt
+    let systemPrompt: string;
     
-    // Step 3: Generate raw AI response with focused context
-    const contextMessages = recentMessages.slice(-2).map(msg => ({ 
-      role: msg.role as 'user' | 'assistant', 
-      content: msg.content 
-    }));
+    if (contextualAnalysis.isFollowUp) {
+      // Use contextual prompt for follow-up questions
+      systemPrompt = contextualAnalysis.focusedPrompt;
+    } else {
+      // Use standard interview prompt for new topics
+      systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
+    }
+    
+    // Step 4: Generate raw AI response with intelligent context selection
+    let contextMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+    
+    if (contextualAnalysis.isFollowUp && contextualAnalysis.relevantHistory.length > 0) {
+      // Use only the relevant history for follow-up questions
+      contextMessages = contextualAnalysis.relevantHistory.map(msg => ({ 
+        role: msg.role as 'user' | 'assistant', 
+        content: msg.content 
+      }));
+    }
     
     const messages = [
       { role: 'system' as const, content: systemPrompt },
@@ -61,14 +78,14 @@ export class AgentService {
     
     const rawResponse = await groqService.generateResponse(messages, onStream);
     
-    // Step 4: Format response based on question type
+    // Step 5: Format response based on question type
     const formattedResponse = responseFormatter.formatResponse(
       questionAnalysis,
       rawResponse,
       context
     );
     
-    // Step 5: Generate follow-up suggestions
+    // Step 6: Generate follow-up suggestions
     const followUpQuestions = this.generateInterviewFollowUps(
       questionAnalysis.questionType.type,
       questionAnalysis.questionType.category
@@ -76,8 +93,8 @@ export class AgentService {
     
     return {
       thoughts: [{
-        observation: `Detected ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
-        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format for optimal interview response${context ? ' with personalized context' : ''}`,
+        observation: `${contextualAnalysis.isFollowUp ? 'Follow-up' : 'New'} ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
+        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format${contextualAnalysis.isFollowUp ? ` for ${contextualAnalysis.contextType}` : ''} with ${context ? 'personalized' : 'general'} context`,
         action: {
           type: 'execute',
           description: `Providing structured ${questionAnalysis.questionType.category} answer`,
