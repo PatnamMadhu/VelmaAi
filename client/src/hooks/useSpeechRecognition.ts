@@ -637,7 +637,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     recognitionRef.current = new SpeechRecognitionConstructor();
 
     const recognition = recognitionRef.current;
-    recognition.continuous = true; // Enable continuous listening
+    recognition.continuous = false; // Disable continuous to prevent capturing old data
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     
@@ -663,56 +663,50 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onend = () => {
-      // Auto-restart if we were listening (handles browser timeouts)
-      if (isListening) {
-        setTimeout(() => {
-          try {
-            if (recognitionRef.current && isListening) {
-              recognitionRef.current.start();
-            }
-          } catch (error) {
-            console.log('Auto-restart failed, user may have stopped manually');
-            setIsListening(false);
-          }
-        }, 100); // Small delay to prevent rapid restarts
-      } else {
-        setIsListening(false);
-      }
+      console.log('Voice recognition session ended');
+      setIsListening(false);
+      
+      // Don't auto-restart - let user control when to start new voice input
+      // This prevents capturing AI responses or previous conversation history
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let completeTranscript = '';
-
-      // Process all results to build complete transcript
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
+      // Only process the latest result to capture current voice input
+      const latestResultIndex = event.results.length - 1;
+      const latestResult = event.results[latestResultIndex];
+      
+      if (latestResult) {
+        let currentTranscript = '';
         
-        if (result.isFinal) {
+        if (latestResult.isFinal) {
           // For final results, use the best alternative and apply corrections
           const alternatives: string[] = [];
-          for (let j = 0; j < Math.min(result.length, 3); j++) {
-            if (result[j] && result[j].transcript) {
-              alternatives.push(result[j].transcript);
+          for (let j = 0; j < Math.min(latestResult.length, 3); j++) {
+            if (latestResult[j] && latestResult[j].transcript) {
+              alternatives.push(latestResult[j].transcript);
             }
           }
           
-          const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
-          const corrected = correctTechnicalTerms(bestTranscript);
-          completeTranscript += corrected + ' ';
+          const bestTranscript = findBestAlternative(alternatives, latestResult[0].transcript);
+          currentTranscript = correctTechnicalTerms(bestTranscript);
         } else {
           // For interim results, use simple correction
-          const interim = correctTechnicalTerms(result[0].transcript);
-          completeTranscript += interim + ' ';
+          currentTranscript = correctTechnicalTerms(latestResult[0].transcript);
         }
-      }
 
-      // Clean up and set the final transcript
-      const cleanedTranscript = completeTranscript
-        .replace(/\s+/g, ' ')
-        .trim();
-      
-      if (cleanedTranscript) {
-        setTranscript(cleanedTranscript);
+        // Clean up and set only the current voice input
+        const cleanedTranscript = currentTranscript
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        // Only update if we have meaningful content and it's not repetitive
+        if (cleanedTranscript && 
+            cleanedTranscript.length > 2 && 
+            !isRepetitiveSpeech(cleanedTranscript) &&
+            !isDuplicateInput(cleanedTranscript)) {
+          setTranscript(cleanedTranscript);
+          console.log('Fresh voice input captured:', cleanedTranscript);
+        }
       }
     };
 
@@ -770,8 +764,10 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     if (!recognitionRef.current) return;
 
     try {
-      setError(null);
+      // Clear any previous transcript to ensure fresh capture
       setTranscript('');
+      setError(null);
+      console.log('Starting fresh voice capture session');
       recognitionRef.current.start();
     } catch (error) {
       console.error('Error starting speech recognition:', error);
@@ -781,6 +777,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
+      console.log('Stopping voice capture - transcript ready for use');
       recognitionRef.current.stop();
     }
   }, [isListening]);

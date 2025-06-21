@@ -41,6 +41,11 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleSendMessage = async (message: string, isVoice: boolean = false) => {
     if (!message.trim() || disabled) return;
 
+    // Immediately stop voice capture to prevent AI response being captured
+    if (isVoice && isListening) {
+      stopListening();
+    }
+
     setIsProcessing(true);
     try {
       await apiRequest('POST', '/api/chat', {
@@ -51,8 +56,11 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
 
       onMessageSent?.(message.trim(), isVoice);
       
+      // Clear input after successful send
       if (isVoice) {
         resetTranscript();
+        voiceSession.clearInput();
+        voiceSession.endSession();
       } else {
         setTextInput('');
       }
@@ -71,7 +79,9 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleVoiceToggle = () => {
     if (isListening) {
       stopListening();
+      voiceSession.endSession();
     } else {
+      voiceSession.startSession();
       startListening();
     }
   };
@@ -84,12 +94,10 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   };
 
   const handleTranscriptSend = () => {
-    if (transcript.trim()) {
-      handleSendMessage(transcript, true);
-      // Auto-stop listening after sending to prevent capturing response
-      if (isListening) {
-        stopListening();
-      }
+    const currentInput = voiceSession.isActive ? transcript.trim() : '';
+    if (currentInput) {
+      console.log('Sending fresh voice input:', currentInput);
+      handleSendMessage(currentInput, true);
     }
   };
 
