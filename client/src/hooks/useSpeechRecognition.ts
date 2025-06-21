@@ -681,38 +681,29 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let completeTranscript = '';
+      let finalTranscript = '';
+      let interimTranscript = '';
 
-      // Process all results to build complete transcript
-      for (let i = 0; i < event.results.length; i++) {
+      // Process results from the latest recognition session
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
+        let transcript = result[0].transcript;
+        
+        // Apply corrections to improve accuracy
+        transcript = correctTechnicalTerms(transcript);
         
         if (result.isFinal) {
-          // For final results, use the best alternative and apply corrections
-          const alternatives: string[] = [];
-          for (let j = 0; j < Math.min(result.length, 3); j++) {
-            if (result[j] && result[j].transcript) {
-              alternatives.push(result[j].transcript);
-            }
-          }
-          
-          const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
-          const corrected = correctTechnicalTerms(bestTranscript);
-          completeTranscript += corrected + ' ';
+          finalTranscript += transcript;
         } else {
-          // For interim results, use simple correction
-          const interim = correctTechnicalTerms(result[0].transcript);
-          completeTranscript += interim + ' ';
+          interimTranscript = transcript;
         }
       }
 
-      // Clean up and set the final transcript
-      const cleanedTranscript = completeTranscript
-        .replace(/\s+/g, ' ')
-        .trim();
+      // Update the transcript state
+      const currentTranscript = (finalTranscript || interimTranscript).trim();
       
-      if (cleanedTranscript) {
-        setTranscript(cleanedTranscript);
+      if (currentTranscript) {
+        setTranscript(currentTranscript);
       }
     };
 
