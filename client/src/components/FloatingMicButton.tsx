@@ -16,36 +16,31 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full backdrop-blur-lg border transition-all duration-300 ${
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm ${
           isActive 
-            ? 'bg-gradient-to-r from-[#7C3AED] to-[#EC4899] border-[#00D9FF]/50 text-white animate-pulse' 
-            : 'bg-gradient-to-r from-[#7C3AED] to-[#EC4899] border-[#00D9FF]/30 text-white hover:scale-110 hover:border-[#00D9FF]/70'
+            ? 'bg-green-500 hover:bg-green-600' 
+            : 'bg-primary hover:bg-blue-700'
         }`}
-        style={{
-          boxShadow: isActive 
-            ? '0 0 20px rgba(0, 217, 255, 0.6), 0 0 40px rgba(124, 58, 237, 0.4)' 
-            : '0 0 12px rgba(0, 217, 255, 0.4), 0 4px 20px rgba(124, 58, 237, 0.3)'
-        }}
       >
         {isActive ? (
-          <Bot className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         ) : (
-          <Mic className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         )}
       </Button>
       
-      {/* Futuristic tooltip */}
+      {/* Tooltip - only show on larger screens */}
       {isHovered && !isActive && (
-        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-[#161B22]/90 backdrop-blur-lg border border-[#00D9FF]/30 text-[#FFFFFF] text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in" style={{boxShadow: '0 0 8px rgba(0, 217, 255, 0.3)'}}>
+        <div className="absolute bottom-14 sm:bottom-16 right-0 bg-black/80 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm hidden sm:block">
           Start VelariAI Assistant
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#161B22]"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80"></div>
         </div>
       )}
       
       {isActive && (
-        <div className="absolute bottom-16 sm:bottom-18 right-0 bg-gradient-to-r from-[#7C3AED]/90 to-[#EC4899]/90 backdrop-blur-lg border border-[#00D9FF]/50 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap hidden sm:block animate-fade-in" style={{boxShadow: '0 0 12px rgba(0, 217, 255, 0.4)'}}>
+        <div className="absolute bottom-14 sm:bottom-16 right-0 bg-green-600/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm hidden sm:block">
           Assistant Active
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[#7C3AED]"></div>
+          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600/90"></div>
         </div>
       )}
     </div>

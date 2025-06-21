@@ -5,10 +5,6 @@ import { Bot, User, Mic, Zap, MessageCircle } from 'lucide-react';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useQuery } from '@tanstack/react-query';
 import { Message } from '@shared/schema';
-import { QuestionAnalyzer } from './QuestionAnalyzer';
-import { FollowUpSuggestions } from './FollowUpSuggestions';
-import { InterviewInsights } from './InterviewInsights';
-import { ContextIndicator } from './ContextIndicator';
 
 interface ChatWindowProps {
   sessionId: string;
@@ -18,25 +14,11 @@ interface ChatWindowProps {
 interface DisplayMessage extends Message {
   isStreaming?: boolean;
   streamContent?: string;
-  questionAnalysis?: {
-    type: string;
-    category: string;
-    confidence: number;
-    format: string;
-    complexity: string;
-    estimatedTime: number;
-    hasContext: boolean;
-    requiresContext: boolean;
-  };
-  followUpSuggestions?: string[];
 }
 
 export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
-  const [currentQuestionAnalysis, setCurrentQuestionAnalysis] = useState<any>(null);
-  const [isAnalyzingQuestion, setIsAnalyzingQuestion] = useState(false);
-  const [latestFollowUps, setLatestFollowUps] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { lastMessage, isStreaming } = useWebSocket(sessionId);
@@ -64,8 +46,6 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
       case 'stream_start':
         if (lastMessage.messageId) {
           setStreamingMessageId(lastMessage.messageId);
-          setIsAnalyzingQuestion(true);
-          
           // Add a new streaming message placeholder
           const streamingMsg: DisplayMessage = {
             id: parseInt(lastMessage.messageId),
@@ -100,20 +80,9 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
                   content: lastMessage.fullResponse || '',
                   isStreaming: false,
                   streamContent: undefined,
-                  questionAnalysis: lastMessage.questionAnalysis,
-                  followUpSuggestions: lastMessage.followUpSuggestions,
                 }
               : msg
           ));
-          
-          // Update global state for UI components
-          if (lastMessage.questionAnalysis) {
-            setCurrentQuestionAnalysis(lastMessage.questionAnalysis);
-          }
-          if (lastMessage.followUpSuggestions) {
-            setLatestFollowUps(lastMessage.followUpSuggestions);
-          }
-          setIsAnalyzingQuestion(false);
           setStreamingMessageId(null);
           onNewMessage?.();
         }
@@ -139,53 +108,34 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center py-8 max-w-md">
-          <div className="w-16 h-16 bg-velari-highlight/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-velari">
-            <MessageCircle className="w-8 h-8 text-velari-highlight" />
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl font-semibold text-velari-text mb-2">VelariAI</h2>
-          <p className="text-velari-muted">Start by speaking or typing your question. I'll use your context to provide intelligent, real-time responses.</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">VelariAI</h2>
+          <p className="text-gray-600">Start by speaking or typing your question. I'll use your context to provide intelligent, real-time responses.</p>
         </div>
       </div>
     );
   }
 
-  const handleFollowUpClick = (suggestion: string) => {
-    // This will be handled by the parent component via onNewMessage
-    onNewMessage?.();
-  };
-
-  const getLastUserQuestion = () => {
-    const userMessages = messages.filter(msg => msg.role === 'user');
-    return userMessages.length > 0 ? userMessages[userMessages.length - 1].content : '';
-  };
-
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="max-w-4xl mx-auto space-y-6 p-6">
-        {/* Question Analysis Component */}
-        {(isAnalyzingQuestion || currentQuestionAnalysis) && (
-          <QuestionAnalyzer
-            question={getLastUserQuestion()}
-            analysis={currentQuestionAnalysis}
-            isAnalyzing={isAnalyzingQuestion}
-          />
-        )}
-
-        {messages.map((message, index) => (
+    <div className="flex-1 p-6 overflow-y-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {messages.map((message) => (
           <div
-            key={`${message.id}-${index}`}
+            key={message.id}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.role === 'user' ? (
               <div className="max-w-xs lg:max-w-md">
-                <div className="bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white rounded-2xl rounded-br-md px-4 py-3 shadow-lg animate-fade-in" style={{boxShadow: '0 4px 16px rgba(124, 58, 237, 0.3), 0 0 12px rgba(236, 72, 153, 0.2)'}}>
-                  <p className="text-sm whitespace-pre-wrap font-medium">{message.content}</p>
+                <div className="bg-primary text-white rounded-2xl rounded-br-md px-4 py-3">
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
                 <div className="flex items-center justify-end mt-1 space-x-2">
                   {message.isVoice && (
-                    <Mic className="w-3 h-3 text-[#A1A1AA]" />
+                    <Mic className="w-3 h-3 text-gray-400" />
                   )}
-                  <span className="text-xs text-[#A1A1AA]">
+                  <span className="text-xs text-gray-500">
                     {message.timestamp ? formatTime(message.timestamp) : ''}
                   </span>
                 </div>
@@ -193,52 +143,44 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
             ) : (
               <div className="max-w-xs lg:max-w-2xl">
                 <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-[#27272A] rounded-full flex items-center justify-center flex-shrink-0 border border-[#00D9FF]/30" style={{boxShadow: '0 0 8px rgba(0, 217, 255, 0.3)'}}>
-                    <Bot className="w-4 h-4 text-[#00D9FF]" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-gray-600" />
                   </div>
                   <div className="flex-1">
-                    <div className="bg-[#27272A] text-[#FFFFFF] rounded-2xl rounded-bl-md px-4 py-3 shadow-lg animate-fade-in border border-[#00D9FF]/20" style={{boxShadow: '0 4px 16px rgba(39, 39, 42, 0.8), 0 0 8px rgba(0, 217, 255, 0.1)'}}>
-                      <div className="prose prose-sm max-w-none text-[#FFFFFF]">
-                        <div className="whitespace-pre-wrap leading-relaxed">
-                          {message.isStreaming 
-                            ? message.streamContent || '' 
-                            : message.content
-                          }
-                        </div>
-                        
-                        {/* Futuristic typing indicator */}
-                        {message.isStreaming && (
-                          <div className="flex items-center space-x-1 mt-3">
-                            <div className="flex space-x-1">
-                              <div className="w-2 h-2 bg-[#00D9FF] rounded-full typing-dot"></div>
-                              <div className="w-2 h-2 bg-[#00D9FF] rounded-full typing-dot"></div>
-                              <div className="w-2 h-2 bg-[#00D9FF] rounded-full typing-dot"></div>
-                            </div>
-                            <span className="text-xs text-[#A1A1AA] ml-2">AI is processing...</span>
+                    <Card className="shadow-sm">
+                      <CardContent className="p-4">
+                        <div className="prose prose-sm max-w-none">
+                          <div className="whitespace-pre-wrap">
+                            {message.isStreaming 
+                              ? message.streamContent || '' 
+                              : message.content
+                            }
                           </div>
-                        )}
-                      </div>
-                    </div>
+                          
+                          {/* Streaming indicator */}
+                          {message.isStreaming && (
+                            <div className="flex items-center space-x-1 mt-2">
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                              </div>
+                              <span className="text-xs text-gray-500">AI is typing...</span>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                     
-                    <div className="flex items-center justify-between mt-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-[#A1A1AA]">
-                          {message.timestamp ? formatTime(message.timestamp) : ''}
-                        </span>
-                        {!message.isStreaming && (
-                          <Badge variant="secondary" className="text-xs bg-[#00D9FF]/20 text-[#00D9FF] border-[#00D9FF]/30">
-                            <Zap className="w-2 h-2 mr-1" />
-                            &lt;0.8s
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Context Indicator */}
-                      {message.questionAnalysis && (
-                        <ContextIndicator
-                          hasContext={message.questionAnalysis.hasContext}
-                          isPersonalized={message.questionAnalysis.requiresContext}
-                        />
+                    <div className="flex items-center mt-1 space-x-2">
+                      <span className="text-xs text-gray-500">
+                        {message.timestamp ? formatTime(message.timestamp) : ''}
+                      </span>
+                      {!message.isStreaming && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Zap className="w-2 h-2 mr-1" />
+                          &lt;0.8s
+                        </Badge>
                       )}
                     </div>
                   </div>
@@ -247,25 +189,6 @@ export function ChatWindow({ sessionId, onNewMessage }: ChatWindowProps) {
             )}
           </div>
         ))}
-
-        {/* Follow-up Suggestions Component */}
-        {latestFollowUps.length > 0 && (
-          <FollowUpSuggestions
-            suggestions={latestFollowUps}
-            questionType={currentQuestionAnalysis?.type}
-            onSuggestionClick={handleFollowUpClick}
-            isVisible={!isStreaming}
-          />
-        )}
-
-        {/* Interview Insights Component */}
-        {messages.length > 2 && (
-          <InterviewInsights
-            sessionId={sessionId}
-            isVisible={messages.length > 3}
-          />
-        )}
-
         <div ref={messagesEndRef} />
       </div>
     </div>

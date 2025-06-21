@@ -3,7 +3,6 @@ import { Message } from "@shared/schema";
 
 export class MemoryService {
   private readonly maxMessages = 10;
-  private readonly contextMessages = 2; // Only use last 2 messages for focused context
 
   async getConversationContext(sessionId: string): Promise<{
     context?: string;
@@ -12,7 +11,7 @@ export class MemoryService {
   }> {
     const [context, recentMessages] = await Promise.all([
       storage.getContext(sessionId),
-      storage.getRecentMessages(sessionId, this.contextMessages), // Use only last 2 messages for focused context
+      storage.getRecentMessages(sessionId, this.maxMessages),
     ]);
 
     return {
@@ -20,10 +19,6 @@ export class MemoryService {
       recentMessages,
       messageCount: recentMessages.length,
     };
-  }
-
-  async getFullMessageHistory(sessionId: string): Promise<Message[]> {
-    return await storage.getRecentMessages(sessionId, this.maxMessages);
   }
 
   async addMessage(sessionId: string, content: string, role: "user" | "assistant", isVoice: boolean = false): Promise<Message> {

@@ -6,17 +6,6 @@ interface WebSocketMessage {
   messageId?: string;
   fullResponse?: string;
   error?: string;
-  questionAnalysis?: {
-    type: string;
-    category: string;
-    confidence: number;
-    format: string;
-    complexity: string;
-    estimatedTime: number;
-    hasContext: boolean;
-    requiresContext: boolean;
-  };
-  followUpSuggestions?: string[];
 }
 
 interface UseWebSocketReturn {

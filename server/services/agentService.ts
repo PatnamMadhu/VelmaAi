@@ -1,8 +1,4 @@
 import { groqService } from './groqService';
-import { memoryService } from './memory';
-import { questionAnalyzer } from './questionAnalyzer';
-import { responseFormatter } from './responseFormatter';
-import { contextManager } from './contextManager';
 
 interface AgentAction {
   type: 'analyze' | 'plan' | 'execute' | 'followup';
@@ -23,15 +19,6 @@ interface AgentResponse {
   finalAnswer: string;
   suggestedActions?: string[];
   followUpQuestions?: string[];
-  questionAnalysis?: {
-    type: string;
-    category: string;
-    confidence: number;
-    format: string;
-    complexity: string;
-    estimatedTime: number;
-  };
-  responseStructure?: string;
 }
 
 export class AgentService {
@@ -40,208 +27,18 @@ export class AgentService {
     context?: string,
     recentMessages: any[] = [],
     onStream?: (chunk: string) => void
-  ): Promise<AgentResponse> {
+  ): Promise<string> {
     
-    // Step 1: Analyze message context for follow-ups
-    const contextualAnalysis = contextManager.analyzeMessageContext(userMessage, recentMessages, context);
+    // Step 1: Analyze the user's request
+    const analysis = await this.analyzeRequest(userMessage, context, recentMessages);
     
-    // Step 2: Analyze the question intelligently
-    const questionAnalysis = questionAnalyzer.analyzeQuestion(userMessage);
+    // Step 2: Plan the response strategy
+    const plan = await this.planResponse(analysis, userMessage, context);
     
-    // Step 3: Generate context-aware system prompt
-    let systemPrompt: string;
+    // Step 3: Execute the planned response
+    const response = await this.executeResponse(plan, userMessage, context, recentMessages, onStream);
     
-    if (contextualAnalysis.isFollowUp) {
-      // Use contextual prompt for follow-up questions
-      systemPrompt = contextualAnalysis.focusedPrompt;
-    } else {
-      // Use standard interview prompt for new topics
-      systemPrompt = this.buildInterviewPrompt(questionAnalysis, context);
-    }
-    
-    // Step 4: Generate raw AI response with intelligent context selection
-    let contextMessages: Array<{ role: 'user' | 'assistant'; content: string }> = [];
-    
-    if (contextualAnalysis.isFollowUp && contextualAnalysis.relevantHistory.length > 0) {
-      // Use only the relevant history for follow-up questions
-      contextMessages = contextualAnalysis.relevantHistory.map(msg => ({ 
-        role: msg.role as 'user' | 'assistant', 
-        content: msg.content 
-      }));
-    }
-    
-    const messages = [
-      { role: 'system' as const, content: systemPrompt },
-      ...contextMessages,
-      { role: 'user' as const, content: userMessage }
-    ];
-    
-    const rawResponse = await groqService.generateResponse(messages, onStream);
-    
-    // Step 5: Format response based on question type
-    const formattedResponse = responseFormatter.formatResponse(
-      questionAnalysis,
-      rawResponse,
-      context
-    );
-    
-    // Step 6: Generate follow-up suggestions
-    const followUpQuestions = this.generateInterviewFollowUps(
-      questionAnalysis.questionType.type,
-      questionAnalysis.questionType.category
-    );
-    
-    return {
-      thoughts: [{
-        observation: `${contextualAnalysis.isFollowUp ? `Follow-up (${contextualAnalysis.contextType})` : 'New'} ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
-        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format${contextualAnalysis.isFollowUp ? ` for ${contextualAnalysis.contextType} with ${contextualAnalysis.relevantHistory.length} previous messages` : ''} with ${context ? 'personalized' : 'general'} context`,
-        action: {
-          type: 'execute',
-          description: `Providing structured ${questionAnalysis.questionType.category} answer`,
-          reasoning: `Question requires ${questionAnalysis.questionType.suggestedFormat} format`,
-          confidence: questionAnalysis.questionType.confidence
-        },
-        result: formattedResponse.structure
-      }],
-      finalAnswer: formattedResponse.content,
-      followUpQuestions: followUpQuestions,
-      suggestedActions: formattedResponse.followUpSuggestions,
-      questionAnalysis: {
-        type: questionAnalysis.questionType.type,
-        category: questionAnalysis.questionType.category,
-        confidence: questionAnalysis.questionType.confidence,
-        format: questionAnalysis.questionType.suggestedFormat,
-        complexity: questionAnalysis.complexity,
-        estimatedTime: questionAnalysis.estimatedTime,
-        hasContext: !!context,
-        requiresContext: questionAnalysis.requiresContext
-      },
-      responseStructure: formattedResponse.structure
-    };
-  }
-
-  private generateInterviewFollowUps(questionType: string, category: string): string[] {
-    const followUpMap = {
-      'technical': [
-        "Can you walk me through a time you implemented this in production?",
-        "What challenges did you face with this technology?",
-        "How would you optimize this for better performance?",
-        "What alternatives would you consider and why?"
-      ],
-      'behavioral': [
-        "Tell me about another situation where you showed leadership",
-        "How do you handle feedback from team members?",
-        "Describe a time you had to make a difficult decision",
-        "What's your approach to conflict resolution?"
-      ],
-      'system_design': [
-        "How would you handle system failures in this architecture?",
-        "What monitoring would you implement?",
-        "How would you scale this to 10x traffic?",
-        "What security considerations are important here?"
-      ],
-      'coding': [
-        "How would you test this implementation?",
-        "What if the constraints were different?",
-        "Can you optimize this further?",
-        "Walk me through your debugging process"
-      ],
-      'general': [
-        "Can you elaborate on that experience?",
-        "How does this apply to team collaboration?",
-        "What would you do differently next time?",
-        "How do you stay updated with industry trends?"
-      ]
-    };
-
-    return followUpMap[questionType as keyof typeof followUpMap] || followUpMap.general;
-  }
-
-  private buildInterviewPrompt(questionAnalysis: any, context?: string): string {
-    const basePrompt = `You are VelariAI, a specialized AI interview assistant designed to help candidates excel in technical interviews.
-
-QUESTION ANALYSIS:
-- Type: ${questionAnalysis.questionType.type}
-- Category: ${questionAnalysis.questionType.category}
-- Format Required: ${questionAnalysis.questionType.suggestedFormat}
-- Complexity: ${questionAnalysis.complexity}
-- Keywords: ${questionAnalysis.keywords.join(', ')}
-
-RESPONSE GUIDELINES:`;
-
-    switch (questionAnalysis.questionType.suggestedFormat) {
-      case 'star':
-        return basePrompt + `
-- Use STAR format (Situation, Task, Action, Result)
-- Be specific with metrics and outcomes
-- Draw from relevant experience when possible
-- Keep each section concise but detailed
-- Show leadership and problem-solving skills
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n` : ''}
-
-Provide a structured STAR response that demonstrates competency and growth mindset.`;
-
-      case 'definition':
-        return basePrompt + `
-- Start with a clear, concise definition
-- Explain key components or principles
-- Provide a practical example or use case from your experience when possible
-- Mention relevant technologies or implementations you've worked with
-- Keep explanations interview-appropriate (2-3 minutes max)
-- Reference your background and projects when applicable
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question. Speak as this candidate with their actual experience.` : ''}
-
-Answer as a confident candidate drawing from your real experience and practical knowledge.`;
-
-      case 'comparison':
-        return basePrompt + `
-- Present both options fairly based on your experience
-- Highlight key differences and trade-offs you've encountered
-- Discuss use cases for each approach from your work
-- Provide a clear recommendation based on your practical experience
-- Show understanding of decision-making factors from real projects
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference specific projects or experiences where you've used these technologies. Mention which approach you chose in past projects and why. Speak from your actual experience with these tools/frameworks.` : ''}
-
-Demonstrate analytical thinking rooted in your practical experience with both approaches.`;
-
-      case 'architecture':
-        return basePrompt + `
-- Start with high-level system overview based on systems you've built
-- Break down into core components you've worked with
-- Explain data flow and interactions from your project experience
-- Address scalability and reliability concerns you've handled
-- Mention specific technologies from your stack and explain your choices
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference specific systems, architectures, or projects you've designed or worked on. Mention the technology stack you used, challenges you faced, and how you solved scalability/performance issues. Draw from your actual experience building distributed systems.` : ''}
-
-Show system design thinking rooted in your hands-on experience with complex distributed systems.`;
-
-      case 'step_by_step':
-        return basePrompt + `
-- Explain your approach and reasoning based on coding experience
-- Break down the algorithm or solution methodically
-- Discuss time and space complexity from your optimization experience
-- Consider edge cases you've encountered in production
-- Show problem-solving methodology from your development work
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: Reference similar problems you've solved in your projects. Mention specific programming languages you've used for similar implementations. Draw from your debugging and optimization experience. Speak from your actual coding background.` : ''}
-
-Demonstrate strong algorithmic thinking rooted in your hands-on coding experience and best practices.`;
-
-      default:
-        return basePrompt + `
-- Provide clear, structured answers drawing from your experience
-- Show depth of knowledge through specific examples from your work
-- Always relate to your practical experience and projects when relevant
-- Keep responses concise but comprehensive, using real examples
-
-${context ? `CANDIDATE CONTEXT:\n${context}\n\nIMPORTANT: This question relates to your background. Reference specific experiences, projects, technologies, or situations from your professional history. Speak as this candidate with their actual background and expertise. Make your answer personal and authentic to your experience.` : ''}
-
-Answer naturally and confidently, drawing from your real professional experience and expertise.`;
-    }
+    return response;
   }
 
   private async analyzeRequest(

@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, MicOff, Send, X, Edit, Settings, Shield } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -28,8 +27,6 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     stopListening,
     resetTranscript,
   } = useSpeechRecognition();
-  
-
 
   useEffect(() => {
     if (error) {
@@ -44,11 +41,6 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleSendMessage = async (message: string, isVoice: boolean = false) => {
     if (!message.trim() || disabled) return;
 
-    // Stop voice capture when sending message
-    if (isVoice && isListening) {
-      stopListening();
-    }
-
     setIsProcessing(true);
     try {
       await apiRequest('POST', '/api/chat', {
@@ -59,7 +51,6 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
 
       onMessageSent?.(message.trim(), isVoice);
       
-      // Clear input after successful send
       if (isVoice) {
         resetTranscript();
       } else {
@@ -81,9 +72,6 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     if (isListening) {
       stopListening();
     } else {
-      // Always reset before starting new voice input session
-      resetTranscript();
-      console.log('Starting new voice input session');
       startListening();
     }
   };
@@ -96,10 +84,8 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   };
 
   const handleTranscriptSend = () => {
-    const currentInput = transcript.trim();
-    if (currentInput) {
-      console.log('Sending current voice input:', currentInput);
-      handleSendMessage(currentInput, true);
+    if (transcript.trim()) {
+      handleSendMessage(transcript, true);
     }
   };
 
@@ -145,7 +131,7 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
           
           {isSupported && !isListening && !transcript && (
             <div className="text-sm text-gray-600">
-              <Mic className="inline w-4 h-4 mr-2" />
+              <MicOff className="inline w-4 h-4 mr-2" />
               Click to start voice input
             </div>
           )}
