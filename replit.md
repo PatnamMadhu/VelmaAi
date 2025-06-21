@@ -154,8 +154,10 @@ Changelog:
 Preferred communication style: Simple, everyday language.
 AI Identity: AnmaAI - smart interview assistant with structured response format
 Response Format: 
+- Introduction questions ("Tell me about yourself"): Elevator pitch format (Background → Current → Future)
 - Technical questions: Definition → Components → Considerations → Tools → Example
 - Behavioral questions: STAR format (Situation → Task → Action → Result)
-- Keep responses concise (3-4 paragraphs max)
+- Keep responses concise (under 3 minutes when spoken)
 - Use conversational but expert tone
+- Don't overuse STAR format for non-behavioral questions
 ```
