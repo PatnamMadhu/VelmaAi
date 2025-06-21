@@ -441,10 +441,17 @@ function intelligentGapFill(transcript: string): string {
     { pattern: /\bworked\s+with\s+and\s+/gi, 
       replacement: 'worked with Java and ' },
     
-    // Common incomplete phrases
+    // Common incomplete phrases and missing articles/prepositions
     { pattern: /\band\s+stack\b/gi, replacement: 'full-stack' },
     { pattern: /\bfrom\s+end\b/gi, replacement: 'frontend' },
     { pattern: /\back\s+end\b/gi, replacement: 'backend' },
+    { pattern: /^\s*project\s+was\b/gi, replacement: 'The project was' },
+    { pattern: /\bbuilt\s+(spring|react|angular|node)\b/gi, replacement: 'built using $1' },
+    { pattern: /\bworking\s+(spring|react|angular|node)\b/gi, replacement: 'working with $1' },
+    { pattern: /\busing\s+(mysql|postgresql|mongodb)\s+database\b/gi, replacement: 'using $1 as the database' },
+    { pattern: /\bresponsible\s+developing\b/gi, replacement: 'responsible for developing' },
+    { pattern: /\bresponsible\s+implementing\b/gi, replacement: 'responsible for implementing' },
+    { pattern: /\bresponsible\s+designing\b/gi, replacement: 'responsible for designing' },
   ];
   
   gapPatterns.forEach(({ pattern, replacement }) => {
@@ -738,7 +745,21 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
         else if (current.toLowerCase().includes('aws') && afterNext.toLowerCase().includes('azure')) {
           words[i + 1] = 'and GCP and';
         }
-        // Add more intelligent patterns as needed
+      }
+      
+      // Handle repeated words (like "experience experience")
+      if (current && next && current.toLowerCase() === next.toLowerCase()) {
+        words.splice(i + 1, 1); // Remove duplicate
+      }
+      
+      // Fix common interview phrase beginnings
+      if (i === 0) {
+        if (current.toLowerCase() === 'me' && next?.toLowerCase() === 'through') {
+          words[i] = 'Walk me';
+        }
+        else if (current.toLowerCase() === 'about' && next?.toLowerCase() === 'your') {
+          words[i] = 'Tell me about';
+        }
       }
       
       // Detect incomplete technology names
