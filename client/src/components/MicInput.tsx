@@ -81,7 +81,9 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     if (isListening) {
       stopListening();
     } else {
+      // Always reset before starting new voice input session
       resetTranscript();
+      console.log('Starting new voice input session');
       startListening();
     }
   };
@@ -94,9 +96,10 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   };
 
   const handleTranscriptSend = () => {
-    if (transcript.trim()) {
-      console.log('Sending voice input:', transcript.trim());
-      handleSendMessage(transcript.trim(), true);
+    const currentInput = transcript.trim();
+    if (currentInput) {
+      console.log('Sending current voice input:', currentInput);
+      handleSendMessage(currentInput, true);
     }
   };
 

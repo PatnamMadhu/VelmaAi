@@ -623,9 +623,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  
-  // Adaptive learning storage for user-specific patterns
-  const userPatternsRef = useRef<{ [key: string]: string }>({});
+  const sessionIdRef = useRef<string>('');
 
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
@@ -663,45 +661,32 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onend = () => {
-      console.log('Voice recognition ended');
+      console.log('Voice recognition ended for session:', sessionIdRef.current);
       setIsListening(false);
-      
-      // Auto-restart if we were listening (handles browser timeouts)
-      if (isListening) {
-        setTimeout(() => {
-          try {
-            if (recognitionRef.current) {
-              recognitionRef.current.start();
-            }
-          } catch (error) {
-            console.log('Auto-restart failed');
-            setIsListening(false);
-          }
-        }, 100);
-      }
+      // Don't auto-restart to prevent capturing unwanted audio
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      // Process all results to build complete transcript
-      for (let i = 0; i < event.results.length; i++) {
-        const result = event.results[i];
-        const transcript = result[0].transcript;
-
-        if (result.isFinal) {
-          finalTranscript += correctTechnicalTerms(transcript) + ' ';
+      // Only process the latest result to capture current voice input
+      const latestIndex = event.resultIndex;
+      const latestResult = event.results[latestIndex];
+      
+      if (latestResult) {
+        const transcript = latestResult[0].transcript;
+        
+        if (latestResult.isFinal) {
+          const correctedTranscript = correctTechnicalTerms(transcript).trim();
+          if (correctedTranscript) {
+            setTranscript(correctedTranscript);
+            console.log('Fresh voice input captured:', correctedTranscript);
+          }
         } else {
-          interimTranscript += transcript;
+          // Show interim results for live feedback
+          const interim = transcript.trim();
+          if (interim) {
+            setTranscript(interim);
+          }
         }
-      }
-
-      // Set the transcript (final + interim for live feedback)
-      const fullTranscript = (finalTranscript + interimTranscript).trim();
-      if (fullTranscript) {
-        setTranscript(fullTranscript);
-        console.log('Voice input:', fullTranscript);
       }
     };
 
@@ -744,9 +729,11 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     if (!recognitionRef.current) return;
 
     try {
+      // Create new session ID for this voice input
+      sessionIdRef.current = `voice_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setTranscript('');
       setError(null);
-      console.log('Starting voice recognition');
+      console.log('Starting fresh voice recognition session:', sessionIdRef.current);
       recognitionRef.current.start();
     } catch (error) {
       console.error('Error starting speech recognition:', error);
@@ -764,6 +751,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const resetTranscript = useCallback(() => {
     setTranscript('');
     setError(null);
+    sessionIdRef.current = '';
     console.log('Voice transcript reset - ready for new input');
   }, []);
 

@@ -137,6 +137,7 @@ Changelog:
   * Enhanced voice input with technical term correction for hands-free practice
   * Fixed voice input to capture only current voice input while maintaining intelligent context for follow-ups
   * Implemented smart context manager that detects follow-up questions and uses focused conversation history
+  * Enhanced voice recognition with session-based tracking to prevent conversation history accumulation
   * Optimized for sub-second streaming responses with intelligent question routing and clean interaction flow
 - June 14, 2025. Complete UI redesign with futuristic elegant theme
   * Replaced Velari dark theme with sophisticated futuristic design
