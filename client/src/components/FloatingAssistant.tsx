@@ -5,7 +5,7 @@ import { Bot, Mic, MicOff, Send, X, Minus, Settings, FileText } from 'lucide-rea
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { EnhancedVoiceInput } from '@/components/EnhancedVoiceInput';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -65,25 +65,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     return defaultState;
   });
 
-  const {
-    isListening,
-    isSupported,
-    transcript,
-    error,
-    startListening,
-    stopListening,
-    resetTranscript,
-  } = useSpeechRecognition();
 
-  // Local editable transcript state
-  const [editableTranscript, setEditableTranscript] = useState('');
-
-  // Sync voice transcript with editable transcript
-  useEffect(() => {
-    if (transcript && transcript !== editableTranscript) {
-      setEditableTranscript(transcript);
-    }
-  }, [transcript]);
 
   const { lastMessage } = useWebSocket(sessionId);
 
@@ -185,9 +167,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         isVoice,
       });
 
-      if (isVoice) {
-        resetTranscript();
-      } else {
+      if (!isVoice) {
         setTextInput('');
       }
     } catch (error) {
@@ -203,14 +183,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     }
   };
 
-  const handleVoiceToggle = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -218,18 +190,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     }
   };
 
-  const handleTranscriptSend = () => {
-    if (transcript.trim()) {
-      handleSendMessage(transcript, true);
-      resetTranscript(); // Clear transcript after sending
-    }
-  };
-
-  const handleVoiceSend = () => {
-    if (transcript.trim()) {
-      handleSendMessage(transcript, true);
-      resetTranscript(); // Clear transcript after sending
-    }
+  const handleNewMessage = (message: string, isVoice: boolean) => {
+    setCurrentQuestion(message);
+    setCurrentAnswer('');
   };
 
   if (!isOpen) return null;
