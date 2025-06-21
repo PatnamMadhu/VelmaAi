@@ -37,11 +37,8 @@ export class GroqService {
       const requestBody = {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
-        temperature: 0.3, // Lower temperature for more consistent, complete responses
-        max_tokens: 1200, // Increased for complete responses
-        top_p: 0.9, // Better nucleus sampling for quality
-        frequency_penalty: 0.2, // Reduce repetition
-        presence_penalty: 0.1, // Encourage diverse vocabulary
+        temperature: 0.5, // Lower temperature for faster, more consistent responses
+        max_tokens: 800, // Increased for complete responses
         stream: !!onStream,
       };
       
@@ -49,7 +46,7 @@ export class GroqService {
       
       // Add timeout for response completion
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout for complete responses
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout for complete responses
       
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: "POST",
@@ -186,20 +183,12 @@ TECHNICAL ACCURACY:
 - Reference common tools, frameworks, and methodologies appropriately
 - Address both functional and non-functional requirements when relevant
 
-ANSWER STRUCTURE REQUIREMENTS:
-1. Start with a direct, confident answer to the exact question asked
-2. Provide clear explanation with proper technical details
-3. Include specific implementation examples with real code/tools
-4. Address practical considerations (scale, security, performance)
-5. End with a brief, confident conclusion
-
-FORMATTING RULES:
-- Use complete sentences with proper grammar
-- Include proper spacing and punctuation
-- Organize with clear paragraphs and bullet points
-- Avoid incomplete words or missing text
-- Ensure all technical terms are spelled correctly
-- Keep sentences concise but complete`;
+STRUCTURE YOUR ANSWERS:
+1. Direct answer to the question
+2. Brief explanation of key concepts
+3. Practical example or implementation details
+4. Considerations for scale, performance, or best practices
+5. Conclude with confidence and readiness for follow-up questions`;
     
     if (context) {
       systemPrompt += `\n\nYour Professional Identity:\n${context}\n\nCRITICAL INSTRUCTIONS:
@@ -211,14 +200,7 @@ FORMATTING RULES:
 - Share practical examples from your listed experience
 - Keep responses conversational and interview-appropriate (60-90 seconds when spoken)`;
     } else {
-      systemPrompt += `\n\nYou are helping with general interview preparation. Respond as a confident software engineer would speak in an interview. Use practical examples and "I" statements. Structure answers clearly with short paragraphs. Avoid theoretical explanations unless specifically requested.
-
-CRITICAL: Ensure all responses are:
-- Grammatically correct with complete sentences
-- Properly formatted with clear structure
-- Free of missing words or incomplete phrases
-- Technically accurate with correct spelling
-- Well-organized with logical flow`;
+      systemPrompt += `\n\nYou are helping with general interview preparation. Respond as a confident software engineer would speak in an interview. Use practical examples and "I" statements. Structure answers clearly with short paragraphs. Avoid theoretical explanations unless specifically requested.`;
     }
 
     messages.push({

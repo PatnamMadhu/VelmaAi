@@ -548,59 +548,22 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bimplement\b/gi, 'implement')
     .replace(/\bimplementing\b/gi, 'implementing')
     
-    // Fix common tech term corruptions with enhanced patterns
+    // Fix common tech term corruptions
     .replace(/\bjava script\b/gi, 'JavaScript')
-    .replace(/\bjavascript\b/gi, 'JavaScript')
     .replace(/\bnode js\b/gi, 'Node.js')
-    .replace(/\bnodejs\b/gi, 'Node.js')
     .replace(/\breact js\b/gi, 'React.js')
-    .replace(/\breactjs\b/gi, 'React.js')
     .replace(/\bangular js\b/gi, 'Angular.js')
-    .replace(/\bangularjs\b/gi, 'Angular.js')
     .replace(/\btype script\b/gi, 'TypeScript')
-    .replace(/\btypescript\b/gi, 'TypeScript')
     .replace(/\bmy sql\b/gi, 'MySQL')
-    .replace(/\bmysql\b/gi, 'MySQL')
     .replace(/\bpost gres\b/gi, 'PostgreSQL')
-    .replace(/\bpostgresql\b/gi, 'PostgreSQL')
     .replace(/\bmongo db\b/gi, 'MongoDB')
-    .replace(/\bmongodb\b/gi, 'MongoDB')
     .replace(/\bgit hub\b/gi, 'GitHub')
-    .replace(/\bgithub\b/gi, 'GitHub')
     .replace(/\bpost man\b/gi, 'Postman')
-    .replace(/\bpostman\b/gi, 'Postman')
     .replace(/\brest api\b/gi, 'REST API')
-    .replace(/\brestapi\b/gi, 'REST API')
     .replace(/\bgraph ql\b/gi, 'GraphQL')
-    .replace(/\bgraphql\b/gi, 'GraphQL')
     .replace(/\bspring boot\b/gi, 'Spring Boot')
-    .replace(/\bspringboot\b/gi, 'Spring Boot')
     .replace(/\bvisual studio code\b/gi, 'Visual Studio Code')
     .replace(/\bvs code\b/gi, 'VS Code')
-    .replace(/\bvscode\b/gi, 'VS Code')
-    
-    // Enhanced word corrections for interview context
-    .replace(/\bhow did you\b/gi, 'how did you')
-    .replace(/\bcan you\b/gi, 'can you') 
-    .replace(/\bwhat is\b/gi, 'what is')
-    .replace(/\bwhat are\b/gi, 'what are')
-    .replace(/\bhow do you\b/gi, 'how do you')
-    .replace(/\bexplain about\b/gi, 'explain about')
-    .replace(/\btell me about\b/gi, 'tell me about')
-    .replace(/\bimplement\b/gi, 'implement')
-    .replace(/\bsecurity\b/gi, 'security')
-    .replace(/\bprivacy\b/gi, 'privacy')
-    .replace(/\bauthentication\b/gi, 'authentication')
-    .replace(/\bauthorization\b/gi, 'authorization')
-    .replace(/\bentities yourself\b/gi, 'explain yourself')
-    .replace(/\bentities\b/gi, 'explain')
-    .replace(/\byour self\b/gi, 'yourself')
-    .replace(/\bprevious role\b/gi, 'previous role')
-    .replace(/\brole experience\b/gi, 'role experience')
-    .replace(/\bJWT\b/gi, 'JWT')
-    .replace(/\bjwt\b/gi, 'JWT')
-    .replace(/\bJSON web token\b/gi, 'JWT')
-    .replace(/\bjson web token\b/gi, 'JWT')
     
     // Fix number pronunciations in tech context
     .replace(/\bwon\b/gi, 'one')
@@ -718,36 +681,38 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Get the latest result
-      const lastResultIndex = event.results.length - 1;
-      const result = event.results[lastResultIndex];
-      
-      if (result && result[0]) {
-        let transcript = result[0].transcript;
+      let completeTranscript = '';
+
+      // Process all results to build complete transcript
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
         
-        // Apply corrections for better accuracy
-        transcript = correctTechnicalTerms(transcript);
-        
-        // For final results, also check alternatives
-        if (result.isFinal && result.length > 1) {
+        if (result.isFinal) {
+          // For final results, use the best alternative and apply corrections
           const alternatives: string[] = [];
           for (let j = 0; j < Math.min(result.length, 3); j++) {
             if (result[j] && result[j].transcript) {
               alternatives.push(result[j].transcript);
             }
           }
-          transcript = findBestAlternative(alternatives, transcript);
-          transcript = correctTechnicalTerms(transcript);
+          
+          const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
+          const corrected = correctTechnicalTerms(bestTranscript);
+          completeTranscript += corrected + ' ';
+        } else {
+          // For interim results, use simple correction
+          const interim = correctTechnicalTerms(result[0].transcript);
+          completeTranscript += interim + ' ';
         }
-        
-        // Clean up the transcript
-        transcript = transcript
-          .replace(/\s+/g, ' ')
-          .trim();
-        
-        if (transcript) {
-          setTranscript(transcript);
-        }
+      }
+
+      // Clean up and set the final transcript
+      const cleanedTranscript = completeTranscript
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (cleanedTranscript) {
+        setTranscript(cleanedTranscript);
       }
     };
 
