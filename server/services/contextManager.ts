@@ -43,27 +43,32 @@ export class ContextManager {
 
     const followUpIndicators = [
       // Direct references
-      'what about', 'how about', 'what if', 'and what', 'also',
+      'what about', 'how about', 'what if', 'and what', 'also', 'and',
       
       // Continuation words
       'furthermore', 'additionally', 'moreover', 'besides', 'in addition',
       
       // Clarification requests
       'can you explain', 'could you clarify', 'what do you mean', 'how does',
-      'tell me more', 'elaborate on', 'expand on',
+      'tell me more', 'elaborate on', 'expand on', 'can you give', 'show me',
       
       // Comparison requests
-      'compared to', 'versus', 'difference between', 'instead of',
+      'compared to', 'versus', 'difference between', 'instead of', 'vs',
       
       // Extension requests
-      'any other', 'more about', 'further details', 'what else',
+      'any other', 'more about', 'further details', 'what else', 'give me more',
+      'another example', 'more examples', 'other ways',
       
       // Specific follow-ups
-      'in that case', 'then how', 'but what', 'however',
+      'in that case', 'then how', 'but what', 'however', 'but',
       
       // Project/experience continuations
       'in that project', 'during that', 'when you', 'how did you',
-      'in your experience', 'at your previous', 'in your role'
+      'in your experience', 'at your previous', 'in your role',
+      
+      // Voice-friendly follow-ups
+      'now tell me', 'ok tell me', 'alright tell me', 'now what about',
+      'ok what about', 'alright what about', 'next question', 'follow up'
     ];
 
     const messageLower = message.toLowerCase().trim();
@@ -81,7 +86,13 @@ export class ContextManager {
     // Check for pronoun references that suggest continuation
     const pronounReferences = ['that', 'this', 'it', 'they', 'those', 'these'];
     const hasPronounReference = pronounReferences.some(pronoun => 
-      messageLower.includes(` ${pronoun} `) || messageLower.startsWith(`${pronoun} `)
+      messageLower.includes(` ${pronoun} `) || messageLower.startsWith(`${pronoun} `) || messageLower.endsWith(` ${pronoun}`)
+    );
+
+    // Check for contextual references to previous topics
+    const contextualReferences = ['the same', 'similar', 'like that', 'same thing', 'that one'];
+    const hasContextualReference = contextualReferences.some(ref => 
+      messageLower.includes(ref)
     );
 
     // Check for question words that suggest building on previous context
@@ -90,7 +101,7 @@ export class ContextManager {
       messageLower.startsWith(word)
     ) && messageLower.length < 50; // Short questions are more likely to be follow-ups
 
-    return hasFollowUpWords || hasPronounReference || hasBuildingQuestion;
+    return hasFollowUpWords || hasPronounReference || hasBuildingQuestion || hasContextualReference;
   }
 
   private isGarbledInput(message: string): boolean {
@@ -138,10 +149,17 @@ export class ContextManager {
 
   private selectRelevantHistory(message: string, recentMessages: Message[]): Message[] {
     // For follow-up questions, use the most recent exchange (last question and answer)
+    // Ensure we have a complete Q&A pair
     if (recentMessages.length >= 2) {
-      return recentMessages.slice(-2);
+      const lastTwo = recentMessages.slice(-2);
+      // Check if we have a user question followed by assistant answer
+      if (lastTwo[0].role === 'user' && lastTwo[1].role === 'assistant') {
+        return lastTwo;
+      }
     }
-    return recentMessages;
+    
+    // If we don't have a complete pair, use what we have
+    return recentMessages.slice(-2);
   }
 
   private buildFreshTopicPrompt(message: string, userContext?: string): string {
@@ -165,20 +183,20 @@ ${relevantHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('
 
 CURRENT ${contextType.toUpperCase()} QUESTION: ${message}
 
-${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question.\n` : ''}`;
+${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question. Speak as this candidate with their actual experience.\n` : ''}`;
 
     switch (contextType) {
       case 'clarification':
         return basePrompt + `
-Provide a clear, detailed clarification that builds on your previous response. Focus on explaining the specific aspect the interviewer is asking about.`;
+Provide a clear, detailed clarification that builds on your previous response. Focus on explaining the specific aspect the interviewer is asking about. Reference your previous answer and expand on the requested details.`;
 
       case 'continuation':
         return basePrompt + `
-Continue the discussion naturally, building on the previous topic. Provide additional relevant information or explore the next logical aspect.`;
+Continue the discussion naturally, building on the previous topic. Provide additional relevant information or explore the next logical aspect. Maintain the conversation flow while adding new insights.`;
 
       default:
         return basePrompt + `
-Respond appropriately to this follow-up while maintaining conversation flow.`;
+Respond appropriately to this follow-up while maintaining conversation flow. Build upon the previous context to provide a cohesive, connected response.`;
     }
   }
 }

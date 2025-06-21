@@ -93,8 +93,8 @@ export class AgentService {
     
     return {
       thoughts: [{
-        observation: `${contextualAnalysis.isFollowUp ? 'Follow-up' : 'New'} ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
-        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format${contextualAnalysis.isFollowUp ? ` for ${contextualAnalysis.contextType}` : ''} with ${context ? 'personalized' : 'general'} context`,
+        observation: `${contextualAnalysis.isFollowUp ? `Follow-up (${contextualAnalysis.contextType})` : 'New'} ${questionAnalysis.questionType.type} question with ${questionAnalysis.complexity} complexity`,
+        reasoning: `Using ${questionAnalysis.questionType.suggestedFormat} format${contextualAnalysis.isFollowUp ? ` for ${contextualAnalysis.contextType} with ${contextualAnalysis.relevantHistory.length} previous messages` : ''} with ${context ? 'personalized' : 'general'} context`,
         action: {
           type: 'execute',
           description: `Providing structured ${questionAnalysis.questionType.category} answer`,
