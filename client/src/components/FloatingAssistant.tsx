@@ -4,7 +4,7 @@ import { Rnd } from 'react-rnd';
 import { Bot, X, Minus, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SimpleVoiceInput } from '@/components/SimpleVoiceInput';
+import { EnhancedVoiceInput } from '@/components/EnhancedVoiceInput';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/hooks/use-toast';
 import { ContextInput } from '@/components/ContextInput';
@@ -322,9 +322,9 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Simple Voice Input Section */}
-            <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50">
-              <SimpleVoiceInput
+            {/* Enhanced Voice Input Section */}
+            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50">
+              <EnhancedVoiceInput
                 sessionId={sessionId}
                 onMessageSent={handleNewMessage}
                 disabled={isProcessing}

@@ -126,8 +126,6 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
-- June 21, 2025: Redesigned voice input with simple, flexible UI - large visible buttons, clear voice/text mode toggle, prominent controls
-- June 21, 2025: Fixed critical React component crash in FloatingAssistant that was preventing app startup
 - June 21, 2025: Built comprehensive enhanced voice input system with continuous listening, smart follow-up handling, auto-restart, and live transcription
 - June 21, 2025: Restricted AI responses to only use information explicitly provided in user context - no fabricated details
 - June 21, 2025: Enhanced voice recognition with duplicate word removal, missing article detection, and interview phrase completion
@@ -143,5 +141,4 @@ Changelog:
 
 ```
 Preferred communication style: Simple, everyday language.
-Interface preferences: Simple, flexible design with clearly visible buttons and controls.
 ```
