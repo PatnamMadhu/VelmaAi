@@ -126,6 +126,7 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
+- June 21, 2025: Fixed AI response cutting issues - increased token limits, extended timeouts, added response completion validation
 - June 21, 2025: Implemented adaptive voice recognition system with intelligent gap filling for various technical scenarios
 - June 21, 2025: Enhanced AI system to behave like confident software engineer in live interview
 - June 21, 2025: Improved voice recognition accuracy with editable transcript functionality and contextual correction

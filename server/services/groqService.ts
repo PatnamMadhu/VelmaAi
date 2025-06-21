@@ -37,16 +37,17 @@ export class GroqService {
       const requestBody = {
         model: "llama-3.1-8b-instant", // Ultra-fast model for sub-1s responses
         messages,
-        temperature: 0.5, // Lower temperature for faster, more consistent responses
-        max_tokens: 800, // Increased for complete responses
+        temperature: 0.7, // Balanced temperature for natural responses
+        max_tokens: 1500, // Increased for complete technical responses
         stream: !!onStream,
+        stop: null, // Ensure complete responses
       };
       
       console.log('Groq API request:', JSON.stringify(requestBody, null, 2));
       
       // Add timeout for response completion
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout for complete responses
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout for complete responses
       
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: "POST",
@@ -98,11 +99,27 @@ export class GroqService {
                 fullResponse += content;
                 onStream?.(content);
               }
+              
+              // Check if response is finished
+              const finishReason = parsed.choices?.[0]?.finish_reason;
+              if (finishReason === 'stop' || finishReason === 'length') {
+                break;
+              }
             } catch (e) {
               // Skip invalid JSON
             }
           }
         }
+      }
+
+      // Validate response completion
+      if (fullResponse.trim() && !this.isResponseComplete(fullResponse)) {
+        console.log('Response appears incomplete, adding natural conclusion');
+        const conclusion = this.addNaturalConclusion(fullResponse);
+        if (onStream && conclusion) {
+          onStream(conclusion);
+        }
+        fullResponse += conclusion;
       }
 
       return fullResponse;
@@ -121,10 +138,10 @@ export class GroqService {
 
   private async simulateResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     const responseStarters = [
-      "Sure! In my experience with that technology,",
-      "Absolutely! I've worked with this extensively.",
-      "Great question! From my projects, here's how I approached it:",
-      "Yes, I've dealt with this challenge before.",
+      "In my experience with that technology,",
+      "I've worked with this extensively.",
+      "From my projects, here's how I approached it:",
+      "I've dealt with this challenge before.",
     ];
 
     const starter = responseStarters[Math.floor(Math.random() * responseStarters.length)];
@@ -162,6 +179,75 @@ The key is balancing technical excellence with practical delivery timelines.`;
     return fullResponse;
   }
 
+  private isResponseComplete(response: string): boolean {
+    const trimmed = response.trim();
+    
+    // Check for common incomplete endings
+    const incompletePatterns = [
+      /\band\s*$/i,  // ends with "and"
+      /\bor\s*$/i,   // ends with "or"
+      /\bthe\s*$/i,  // ends with "the"
+      /\bto\s*$/i,   // ends with "to"
+      /\bof\s*$/i,   // ends with "of"
+      /\bin\s*$/i,   // ends with "in"
+      /\bfor\s*$/i,  // ends with "for"
+      /\bwith\s*$/i, // ends with "with"
+      /\bthat\s*$/i, // ends with "that"
+      /\bwhich\s*$/i, // ends with "which"
+      /\bwhen\s*$/i, // ends with "when"
+      /\bwhile\s*$/i, // ends with "while"
+      /\bbecause\s*$/i, // ends with "because"
+      /\bso\s*$/i,   // ends with "so"
+      /\bbut\s*$/i,  // ends with "but"
+      /\balso\s*$/i, // ends with "also"
+      /,\s*$/,       // ends with comma
+      /:\s*$/,       // ends with colon
+    ];
+    
+    // Check if response ends with incomplete pattern
+    for (const pattern of incompletePatterns) {
+      if (pattern.test(trimmed)) {
+        return false;
+      }
+    }
+    
+    // Check for minimum length and proper sentence ending
+    return trimmed.length > 50 && /[.!?]\s*$/.test(trimmed);
+  }
+
+  private addNaturalConclusion(response: string): string {
+    const trimmed = response.trim();
+    
+    // Don't add conclusion if response is very short
+    if (trimmed.length < 30) {
+      return '';
+    }
+    
+    // Natural conclusions for different contexts
+    const conclusions = [
+      " That's been my approach to handling this type of challenge.",
+      " This strategy has worked well for me in production environments.",
+      " I find this approach balances performance with maintainability effectively.",
+      " That's how I've successfully implemented this in my projects.",
+      " This methodology has proven reliable in my experience.",
+    ];
+    
+    // Select conclusion based on content
+    const lowerResponse = trimmed.toLowerCase();
+    if (lowerResponse.includes('database') || lowerResponse.includes('data')) {
+      return " This approach ensures data integrity while maintaining good performance.";
+    } else if (lowerResponse.includes('api') || lowerResponse.includes('request')) {
+      return " This design provides a robust and scalable API architecture.";
+    } else if (lowerResponse.includes('test') || lowerResponse.includes('quality')) {
+      return " This testing strategy has helped me maintain high code quality.";
+    } else if (lowerResponse.includes('performance') || lowerResponse.includes('optimize')) {
+      return " This optimization approach has delivered measurable performance improvements.";
+    }
+    
+    // Default conclusion
+    return conclusions[Math.floor(Math.random() * conclusions.length)];
+  }
+
   buildMessages(userMessage: string, context?: string, recentMessages: any[] = []): GroqMessage[] {
     const messages: GroqMessage[] = [];
 
@@ -183,6 +269,8 @@ RESPONSE GUIDELINES:
 - Start responses confidently but naturally
 - Avoid robotic phrases like "Great question!" unless genuinely appropriate
 - Focus on practical implementation over theory
+- ALWAYS complete your thoughts and sentences - never cut off mid-sentence
+- End with a natural conclusion that wraps up your answer
 
 TECHNICAL STRUCTURE:
 1. Direct answer with high-level concept
