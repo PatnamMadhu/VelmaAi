@@ -699,7 +699,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
           .replace(/\s+/g, ' ')
           .trim();
         
-        // Only update if we have meaningful content and it's not repetitive
+        // Only update if we have meaningful, fresh content
         if (cleanedTranscript && 
             cleanedTranscript.length > 2 && 
             !isRepetitiveSpeech(cleanedTranscript) &&

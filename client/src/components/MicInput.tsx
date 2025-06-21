@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, MicOff, Send, X, Edit, Settings, Shield } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useVoiceSession } from '@/hooks/useVoiceSession';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -27,6 +28,8 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     stopListening,
     resetTranscript,
   } = useSpeechRecognition();
+  
+  const voiceSession = useVoiceSession();
 
   useEffect(() => {
     if (error) {

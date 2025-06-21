@@ -50,21 +50,28 @@ export class ContextManager {
       
       // Clarification requests
       'can you explain', 'could you clarify', 'what do you mean', 'how does',
+      'tell me more', 'elaborate on', 'expand on',
       
       // Comparison requests
       'compared to', 'versus', 'difference between', 'instead of',
       
       // Extension requests
-      'any other', 'more about', 'further details', 'tell me more',
+      'any other', 'more about', 'further details', 'what else',
       
       // Specific follow-ups
       'in that case', 'then how', 'but what', 'however',
       
       // Project/experience continuations
-      'in that project', 'during that', 'when you', 'how did you'
+      'in that project', 'during that', 'when you', 'how did you',
+      'in your experience', 'at your previous', 'in your role'
     ];
 
-    const messageLower = message.toLowerCase();
+    const messageLower = message.toLowerCase().trim();
+    
+    // Filter out garbled or repetitive voice input that might contain follow-up words
+    if (messageLower.length < 5 || this.isGarbledInput(messageLower)) {
+      return false;
+    }
     
     // Check for direct follow-up indicators
     const hasFollowUpWords = followUpIndicators.some(indicator => 
@@ -74,7 +81,7 @@ export class ContextManager {
     // Check for pronoun references that suggest continuation
     const pronounReferences = ['that', 'this', 'it', 'they', 'those', 'these'];
     const hasPronounReference = pronounReferences.some(pronoun => 
-      messageLower.includes(pronoun)
+      messageLower.includes(` ${pronoun} `) || messageLower.startsWith(`${pronoun} `)
     );
 
     // Check for question words that suggest building on previous context
@@ -84,6 +91,23 @@ export class ContextManager {
     ) && messageLower.length < 50; // Short questions are more likely to be follow-ups
 
     return hasFollowUpWords || hasPronounReference || hasBuildingQuestion;
+  }
+
+  private isGarbledInput(message: string): boolean {
+    // Check for repetitive patterns that suggest voice recognition errors
+    const words = message.split(' ');
+    const uniqueWords = new Set(words);
+    
+    // If more than 50% of words are repeated, likely garbled
+    if (uniqueWords.size / words.length < 0.5) {
+      return true;
+    }
+    
+    // Check for common voice recognition artifacts
+    const artifacts = ['um', 'uh', 'ah', 'er', 'hmm'];
+    const artifactCount = words.filter(word => artifacts.includes(word)).length;
+    
+    return artifactCount / words.length > 0.3; // More than 30% artifacts
   }
 
   private determineContextType(message: string, recentMessages: Message[]): 'continuation' | 'clarification' | 'new_topic' {
