@@ -127,6 +127,10 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 ```
 Changelog:
 - June 13, 2025. Initial setup
+- January 22, 2025. Enhanced voice recognition accuracy with comprehensive technical term mapping
+- January 22, 2025. Implemented editable voice transcript with manual correction capability
+- January 22, 2025. Improved AI response quality with better formatting and reduced incomplete responses
+- January 22, 2025. Added extended listening timeouts and auto-restart functionality
 ```
 
 ## User Preferences
