@@ -1,0 +1,21 @@
+can you walk me through the experience of yours in AWS
+
+I'd be happy to share my with AWS.
+
+Throughout my career, I've had the opportunity to extensively with AWS cloud services, including Lambda EC2, S3, API Gateway, Dynamo, and CloudWatch One of my earliest experiences with AWS was when I worked on a project at Reward360 Global Services, I engineered and supported Java-based applications integrated with MySQL and.
+
+I implemented and automated AWS infrastructure usingform, which included setting up EC2 instances,DS databases, and S3 buckets. I also automated CI/CD with Azure DevOps, reducing deployment cycles by 40%. This experience not only deepened my understanding of AWS services but also taught me the importance of infrastructure as code (IaC) in ensuring consistency and reproducibility.
+
+Later, at Channelcore, I worked on backend services using Python (Flask) and Node.js in a Replit-based environment to handle financial data processing. I collaborated on integrating React components with REST APIs to improve user workflows. I also assisted with early-stage migration tasks to AWS Lambda and S3, focusing on testing and documentation.
+
+One of the most significant AWS-related projects I've worked on was at AI Republic, where I designed and deployed serverless backend APIs using Python (Flask) and AWS Lambda, powering real-time data processing and AI inference pipelines. I built microservices to handle large-scale, event-driven data flows using AWS SQS, SNS, and DynamoDB, ensuring high availability and scalability.
+
+Throughout these experiences, I've gained hands-on expertise with AWS services, including:
+
+1. **Serverless architecture**: Designing and deploying serverless backend APIs using AWS Lambda, API Gateway, and S3.
+2. **Microservices**: Building microservices using AWS SQS, SNS, and DynamoDB to handle large-scale, event-driven data flows.
+3. **Infrastructure as Code (IaC)**: Implementing Terraform to automate AWS infrastructure setup and management.
+4. **CI/CD**: Automating CI/CD pipelines using AWS CodePipeline and Azure DevOps.
+5. **Monitoring and logging**: Using CloudWatch to monitor and log AWS services, ensuring high availability and scalability.
+
+I'm confident that my experience with AWS has prepared me to tackle complex cloud-based projects, and I'm excited to continue exploring new opportunities to leverage AWS services in innovative ways.

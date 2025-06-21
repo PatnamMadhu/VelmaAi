@@ -548,7 +548,7 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bimplement\b/gi, 'implement')
     .replace(/\bimplementing\b/gi, 'implementing')
     
-    // Fix common tech term corruptions
+    // Fix common tech term corruptions and interview phrases
     .replace(/\bjava script\b/gi, 'JavaScript')
     .replace(/\bnode js\b/gi, 'Node.js')
     .replace(/\breact js\b/gi, 'React.js')
@@ -564,6 +564,20 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bspring boot\b/gi, 'Spring Boot')
     .replace(/\bvisual studio code\b/gi, 'Visual Studio Code')
     .replace(/\bvs code\b/gi, 'VS Code')
+    
+    // Fix common interview phrase recognition errors
+    .replace(/\bwalk me through\b/gi, 'walk me through')
+    .replace(/\btell me about\b/gi, 'tell me about')
+    .replace(/\bexplain\b/gi, 'explain')
+    .replace(/\bdescribe\b/gi, 'describe')
+    .replace(/\bhow would you\b/gi, 'how would you')
+    .replace(/\bwhat is your\b/gi, 'what is your')
+    .replace(/\bcan you\b/gi, 'can you')
+    .replace(/\bhave you ever\b/gi, 'have you ever')
+    .replace(/\bshare my\b/gi, 'share my')
+    .replace(/\bextensively with\b/gi, 'extensively with')
+    .replace(/\bI had the opportunity to\b/gi, 'I had the opportunity to')
+    .replace(/\bthroughout my career\b/gi, 'throughout my career')
     
     // Fix number pronunciations in tech context
     .replace(/\bwon\b/gi, 'one')
@@ -681,29 +695,29 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+      let allTranscript = '';
 
-      // Process results from the latest recognition session
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      // Build complete transcript from all results
+      for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
         let transcript = result[0].transcript;
         
-        // Apply corrections to improve accuracy
-        transcript = correctTechnicalTerms(transcript);
-        
         if (result.isFinal) {
-          finalTranscript += transcript;
+          // For final results, apply corrections and add to complete transcript
+          transcript = correctTechnicalTerms(transcript);
+          allTranscript += transcript + ' ';
         } else {
-          interimTranscript = transcript;
+          // For interim results, show real-time feedback
+          const interim = correctTechnicalTerms(transcript);
+          // Add interim to show current speaking
+          allTranscript += interim;
         }
       }
 
-      // Update the transcript state
-      const currentTranscript = (finalTranscript || interimTranscript).trim();
-      
-      if (currentTranscript) {
-        setTranscript(currentTranscript);
+      // Clean up and set the transcript
+      const cleanTranscript = allTranscript.trim();
+      if (cleanTranscript) {
+        setTranscript(cleanTranscript);
       }
     };
 
