@@ -1,0 +1,22 @@
+
+tell me about yourself
+
+**Situation**: Here's a STAR response showcases my background, skills, and experiences:
+
+**S** -Situation**: I'd like to share a situation where I had to take on a new challenge and lead a team to achieve a common goal. 
+
+**** - **Task**: As Java Full Stack Developer with over 5 years of experience, I was tasked with leading a team to migrate a legacy application to microservices architecture using Boot and Spring Cloud The goal was to improve system availability 40% and reduce errors in the build and deployment pipelines. 
+
+**A** - **Action**: I took the initiative to assemble a cross-functional team consisting of developers, QA engineers, and DevOps specialists.  We worked closely together to design and implement a scalable microservices ecosystem, ensuring that each service was secure, fault-tolerant, and highly available.
+
+**Task**: I also implemented a continuous integration and continuous deployment (CI/CD) pipeline using Jenkins, Docker, and Kubernetes to automate the build, test, and deployment process.  To ensure smooth communication and collaboration, I facilitated regular team meetings, sprint planning sessions, and retrospectives. 
+
+**R** - **Result**: Through our collective efforts, we successfully migrated the legacy application to a microservices architecture, achieving a 40% improvement in system availability.  The CI/CD pipeline reduced manual errors and improved delivery speed by 30%.
+
+**Action**: Our team's collaboration and communication skills were significantly enhanced, and we were able to deliver high-quality software on time.  This experience taught me the importance of leadership, collaboration, and effective communication in achieving complex technical goals. 
+
+Additionally, I'd like to highlight my growth mindset and commitment to continuous learning.  Throughout my career, I've pursued various certifications, such as the Microsoft Certified: Azure Developer Associate and Oracle Certified Professional, Java SE.
+
+**Result**: I've also stayed up-to-date with the latest technologies and trends in the industry, including cloud computing, DevOps, and microservices architecture.  My passion for learning and growth has enabled me to take on new challenges and contribute to the success of my teams. 
+
+Thank you for the opportunity to share my story.
