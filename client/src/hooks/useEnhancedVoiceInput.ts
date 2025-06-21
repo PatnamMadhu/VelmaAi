@@ -152,33 +152,22 @@ export function useEnhancedVoiceInput(): UseEnhancedVoiceInputReturn {
     recognition.onend = () => {
       setIsListening(false);
       console.log('Voice recognition ended');
-      
-      // Auto-restart if it was stopped unexpectedly and we want to keep listening
-      if (recognitionRef.current && !error) {
-        restartTimeoutRef.current = setTimeout(() => {
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (e) {
-              console.log('Auto-restart prevented (already running)');
-            }
-          }
-        }, 100);
-      }
     };
     
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
-      setError(event.error);
       setIsListening(false);
       
       // Handle specific errors
       if (event.error === 'not-allowed') {
         setError('Microphone access denied. Please allow microphone permissions.');
       } else if (event.error === 'no-speech') {
-        setError('No speech detected. Please try again.');
+        setError('No speech detected. Try speaking closer to the microphone.');
       } else if (event.error === 'network') {
         setError('Network error. Please check your connection.');
+      } else if (event.error === 'aborted') {
+        // Don't show error for aborted - this is normal when stopping
+        setError(null);
       } else {
         setError(`Speech recognition error: ${event.error}`);
       }
@@ -250,9 +239,22 @@ export function useEnhancedVoiceInput(): UseEnhancedVoiceInputReturn {
     }
     
     try {
-      if (!recognitionRef.current) {
-        recognitionRef.current = initializeRecognition();
+      // Stop any existing recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
       }
+      
+      // Clear any pending timeouts
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+      
+      // Create new recognition instance
+      recognitionRef.current = initializeRecognition();
       
       if (recognitionRef.current && !isListening) {
         recognitionRef.current.start();

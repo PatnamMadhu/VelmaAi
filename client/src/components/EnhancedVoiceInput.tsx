@@ -76,22 +76,13 @@ export function EnhancedVoiceInput({
 
     setIsProcessing(true);
     try {
-      // Build context-aware message for follow-up questions
-      let contextualMessage = message.trim();
-      
-      if (isVoice && lastQuestion && isFollowUpQuestion(message, lastQuestion)) {
-        contextualMessage = `Following up on "${lastQuestion}": ${message}`;
-      }
-
       await apiRequest('POST', '/api/chat', {
-        message: contextualMessage,
+        message: message.trim(),
         sessionId,
         isVoice,
       });
 
-      // Update conversation context
-      updateLastQuestion(contextualMessage);
-      onMessageSent?.(contextualMessage, isVoice);
+      onMessageSent?.(message.trim(), isVoice);
       
       if (isVoice) {
         resetTranscript();
