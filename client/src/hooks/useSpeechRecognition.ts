@@ -663,60 +663,55 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onend = () => {
-      console.log('Voice recognition session ended');
+      console.log('Voice recognition ended');
       setIsListening(false);
+      
+      // Auto-restart if we were listening (handles browser timeouts)
+      if (isListening) {
+        setTimeout(() => {
+          try {
+            if (recognitionRef.current) {
+              recognitionRef.current.start();
+            }
+          } catch (error) {
+            console.log('Auto-restart failed');
+            setIsListening(false);
+          }
+        }, 100);
+      }
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Only process the latest result to capture current voice input
-      const latestResultIndex = event.results.length - 1;
-      const latestResult = event.results[latestResultIndex];
-      
-      if (latestResult) {
-        let currentTranscript = '';
-        
-        if (latestResult.isFinal) {
-          // For final results, use the best alternative and apply corrections
-          const alternatives: string[] = [];
-          for (let j = 0; j < Math.min(latestResult.length, 3); j++) {
-            if (latestResult[j] && latestResult[j].transcript) {
-              alternatives.push(latestResult[j].transcript);
-            }
-          }
-          
-          const bestTranscript = findBestAlternative(alternatives, latestResult[0].transcript);
-          currentTranscript = correctTechnicalTerms(bestTranscript);
-        } else {
-          // For interim results, use simple correction
-          currentTranscript = correctTechnicalTerms(latestResult[0].transcript);
-        }
+      let finalTranscript = '';
+      let interimTranscript = '';
 
-        // Clean up and set only the current voice input
-        const cleanedTranscript = currentTranscript
-          .replace(/\s+/g, ' ')
-          .trim();
-        
-        // Only update if we have meaningful, fresh content
-        if (cleanedTranscript && 
-            cleanedTranscript.length > 2 && 
-            !isRepetitiveSpeech(cleanedTranscript) &&
-            !isDuplicateInput(cleanedTranscript)) {
-          setTranscript(cleanedTranscript);
-          console.log('Fresh voice input captured:', cleanedTranscript);
+      // Process all results to build complete transcript
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        const transcript = result[0].transcript;
+
+        if (result.isFinal) {
+          finalTranscript += correctTechnicalTerms(transcript) + ' ';
+        } else {
+          interimTranscript += transcript;
         }
+      }
+
+      // Set the transcript (final + interim for live feedback)
+      const fullTranscript = (finalTranscript + interimTranscript).trim();
+      if (fullTranscript) {
+        setTranscript(fullTranscript);
+        console.log('Voice input:', fullTranscript);
       }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
       
-      // Handle different types of errors
       if (event.error === 'no-speech') {
-        // Don't show error for no-speech, just continue listening
-        console.log('No speech detected, continuing to listen...');
+        console.log('No speech detected');
         return;
       } else if (event.error === 'aborted') {
-        // User manually stopped, don't restart
         setIsListening(false);
         return;
       } else if (event.error === 'network') {
@@ -727,19 +722,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
         setError(`Speech recognition error: ${event.error}`);
       }
       
-      // For other errors, try to restart after a delay
       setIsListening(false);
-      if (isListening) {
-        setTimeout(() => {
-          try {
-            if (recognitionRef.current) {
-              recognitionRef.current.start();
-            }
-          } catch (error) {
-            console.log('Failed to restart after error');
-          }
-        }, 2000); // 2 second delay before restart
-      }
     };
 
     return () => {
@@ -761,10 +744,9 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     if (!recognitionRef.current) return;
 
     try {
-      // Clear any previous transcript to ensure fresh capture
       setTranscript('');
       setError(null);
-      console.log('Starting fresh voice capture session');
+      console.log('Starting voice recognition');
       recognitionRef.current.start();
     } catch (error) {
       console.error('Error starting speech recognition:', error);

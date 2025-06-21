@@ -44,7 +44,7 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleSendMessage = async (message: string, isVoice: boolean = false) => {
     if (!message.trim() || disabled) return;
 
-    // Immediately stop voice capture to prevent AI response being captured
+    // Stop voice capture when sending message
     if (isVoice && isListening) {
       stopListening();
     }
@@ -81,7 +81,7 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     if (isListening) {
       stopListening();
     } else {
-      resetTranscript(); // Clear any previous transcript
+      resetTranscript();
       startListening();
     }
   };
@@ -142,7 +142,7 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
           
           {isSupported && !isListening && !transcript && (
             <div className="text-sm text-gray-600">
-              <MicOff className="inline w-4 h-4 mr-2" />
+              <Mic className="inline w-4 h-4 mr-2" />
               Click to start voice input
             </div>
           )}
