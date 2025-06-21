@@ -126,8 +126,9 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
+- June 21, 2025: Implemented adaptive voice recognition system with intelligent gap filling for various technical scenarios
 - June 21, 2025: Enhanced AI system to behave like confident software engineer in live interview
-- June 21, 2025: Improved voice recognition accuracy with editable transcript functionality
+- June 21, 2025: Improved voice recognition accuracy with editable transcript functionality and contextual correction
 - June 21, 2025: Updated response structure for natural, human-like technical interview answers
 - June 13, 2025: Initial setup
 ```

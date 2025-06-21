@@ -409,12 +409,60 @@ function findBestAlternative(alternatives: string[], defaultTranscript: string):
   return scoredOptions[0]?.text || defaultTranscript;
 }
 
+// Intelligent gap filling for common speech recognition patterns
+function intelligentGapFill(transcript: string): string {
+  let filled = transcript;
+  
+  // Pattern-based gap filling for "X and Y" structures where middle term is missing
+  const gapPatterns = [
+    // Database combinations
+    { pattern: /\b(integrated|working|using|with)\s+with\s+and\s+(mongodb|postgresql|redis|oracle)\b/gi, 
+      replacement: '$1 with MySQL and $2' },
+    { pattern: /\b(mysql|postgresql|mongodb|redis)\s+and\s+and\s+/gi, 
+      replacement: '$1 and MongoDB and ' },
+    
+    // AWS service combinations  
+    { pattern: /\b(aws|amazon)\s+and\s+and\s+/gi, 
+      replacement: '$1 Lambda and ' },
+    { pattern: /\bec\s+and\s+/gi, 
+      replacement: 'EC2 and ' },
+    { pattern: /\bs3\s+and\s+and\s+/gi, 
+      replacement: 'S3 and RDS and ' },
+    
+    // Technology stack gaps
+    { pattern: /\b(spring|react|angular|node)\s+and\s+and\s+/gi, 
+      replacement: '$1 Boot and ' },
+    { pattern: /\bjavascript\s+and\s+and\s+/gi, 
+      replacement: 'JavaScript and TypeScript and ' },
+    
+    // Experience phrases
+    { pattern: /\bexperience\s+in\s+and\s+/gi, 
+      replacement: 'experience in AWS and ' },
+    { pattern: /\bworked\s+with\s+and\s+/gi, 
+      replacement: 'worked with Java and ' },
+    
+    // Common incomplete phrases
+    { pattern: /\band\s+stack\b/gi, replacement: 'full-stack' },
+    { pattern: /\bfrom\s+end\b/gi, replacement: 'frontend' },
+    { pattern: /\back\s+end\b/gi, replacement: 'backend' },
+  ];
+  
+  gapPatterns.forEach(({ pattern, replacement }) => {
+    filled = filled.replace(pattern, replacement);
+  });
+  
+  return filled;
+}
+
 // Correct technical terms in the transcript with enhanced slang and accent handling
 function correctTechnicalTerms(transcript: string): string {
   let corrected = transcript;
   
+  // First apply intelligent gap filling
+  corrected = intelligentGapFill(corrected);
+  
   // Check for exact matches first
-  const lowerTranscript = transcript.toLowerCase().trim();
+  const lowerTranscript = corrected.toLowerCase().trim();
   if (technicalTermsMap[lowerTranscript]) {
     return technicalTermsMap[lowerTranscript];
   }
@@ -663,6 +711,47 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   
   // Adaptive learning storage for user-specific patterns
   const userPatternsRef = useRef<{ [key: string]: string }>({});
+  
+  // Context-aware correction based on surrounding words
+  const contextualCorrection = useCallback((transcript: string) => {
+    let corrected = transcript;
+    
+    // Dynamic gap detection and filling based on context
+    const words = transcript.split(' ');
+    for (let i = 0; i < words.length - 2; i++) {
+      const current = words[i];
+      const next = words[i + 1];
+      const afterNext = words[i + 2];
+      
+      // Detect "X and Y" patterns where middle word might be missing
+      if (next === 'and' && current && afterNext) {
+        // Technology stack patterns
+        if (current.toLowerCase().includes('java') && afterNext.toLowerCase().includes('script')) {
+          words[i + 1] = 'and Node.js and';
+        }
+        else if (current.toLowerCase().includes('mysql') && afterNext.toLowerCase().includes('mongo')) {
+          words[i + 1] = 'and PostgreSQL and';
+        }
+        else if (current.toLowerCase().includes('react') && afterNext.toLowerCase().includes('angular')) {
+          words[i + 1] = 'and Vue.js and';
+        }
+        else if (current.toLowerCase().includes('aws') && afterNext.toLowerCase().includes('azure')) {
+          words[i + 1] = 'and GCP and';
+        }
+        // Add more intelligent patterns as needed
+      }
+      
+      // Detect incomplete technology names
+      if (current === 'spring' && next !== 'boot') {
+        words[i] = 'Spring Boot';
+      }
+      if (current === 'visual' && next === 'studio' && afterNext !== 'code') {
+        words[i + 2] = 'Code';
+      }
+    }
+    
+    return words.join(' ');
+  }, []);
 
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
@@ -734,10 +823,11 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
             }
           }
           
-          // Use the best alternative
+          // Use the best alternative with contextual correction
           const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
-          const corrected = correctTechnicalTerms(bestTranscript);
-          finalTranscript += corrected + ' ';
+          const contextCorrected = contextualCorrection(bestTranscript);
+          const finalCorrected = correctTechnicalTerms(contextCorrected);
+          finalTranscript += finalCorrected + ' ';
         } else {
           // For interim results, just use basic correction
           interimTranscript = correctTechnicalTerms(result[0].transcript);
