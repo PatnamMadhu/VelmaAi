@@ -110,15 +110,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     }
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Speech Recognition Error",
-        description: error,
-        variant: "destructive",
-      });
-    }
-  }, [error, toast]);
+
 
   // Handle WebSocket streaming messages
   useEffect(() => {
@@ -369,112 +361,14 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
               )}
             </div>
 
-            {/* Voice Transcription Preview - Always visible */}
-            <div className="px-2 sm:px-4 pb-2">
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-orange-600 font-medium">Voice Input:</span>
-                    {isListening && (
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-orange-600">Listening...</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Editable voice transcript */}
-                <textarea
-                  value={editableTranscript || ""}
-                  onChange={(e) => setEditableTranscript(e.target.value)}
-                  placeholder="Click 'Listen' to start speaking or type to edit..."
-                  className="w-full min-h-[60px] p-2 text-xs sm:text-sm text-orange-800 bg-white border border-orange-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  rows={3}
-                />
-                
-                <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center space-x-2">
-                    <Button 
-                      size="sm"
-                      onClick={handleVoiceToggle}
-                      variant={isListening ? "destructive" : "default"}
-                      className="h-8 px-3"
-                      disabled={!isSupported}
-                    >
-                      {isListening ? (
-                        <>
-                          <MicOff className="w-3 h-3 mr-1" />
-                          Stop
-                        </>
-                      ) : (
-                        <>
-                          <Mic className="w-3 h-3 mr-1" />
-                          Listen
-                        </>
-                      )}
-                    </Button>
-                    <Button 
-                      size="sm"
-                      onClick={() => {
-                        setEditableTranscript('');
-                        resetTranscript();
-                      }}
-                      variant="outline"
-                      className="h-8 px-3"
-                      disabled={!editableTranscript.trim()}
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      if (editableTranscript.trim()) {
-                        handleSendMessage(editableTranscript, true);
-                        setEditableTranscript('');
-                        resetTranscript();
-                      }
-                    }}
-                    disabled={!editableTranscript.trim() || isProcessing}
-                    className="h-8 px-3"
-                  >
-                    <Send className="w-3 h-3 mr-1" />
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-
-
-            {/* Input Section */}
-            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 space-y-2 sm:space-y-3">
-
-              {/* Text Input */}
-              <div className="flex items-center space-x-1 sm:space-x-2">
-                <Input 
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your question..."
-                  disabled={isProcessing}
-                  className="text-xs sm:text-sm"
-                />
-                
-                <Button 
-                  onClick={() => handleSendMessage(textInput)}
-                  disabled={!textInput.trim() || isProcessing}
-                  size="sm"
-                  className="h-8 w-8 sm:h-9 sm:w-9 p-0"
-                >
-                  {isProcessing ? (
-                    <div className="animate-spin rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 border-b-2 border-white"></div>
-                  ) : (
-                    <Send className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  )}
-                </Button>
-              </div>
+            {/* Enhanced Voice Input Section */}
+            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50">
+              <EnhancedVoiceInput
+                sessionId={sessionId}
+                onMessageSent={handleNewMessage}
+                disabled={isProcessing}
+                placeholder="Ask me anything about your interview preparation..."
+              />
             </div>
           </CardContent>
         )}

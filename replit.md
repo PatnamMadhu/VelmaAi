@@ -126,6 +126,7 @@ Draggable, resizable chat interface that provides the main interaction point. Fe
 
 ```
 Changelog:
+- June 21, 2025: Built comprehensive enhanced voice input system with continuous listening, smart follow-up handling, auto-restart, and live transcription
 - June 21, 2025: Restricted AI responses to only use information explicitly provided in user context - no fabricated details
 - June 21, 2025: Enhanced voice recognition with duplicate word removal, missing article detection, and interview phrase completion
 - June 21, 2025: Fixed AI response cutting issues - increased token limits, extended timeouts, added response completion validation
