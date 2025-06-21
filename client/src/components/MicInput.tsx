@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mic, MicOff, Send, X, Edit, Settings, Shield } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { useVoiceSession } from '@/hooks/useVoiceSession';
+
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -29,7 +29,7 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
     resetTranscript,
   } = useSpeechRecognition();
   
-  const voiceSession = useVoiceSession();
+
 
   useEffect(() => {
     if (error) {
@@ -62,8 +62,6 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
       // Clear input after successful send
       if (isVoice) {
         resetTranscript();
-        voiceSession.clearInput();
-        voiceSession.endSession();
       } else {
         setTextInput('');
       }
@@ -82,9 +80,8 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   const handleVoiceToggle = () => {
     if (isListening) {
       stopListening();
-      voiceSession.endSession();
     } else {
-      voiceSession.startSession();
+      resetTranscript(); // Clear any previous transcript
       startListening();
     }
   };
@@ -97,10 +94,9 @@ export function MicInput({ sessionId, onMessageSent, disabled }: MicInputProps) 
   };
 
   const handleTranscriptSend = () => {
-    const currentInput = voiceSession.isActive ? transcript.trim() : '';
-    if (currentInput) {
-      console.log('Sending fresh voice input:', currentInput);
-      handleSendMessage(currentInput, true);
+    if (transcript.trim()) {
+      console.log('Sending voice input:', transcript.trim());
+      handleSendMessage(transcript.trim(), true);
     }
   };
 

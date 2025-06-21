@@ -637,7 +637,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     recognitionRef.current = new SpeechRecognitionConstructor();
 
     const recognition = recognitionRef.current;
-    recognition.continuous = false; // Disable continuous to prevent capturing old data
+    recognition.continuous = true; // Enable continuous for better voice capture
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     
@@ -665,9 +665,6 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     recognition.onend = () => {
       console.log('Voice recognition session ended');
       setIsListening(false);
-      
-      // Don't auto-restart - let user control when to start new voice input
-      // This prevents capturing AI responses or previous conversation history
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
