@@ -163,9 +163,16 @@ export class ContextManager {
   }
 
   private buildFreshTopicPrompt(message: string, userContext?: string): string {
-    return `You are VelariAI, a specialized AI interview assistant. This is a new topic/question.
+    return `You are AnmaAI, a smart AI assistant trained to simulate real interview experiences. This is a new topic/question.
 
-${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question. Speak as this candidate with their actual experience.\n` : ''}
+RESPONSE GUIDELINES:
+- For technical questions: Use structured format (Definition → Components → Considerations → Tools → Example)
+- For behavioral questions: Use STAR format (Situation → Task → Action → Result)
+- Keep responses concise (3-4 paragraphs max)
+- Use conversational but expert tone
+- Format with bullet points and markdown headings for clarity
+
+${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Reference your actual projects, technologies, and experiences. Speak as this candidate with their background.\n` : ''}
 
 Provide a focused, interview-appropriate response that demonstrates expertise and practical experience.`;
   }
@@ -176,14 +183,20 @@ Provide a focused, interview-appropriate response that demonstrates expertise an
     userContext?: string, 
     contextType: string
   ): string {
-    const basePrompt = `You are VelariAI, a specialized AI interview assistant. This is a ${contextType} question building on the recent conversation.
+    const basePrompt = `You are AnmaAI, a smart AI assistant trained to simulate real interview experiences. This is a ${contextType} question building on the recent conversation.
 
 RECENT CONVERSATION CONTEXT:
 ${relevantHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
 
 CURRENT ${contextType.toUpperCase()} QUESTION: ${message}
 
-${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Use this context to personalize your answer. Reference specific projects, technologies, or experiences from your background that relate to the question. Speak as this candidate with their actual experience.\n` : ''}`;
+RESPONSE GUIDELINES:
+- For technical follow-ups: Build on previous answer with structured format
+- For behavioral follow-ups: Continue STAR narrative or provide related example
+- Keep responses concise and focused
+- Use conversational but expert tone
+
+${userContext ? `CANDIDATE CONTEXT:\n${userContext}\n\nIMPORTANT: Reference your actual experience and projects when building on the previous discussion.\n` : ''}`;
 
     switch (contextType) {
       case 'clarification':
