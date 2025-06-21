@@ -342,64 +342,70 @@ const technicalTermsMap: { [key: string]: string } = {
   'xr': 'XR'
 };
 
-// Find the best alternative from speech recognition results
+// Find the best alternative from speech recognition results with enhanced gap filling
 function findBestAlternative(alternatives: string[], defaultTranscript: string): string {
   if (!alternatives || alternatives.length === 0) return defaultTranscript;
   
   // Create a combined pool of all alternatives
   const allOptions = [defaultTranscript, ...alternatives].filter(Boolean);
   
-  // Score each option based on various factors
+  // Score each option and look for completeness
   const scoredOptions = allOptions.map(option => {
     let score = 0;
     const lowercased = option.toLowerCase();
+    const words = option.split(' ');
     
-    // High bonus for exact technical term matches
-    Object.keys(technicalTermsMap).forEach(term => {
-      if (lowercased.includes(term.toLowerCase())) {
-        score += 10; // Higher weight for technical terms
+    // High penalty for obvious gaps (single letters, very short words in context)
+    let hasGaps = false;
+    words.forEach((word, index) => {
+      if (word.length === 1 && word !== 'i' && word !== 'a') {
+        hasGaps = true;
+        score -= 5;
+      }
+      // Check for incomplete technical terms
+      if (word === 'and' && index < words.length - 1 && words[index + 1].length < 3) {
+        hasGaps = true;
+        score -= 3;
       }
     });
     
-    // Bonus for containing correctable terms (shows potential for improvement)
-    const correctableTerms = ['front', 'back', 'end', 'script', 'node', 'react', 'angular', 'java', 'python', 'data', 'base', 'api', 'sql'];
-    correctableTerms.forEach(term => {
-      if (lowercased.includes(term)) score += 3;
+    // Bonus for complete technical terms
+    Object.keys(technicalTermsMap).forEach(term => {
+      if (lowercased.includes(term.toLowerCase())) {
+        score += 10;
+      }
     });
     
-    // Bonus for longer, more complete sentences
-    if (option.length > 20) score += 2;
-    if (option.split(' ').length > 3) score += 2;
+    // High bonus for complete, flowing sentences
+    if (option.length > 30 && !hasGaps) score += 5;
+    if (words.length > 5 && !hasGaps) score += 3;
     
-    // Higher bonus for proper sentence structure
-    if (/^[A-Z]/.test(option)) score += 2; // Starts with capital
-    if (/[.!?]$/.test(option)) score += 1; // Ends with punctuation
-    if (option.includes(' and ') || option.includes(' with ') || option.includes(' using ')) score += 1; // Natural connectors
-    
-    // Penalty for very short or incomplete responses
-    if (option.length < 5) score -= 5;
-    if (option.split(' ').length < 2) score -= 3;
-    
-    // Penalty for nonsense words or unclear speech
-    const nonsenseIndicators = ['umm', 'uhh', 'err', 'hmm', '...'];
-    nonsenseIndicators.forEach(indicator => {
-      if (lowercased.includes(indicator)) score -= 2;
+    // Bonus for natural connectors that indicate complete thoughts
+    const connectors = [' and ', ' with ', ' using ', ' including ', ' for ', ' by ', ' in ', ' at '];
+    connectors.forEach(connector => {
+      if (option.includes(connector)) score += 2;
     });
     
-    // Bonus for containing common interview and tech words
-    const interviewWords = ['experience', 'project', 'technology', 'framework', 'database', 'api', 'development', 'team', 'challenge', 'solution', 'worked', 'built', 'created', 'implemented', 'used', 'technologies', 'skills', 'knowledge'];
+    // Penalty for incomplete patterns
+    if (option.includes(' and ') && option.split(' and ')[1].split(' ').length < 2) score -= 4;
+    if (option.includes(' with ') && option.split(' with ')[1].split(' ').length < 2) score -= 4;
+    
+    // Bonus for interview vocabulary
+    const interviewWords = ['experience', 'worked', 'implemented', 'developed', 'designed', 'built', 'created', 'managed', 'led', 'collaborated'];
     interviewWords.forEach(word => {
-      if (lowercased.includes(word)) score += 2;
+      if (lowercased.includes(word)) score += 3;
     });
     
-    // Bonus for grammatically correct patterns
-    if (lowercased.includes('i have') || lowercased.includes('i worked') || lowercased.includes('i used') || lowercased.includes('i built')) score += 3;
-    
-    return { text: option, score };
+    return { text: option, score, hasGaps };
   });
   
-  // Sort by score and return the best option
-  scoredOptions.sort((a, b) => b.score - a.score);
+  // Sort by score and prefer options without gaps
+  scoredOptions.sort((a, b) => {
+    if (a.hasGaps && !b.hasGaps) return 1;
+    if (!a.hasGaps && b.hasGaps) return -1;
+    return b.score - a.score;
+  });
+  
   return scoredOptions[0]?.text || defaultTranscript;
 }
 
@@ -565,7 +571,7 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bvisual studio code\b/gi, 'Visual Studio Code')
     .replace(/\bvs code\b/gi, 'VS Code')
     
-    // Fix common interview phrase recognition errors
+    // Fix common interview phrase recognition errors and gaps
     .replace(/\bwalk me through\b/gi, 'walk me through')
     .replace(/\btell me about\b/gi, 'tell me about')
     .replace(/\bexplain\b/gi, 'explain')
@@ -574,10 +580,27 @@ function correctTechnicalTerms(transcript: string): string {
     .replace(/\bwhat is your\b/gi, 'what is your')
     .replace(/\bcan you\b/gi, 'can you')
     .replace(/\bhave you ever\b/gi, 'have you ever')
-    .replace(/\bshare my\b/gi, 'share my')
+    .replace(/\bshare my\b/gi, 'share my experience')
     .replace(/\bextensively with\b/gi, 'extensively with')
     .replace(/\bI had the opportunity to\b/gi, 'I had the opportunity to')
     .replace(/\bthroughout my career\b/gi, 'throughout my career')
+    
+    // Fix specific database and technology gaps
+    .replace(/\bintegrated with and\b/gi, 'integrated with MySQL and')
+    .replace(/\band and\b/gi, 'and MySQL and')
+    .replace(/\busing and\b/gi, 'using MySQL and')
+    .replace(/\bwith and MongoDB\b/gi, 'with MySQL and MongoDB')
+    .replace(/\bincluding and\b/gi, 'including AWS and')
+    .replace(/\bEC and\b/gi, 'EC2 and')
+    .replace(/\bRDS and\b/gi, 'RDS and')
+    .replace(/\bLambda and\b/gi, 'Lambda and')
+    .replace(/\bS3 and\b/gi, 'S3 and')
+    .replace(/\bfint\b/gi, 'fintech')
+    .replace(/\band-stack\b/gi, 'full-stack')
+    .replace(/\bstack\b/gi, 'full-stack')
+    .replace(/\byou are\b/gi, 'your')
+    .replace(/\binaw\b/gi, 'in AWS')
+    .replace(/\bin\b/gi, 'experience in')
     
     // Fix number pronunciations in tech context
     .replace(/\bwon\b/gi, 'one')
@@ -695,29 +718,39 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let allTranscript = '';
+      let finalTranscript = '';
+      let interimTranscript = '';
 
-      // Build complete transcript from all results
+      // Process all results to build complete transcript
       for (let i = 0; i < event.results.length; i++) {
         const result = event.results[i];
-        let transcript = result[0].transcript;
         
         if (result.isFinal) {
-          // For final results, apply corrections and add to complete transcript
-          transcript = correctTechnicalTerms(transcript);
-          allTranscript += transcript + ' ';
+          // Get alternatives for better accuracy
+          const alternatives: string[] = [];
+          for (let j = 0; j < Math.min(result.length, 3); j++) {
+            if (result[j] && result[j].transcript) {
+              alternatives.push(result[j].transcript);
+            }
+          }
+          
+          // Use the best alternative
+          const bestTranscript = findBestAlternative(alternatives, result[0].transcript);
+          const corrected = correctTechnicalTerms(bestTranscript);
+          finalTranscript += corrected + ' ';
         } else {
-          // For interim results, show real-time feedback
-          const interim = correctTechnicalTerms(transcript);
-          // Add interim to show current speaking
-          allTranscript += interim;
+          // For interim results, just use basic correction
+          interimTranscript = correctTechnicalTerms(result[0].transcript);
         }
       }
 
-      // Clean up and set the transcript
-      const cleanTranscript = allTranscript.trim();
-      if (cleanTranscript) {
-        setTranscript(cleanTranscript);
+      // Combine final and interim transcripts
+      const completeTranscript = (finalTranscript + interimTranscript)
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (completeTranscript) {
+        setTranscript(completeTranscript);
       }
     };
 
