@@ -11,15 +11,15 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999]">
       <Button
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm ${
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl backdrop-blur-sm transition-all duration-200 ${
           isActive 
             ? 'bg-green-500 hover:bg-green-600' 
-            : 'bg-primary hover:bg-blue-700'
+            : 'bg-blue-600 hover:bg-blue-700'
         }`}
       >
         {isActive ? (
