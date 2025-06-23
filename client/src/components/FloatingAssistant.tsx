@@ -40,7 +40,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     // Default positioning to be more centered and accessible
     const defaultState = {
       width: isMobile ? Math.min(340, window.innerWidth - 20) : isTablet ? 370 : 400,
-      height: isMobile ? Math.min(450, window.innerHeight - 100) : 520,
+      height: isMobile ? Math.min(500, window.innerHeight - 100) : 570,
       x: isMobile ? 10 : Math.max(20, window.innerWidth - (isTablet ? 390 : 420)),
       y: isMobile ? 80 : Math.max(20, (window.innerHeight - 520) / 2)
     };
@@ -168,7 +168,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         }
       }}
       minWidth={window.innerWidth < 768 ? 280 : 300}
-      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 350 : 400}
+      minHeight={isMinimized ? 60 : window.innerWidth < 768 ? 400 : 450}
       maxWidth={window.innerWidth < 768 ? window.innerWidth - 10 : 800}
       maxHeight={isMinimized ? 60 : window.innerHeight - 50}
       dragHandleClassName="drag-handle"
@@ -246,7 +246,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
         </div>
 
         {!isMinimized && (
-          <CardContent className="p-0 h-full flex flex-col">
+          <CardContent className="p-0 h-full flex flex-col card-content">
             {/* Context Input */}
             {showContextInput && (
               <div className="p-3 border-b border-gray-200 bg-gray-50/50" style={{ overflowY: 'hidden' }}>
@@ -274,7 +274,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             )}
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
+            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 160px)', overflowY: 'auto' }}>
               {/* Current Question */}
               {currentQuestion && (
                 <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
@@ -323,7 +323,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
             </div>
 
             {/* Enhanced Voice Input Section */}
-            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50">
+            <div className="p-2 sm:p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0 input-section">
               <EnhancedVoiceInput
                 sessionId={sessionId}
                 onMessageSent={handleNewMessage}

@@ -119,6 +119,33 @@ textarea::-webkit-scrollbar {
   display: none;
 }
 
+/* Ensure floating assistant input controls are always visible */
+.floating-assistant {
+  display: flex;
+  flex-direction: column;
+}
+
+.floating-assistant .card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Input section should never be hidden */
+.floating-assistant .input-section {
+  flex-shrink: 0;
+  min-height: 80px;
+  background: rgba(249, 250, 251, 1);
+  border-top: 1px solid rgba(229, 231, 235, 1);
+}
+
+/* Ensure buttons are properly sized and visible */
+.floating-assistant button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
 /* Professional styling for floating components */
 .floating-assistant {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);

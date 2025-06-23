@@ -327,7 +327,7 @@ export function EnhancedVoiceInput({
       )}
 
       {/* Input Controls */}
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 items-end">
         <div className="flex-1">
           <Input
             value={textInput}
@@ -335,7 +335,7 @@ export function EnhancedVoiceInput({
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             disabled={disabled || isProcessing}
-            className="pr-12"
+            className="min-h-[40px]"
           />
         </div>
         
@@ -344,10 +344,11 @@ export function EnhancedVoiceInput({
           disabled={disabled}
           size="icon"
           variant={isListening ? "destructive" : "default"}
-          className={`${isListening 
+          className={`h-10 w-10 flex-shrink-0 ${isListening 
             ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
             : 'bg-blue-500 hover:bg-blue-600'
           }`}
+          title={isListening ? "Stop listening" : "Start voice input"}
         >
           {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
         </Button>
@@ -356,6 +357,8 @@ export function EnhancedVoiceInput({
           onClick={() => handleSendMessage(textInput)}
           disabled={!textInput.trim() || disabled || isProcessing}
           size="icon"
+          className="h-10 w-10 flex-shrink-0"
+          title="Send message"
         >
           {isProcessing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
