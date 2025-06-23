@@ -9,7 +9,6 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToast } from '@/hooks/use-toast';
 import { ContextInput } from '@/components/ContextInput';
 
-
 interface FloatingAssistantProps {
   isOpen: boolean;
   onClose: () => void;
@@ -37,7 +36,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     const isMobile = window.innerWidth < 768;
     const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     
-    // Default positioning to be more centered and accessible
     const defaultState = {
       width: isMobile ? Math.min(340, window.innerWidth - 20) : isTablet ? 370 : 400,
       height: isMobile ? Math.min(450, window.innerHeight - 100) : 520,
@@ -48,7 +46,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     if (saved) {
       try {
         const parsedState = JSON.parse(saved);
-        // Validate the saved state to ensure it's within viewport
         if (parsedState.x >= 0 && parsedState.y >= 0 && 
             parsedState.x + parsedState.width <= window.innerWidth &&
             parsedState.y + parsedState.height <= window.innerHeight) {
@@ -61,8 +58,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
     
     return defaultState;
   });
-
-
 
   const { lastMessage } = useWebSocket(sessionId);
 
@@ -106,8 +101,6 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
       return () => document.removeEventListener('keydown', handleKeydown);
     }
   }, [isOpen, onClose]);
-
-
 
   // Handle WebSocket streaming messages
   useEffect(() => {
@@ -265,59 +258,61 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                   sessionId={sessionId} 
                   onContextSaved={() => {
                     toast({
-                      title: "Context Updated",
-                      description: "Background information saved successfully.",
+                      title: "Context saved",
+                      description: "Your background information has been saved.",
                     });
-                  }} 
+                  }}
                 />
               </div>
             )}
 
-            {/* Chat Area */}
-            <div className="flex-1 flex flex-col p-2 sm:p-4 space-y-2 sm:space-y-4 min-h-0" style={{ maxHeight: 'calc(100% - 120px)', overflowY: 'auto' }}>
-              {/* Current Question */}
-              {currentQuestion && (
-                <div className="bg-primary/10 rounded-lg p-2 sm:p-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-xs font-semibold text-primary">Q</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed break-words">{currentQuestion}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Current Answer */}
-              {(currentAnswer || isStreaming) && (
-                <div className="bg-green-50 rounded-lg p-2 sm:p-3">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Bot className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-600" />
-                    </div>
-                    <div className="flex-1 min-w-0 chat-container">
-                      <div className="text-xs sm:text-sm text-gray-800 leading-relaxed chat-response-text">
-                        {currentAnswer}
+            {/* Main Chat Area - Takes remaining space */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {currentQuestion && currentAnswer ? (
+                <div className="flex-1 p-2 sm:p-4 space-y-4 overflow-y-auto">
+                  {/* Question */}
+                  <div className="bg-gray-100 p-3 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-xs font-bold text-gray-600">Q</span>
                       </div>
-                      
-                      {/* Streaming indicator */}
-                      {isStreaming && (
-                        <div className="flex items-center space-x-2 mt-2">
-                          <div className="text-xs text-gray-500">Typing...</div>
-                        </div>
-                      )}
+                      <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">{currentQuestion}</p>
+                    </div>
+                  </div>
+
+                  {/* Answer */}
+                  <div className="bg-primary/5 p-3 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <Bot className="w-3 h-3 text-white" />
+                      </div>
+                      <div className="flex-1 text-xs sm:text-sm text-gray-800 leading-relaxed">
+                        {currentAnswer ? (
+                          <div className="whitespace-pre-wrap break-words">
+                            {currentAnswer}
+                            {isStreaming && (
+                              <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1"></span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2 text-primary">
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+                            <span>Thinking...</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* Welcome Message */}
-              {!currentQuestion && !currentAnswer && (
-                <div className="text-center py-4 sm:py-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              ) : (
+                <div className="flex-1 flex items-center justify-center p-4">
+                  <div className="text-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
+                    <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
                 </div>
               )}
             </div>
