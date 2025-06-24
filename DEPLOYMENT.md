@@ -1,6 +1,6 @@
-# VelariAI Deployment Guide
+# AnmaAI Deployment Guide
 
-This guide covers deploying VelariAI to various platforms and environments.
+This guide covers deploying AnmaAI to various platforms and environments.
 
 ## Local Production Setup
 

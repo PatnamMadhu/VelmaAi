@@ -1,6 +1,6 @@
-# VelariAI Desktop Application
+# AnmaAI Desktop Application
 
-VelariAI is now available as both a web application and a native desktop app built with Electron. The desktop version provides enhanced features while maintaining full compatibility with the web version.
+AnmaAI is now available as both a web application and a native desktop app built with Electron. The desktop version provides enhanced features while maintaining full compatibility with the web version.
 
 ## Features
 

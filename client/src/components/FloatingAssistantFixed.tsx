@@ -178,7 +178,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1 sm:space-x-2">
               <Bot className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="font-semibold text-sm sm:text-base">VelariAI</span>
+              <span className="font-semibold text-sm sm:text-base">AnmaAI</span>
               {isStreaming && (
                 <div className="flex items-center space-x-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -310,7 +310,7 @@ export function FloatingAssistant({ isOpen, onClose, sessionId }: FloatingAssist
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">VelariAI Assistant</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">AnmaAI Assistant</h3>
                     <p className="text-xs sm:text-sm text-gray-600">Ask me anything or use voice input!</p>
                   </div>
                 </div>

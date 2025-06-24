@@ -1,4 +1,6 @@
 import { ChatRequest } from "@shared/schema";
+import dotenv from 'dotenv';
+dotenv.config();
 
 interface GroqMessage {
   role: "system" | "user" | "assistant";
@@ -252,7 +254,7 @@ The key is balancing technical excellence with practical delivery timelines.`;
     const messages: GroqMessage[] = [];
 
     // Enhanced system prompt for natural, human-like interview responses
-    let systemPrompt = `You are VelariAI, a real-time AI assistant trained to behave exactly like a confident software engineer in a live job interview. You must:
+    let systemPrompt = `You are AnmaAI, a real-time AI assistant trained to behave exactly like a confident software engineer in a live job interview. You must:
 
 • Respond naturally like a human—not like a bot.
 • Answer technical questions with structure: high-level concept → components → real-world application.

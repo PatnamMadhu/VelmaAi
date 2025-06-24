@@ -22,7 +22,7 @@ export default function Home() {
               <Bot className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-6">
-              VelariAI
+              AnmaAI
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
               Your real-time AI assistant for interview preparation

@@ -1,6 +1,6 @@
-# VelariAI Local Setup Guide
+# AnmaAI Local Setup Guide
 
-Complete step-by-step instructions for running VelariAI on your local machine.
+Complete step-by-step instructions for running AnmaAI on your local machine.
 
 ## System Requirements
 
@@ -153,7 +153,7 @@ RATE_LIMIT_MAX=60
 SESSION_SECRET=your_random_secret_string_here
 
 # Desktop app settings
-APP_NAME=VelariAI
+APP_NAME=AnmaAI
 APP_VERSION=1.0.0
 ```
 

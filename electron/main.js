@@ -60,7 +60,7 @@ app.whenReady().then(() => {
   // Set application menu
   const template = [
     {
-      label: 'VelariAI',
+      label: 'AnmaAI',
       submenu: [
         { role: 'about' },
         { type: 'separator' },

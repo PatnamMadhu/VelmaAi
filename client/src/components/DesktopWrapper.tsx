@@ -49,7 +49,7 @@ export function DesktopWrapper({ children }: DesktopWrapperProps) {
       <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between drag-region">
         <div className="flex items-center space-x-3">
           <Monitor className="w-5 h-5 text-primary" />
-          <span className="font-semibold text-gray-800">VelariAI Desktop</span>
+          <span className="font-semibold text-gray-800">AnmaAI Desktop</span>
           {appVersion && (
             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
               v{appVersion}

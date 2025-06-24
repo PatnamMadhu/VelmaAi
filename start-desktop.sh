@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting VelariAI Desktop Application..."
+echo "Starting AnmaAI Desktop Application..."
 echo ""
 
 # Start the server in background

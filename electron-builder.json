@@ -1,6 +1,6 @@
 {
   "appId": "com.velari.ai",
-  "productName": "VelariAI",
+  "productName": "AnmaAI",
   "directories": {
     "output": "dist-electron"
   },

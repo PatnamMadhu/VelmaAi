@@ -20,7 +20,7 @@ export default function SimpleChat() {
             </div>
             <div>
               <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-                VelariAI
+                AnmaAI
               </h1>
               <p className="text-xs sm:text-sm text-gray-600">Real-time AI Interview Assistant</p>
             </div>
@@ -116,7 +116,7 @@ export default function SimpleChat() {
               className="text-base sm:text-lg px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-700 hover:to-blue-800 shadow-xl"
             >
               <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
-              Launch VelariAI Assistant
+              Launch AnmaAI Assistant
             </Button>
             
             <p className="text-xs sm:text-sm text-gray-500">

@@ -2,7 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 // Start the server first
-console.log('Starting VelariAI server...');
+console.log('Starting AnmaAI server...');
 const server = spawn('npm', ['run', 'dev'], {
   stdio: 'inherit',
   shell: true
@@ -10,7 +10,7 @@ const server = spawn('npm', ['run', 'dev'], {
 
 // Wait for server to be ready and then start Electron
 setTimeout(() => {
-  console.log('Starting VelariAI desktop app...');
+  console.log('Starting AnmaAI desktop app...');
   const electron = spawn('npx', ['electron', '.'], {
     stdio: 'inherit',
     shell: true,

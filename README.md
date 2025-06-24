@@ -1,6 +1,6 @@
-# VelariAI - AI Interview Assistant
+# AnmaAI - AI Interview Assistant
 
-VelariAI is a full-stack real-time AI assistant specialized in technical interview preparation. It features responsive design, voice input capabilities, and runs as both a web application and native desktop app.
+AnmaAI is a full-stack real-time AI assistant specialized in technical interview preparation. It features responsive design, voice input capabilities, and runs as both a web application and native desktop app.
 
 ## Features
 
@@ -13,7 +13,7 @@ VelariAI is a full-stack real-time AI assistant specialized in technical intervi
 
 ## Prerequisites
 
-Before running VelariAI locally, ensure you have:
+Before running AnmaAI locally, ensure you have:
 
 1. **Node.js** (version 18 or higher)
    - Download from [nodejs.org](https://nodejs.org/)

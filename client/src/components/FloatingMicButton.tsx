@@ -32,7 +32,7 @@ export function FloatingMicButton({ onClick, isActive = false }: FloatingMicButt
       {/* Tooltip - only show on larger screens */}
       {isHovered && !isActive && (
         <div className="absolute bottom-14 sm:bottom-16 right-0 bg-black/80 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap backdrop-blur-sm hidden sm:block">
-          Start VelariAI Assistant
+          Start AnmaAI Assistant
           <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/80"></div>
         </div>
       )}

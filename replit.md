@@ -1,8 +1,8 @@
-# VelariAI - Real-time AI Interview Assistant
+# AnmaAI - Real-time AI Interview Assistant
 
 ## Overview
 
-VelariAI is a full-stack real-time AI interview assistant designed to help users prepare for technical interviews. The application combines voice recognition, AI-powered responses, and contextual information management to provide an interactive interview preparation experience. It's built as both a web application and a native desktop app using Electron.
+AnmaAI is a full-stack real-time AI interview assistant designed to help users prepare for technical interviews. The application combines voice recognition, AI-powered responses, and contextual information management to provide an interactive interview preparation experience. It's built as both a web application and a native desktop app using Electron.
 
 ## System Architecture
 
