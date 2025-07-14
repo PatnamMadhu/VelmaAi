@@ -300,7 +300,7 @@ export function EnhancedVoiceInput({
       )}
 
       {/* Conversation Context */}
-      {conversationContext.length > 0 && (
+      {/* {conversationContext.length > 0 && (
         <Card className="border-gray-200">
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-2">
@@ -324,7 +324,7 @@ export function EnhancedVoiceInput({
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       {/* Input Controls */}
       <div className="flex space-x-2 items-end">
